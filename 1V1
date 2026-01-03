@@ -521,6 +521,9 @@ local UI = {
     autoDigThread = nil,
     coconutCrabThread = nil,
     tweenQueueThread = nil,
+    huntingVicious = false,
+    walkedToViciousOnce = false,
+    collectingSproutTokens = false,
     
     panel = {
         x = 400,
@@ -1329,7 +1332,7 @@ function UI:RenderSettingsTab()
     
     -- Version info at bottom
     local versionY = contentY + 240
-    self:CreateText("Version 1.0.8", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
+    self:CreateText("Version 1.0.9 - Sprout Fix 1", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
     self:CreateText("Lito", sliderX, versionY + 18, Color3.fromRGB(100, 110, 125), 11)
 end
 
@@ -1379,16 +1382,23 @@ function UI:StartAutoFarm()
     self:StartTimedActionsHandler()
     
     self.autoFarmThread = spawn(function()
-        -- Initialize tracking variables
-        if not self.originalFieldBeforeVicious then
-            self.originalFieldBeforeVicious = nil
-        end
-        if not self.huntingVicious then
-            self.huntingVicious = false
-        end
-        if not self.walkedToViciousOnce then
-            self.walkedToViciousOnce = false
-        end
+        -- CRITICAL: Check if Vicious Bee despawned or moved during token collection
+-- Only check if we are ACTIVELY hunting Vicious Bee right now
+if self.killViciousBee and huntingVicious then
+    local viciousBeeData = self:CheckForViciousBee()
+    
+    if not viciousBeeData then
+        -- Vicious Bee despawned completely!
+        print("✓ Vicious Bee despawned during token collection! Exiting to main loop...")
+        StopWalking()
+        return false
+    elseif viciousBeeData.field.Name ~= self.selectedOption then
+        -- Vicious Bee moved to different field
+        print("⚠️ Vicious Bee moved to " .. viciousBeeData.field.Name .. " during token collection!")
+        StopWalking()
+        return false
+    end
+end
         
         local lastSelectedField = self.selectedOption
         local fullPollenTime = nil
@@ -1427,7 +1437,7 @@ function UI:StartAutoFarm()
                     wait(15)
                     -- If was hunting Vicious Bee, return to original field
                     -- Don't reset Vicious hunting on death - keep hunting until it despawns
-if huntingVicious then
+if self.huntingVicious then
     print("Died while hunting Vicious Bee, will resume hunting after respawn")
     walkedToViciousOnce = false  -- Reset so we walk to it again after respawn
 end
@@ -1945,138 +1955,142 @@ if self.killWindy then
 end
 
                 -- Check for Sprouts
-                if self.farmSprouts then
-                    local sproutData = self:CheckForSprouts()
+if self.farmSprouts then
+    local sproutData = self:CheckForSprouts()
+    
+    if sproutData then
+        local sproutField = sproutData.field
+        
+        -- Sprout is present
+        if self.selectedOption ~= sproutField.Name then
+            -- Just started hunting sprout
+            print("=== SPROUT DETECTED - SWITCHING TO " .. sproutField.Name .. " ===")
+            
+            -- Save the current auto-farm field BEFORE switching
+            if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
+                self.originalAutoFarmField = self.selectedOption
+                print("DEBUG: Saved originalAutoFarmField = " .. self.originalAutoFarmField)
+            end
+            
+            self.lastFieldChangeSource = "sprout"
+            
+            self.selectedOption = sproutField.Name
+            self.sprinklersPlaced = false
+            self.status = "Going to Sprout Field"
+            self.needsRedraw = true
+            lastSelectedField = sproutField.Name
+            
+            -- Tween to sprout field
+            local flowerZones = game.Workspace.FlowerZones
+            if flowerZones then
+                local targetZone = flowerZones:FindFirstChild(sproutField.Name)
+                if targetZone then
+                    local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
+                    print("Tweening to sprout field...")
+                    self:QueueTween(hrp, fieldCenterPos, true)
                     
-                    if sproutData then
-                        local sproutField = sproutData.field
-                        local sprout = sproutData.sprout
-                        
-                        if self.selectedOption ~= sproutField.Name then
-    print("=== SPROUT DETECTED - SWITCHING TO " .. sproutField.Name .. " ===")
-    
-    -- ADD THESE 4 LINES:
-    if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
-        self.originalAutoFarmField = self.selectedOption
-    end
-    self.lastFieldChangeSource = "sprout"
-    
-    -- Don't update originalField - we want to return to it
-    self.selectedOption = sproutField.Name
-    self.sprinklersPlaced = false
-    self.status = "Going to Sprout Field"
-    self.needsRedraw = true
-                            
-                            -- Tween to sprout field
-                            local flowerZones = game.Workspace.FlowerZones
-                            if flowerZones then
-                                local targetZone = flowerZones:FindFirstChild(sproutField.Name)
-                                if targetZone then
-                                    local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
-                                    print("Tweening to sprout field...")
-                                    self:QueueTween(hrp, fieldCenterPos, true)
-                                    
-                                    -- Wait for tween to complete
-                                    while self.processingTween and self.autoFarmEnabled do
-                                        if checkAndHandleDeath() then
-                                            break
-                                        end
-                                        wait(0.1)
-                                    end
-                                    
-                                    print("✓ Arrived at sprout field")
-                                    wait(0.5)
-                                end
-                            end
+                    -- Wait for tween to complete
+                    while self.processingTween and self.autoFarmEnabled do
+                        if checkAndHandleDeath() then
+                            break
                         end
-                        
-                        -- Farm at sprout field with token collection
-                        self.status = "Farming Sprout"
-                        self.needsRedraw = true
-                        
-                        -- Collect tokens while sprout is alive
-                        while self.autoFarmEnabled and sprout and sprout.Parent do
-                            -- Collect tokens
-                            local collectedToken = self:TokenCollector()
-                            
-                            if not collectedToken then
-                                wait(0.5)
-                            end
-                        end
-                        
-                        -- Sprout despawned
-                        if self.autoFarmEnabled then
-                            print("✓ Sprout despawned! Staying for 20 seconds...")
-                            self.status = "Collecting Sprout Tokens"
-                            self.needsRedraw = true
-                            
-                            -- Collect tokens for 20 seconds
-                            local collectStartTime = os.clock()
-                            while self.autoFarmEnabled and (os.clock() - collectStartTime) < 20 do
-                                local collectedToken = self:TokenCollector()
-                                
-                                if not collectedToken then
-                                    wait(0.5)
-                                end
-                            end
-                            
-                            print("✓ 20 seconds complete, resuming normal farming")
-                            
-                            -- Return to original field if it's different from sprout field
-                            if originalField and originalField ~= sproutField.Name then
-                                print("Returning to original field: " .. originalField)
-                                self.selectedOption = self.originalAutoFarmField or originalField
-                                self.lastFieldChangeSource = "autofarm"
-                                lastSelectedField = originalField
-                                
-                                -- Tween back to original field
-                                local flowerZones = game.Workspace.FlowerZones
-                                if flowerZones then
-                                    local targetZone = flowerZones:FindFirstChild(originalField)
-                                    if targetZone then
-                                        character = player.Character
-                                        if character then
-                                            hrp = character:FindFirstChild("HumanoidRootPart")
-                                            if hrp then
-                                                local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
-                                                self:QueueTween(hrp, targetPos, true)
-                                                
-                                                while self.processingTween and self.autoFarmEnabled do
-                                                    wait(0.1)
-                                                end
-                                                
-                                                print("✓ Returned to original field")
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
+                        wait(0.1)
                     end
+                    
+                    print("✓ Arrived at sprout field")
+                    wait(0.5)
                 end
-                
-                -- Check if field selection changed
-                if self.selectedOption ~= lastSelectedField then
-                    print("Field changed to: " .. self.selectedOption)
-                    lastSelectedField = self.selectedOption
-                    originalField = self.selectedOption  -- Update global field storer
-                    self.sprinklersPlaced = false  -- Reset sprinkler flag on field change
-                    walkedToViciousOnce = false  -- Reset vicious walk flag on field change
-                    if not self.lastFieldChangeSource or self.lastFieldChangeSource == "autofarm" then
-                        self.originalAutoFarmField = self.selectedOption
-                        self.lastFieldChangeSource = "autofarm"
-                    end
-                end 
-                -- Check for Vicious Bee
-                if self.killViciousBee then
-                    local viciousBeeData = self:CheckForViciousBee()
+            end
+        end
+        -- If already in sprout field, just continue farming
+    else
+        -- No Sprout found
+        if self.lastFieldChangeSource == "sprout" then
+            -- Was farming sprout, but now it's gone
+            local returnField = self.originalAutoFarmField or self.selectedOption
+            print("✓ Sprout despawned! Collecting tokens for 20 seconds...")
+            
+            self.status = "Collecting Sprout Tokens"
+            self.needsRedraw = true
+            self.collectingSproutTokens = true
+            
+            -- Collect tokens for 20 seconds
+self.sproutCollectionEndTime = os.clock() + 20  -- Set end time
+local collectStartTime = os.clock()
+while self.autoFarmEnabled and (os.clock() - collectStartTime) < 20 do
+    local collectedToken = self:TokenCollector()
+    
+    if not collectedToken then
+        wait(0.5)
+    end
+    
+    -- Check if time is up
+    if os.clock() >= self.sproutCollectionEndTime then
+        print("✓ 20 seconds up, breaking collection loop")
+        break
+    end
+end
+self.sproutCollectionEndTime = nil  -- Clear the timer
+            
+            self.collectingSproutTokens = false
+            print("✓ 20 seconds complete! Returning to " .. returnField)
+            
+            self.selectedOption = returnField
+            self.lastFieldChangeSource = "autofarm"
+            self.sprinklersPlaced = false
+            self.status = "Returning to Original Field"
+            self.needsRedraw = true
+            lastSelectedField = returnField
+            
+            -- Stop walking
+            StopWalking()
+            
+            -- Tween back to original field
+            local flowerZones = game.Workspace.FlowerZones
+            if flowerZones then
+                local targetZone = flowerZones:FindFirstChild(returnField)
+                if targetZone then
+                    local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
+                    self:QueueTween(hrp, targetPos, true)
                     
-                    if viciousBeeData then
-                        local viciousBeeField = viciousBeeData.field
-                        local viciousBeePos = viciousBeeData.position
-                        
-                        -- Vicious Bee is present
-                        if not huntingVicious then
+                    while self.processingTween and self.autoFarmEnabled do
+                        if checkAndHandleDeath() then
+                            break
+                        end
+                        wait(0.1)
+                    end
+                    
+                    print("✓ Returned to original field: " .. returnField)
+                    self.status = "Auto Farm Active"
+                    self.needsRedraw = true
+                end
+            end
+        end
+    end
+end
+
+-- Check if field selection changed
+if self.selectedOption ~= lastSelectedField then
+    print("Field changed to: " .. self.selectedOption)
+    lastSelectedField = self.selectedOption
+    originalField = self.selectedOption  -- Update global field storer
+    self.sprinklersPlaced = false  -- Reset sprinkler flag on field change
+    walkedToViciousOnce = false  -- Reset vicious walk flag on field change
+    if not self.lastFieldChangeSource or self.lastFieldChangeSource == "autofarm" then
+        self.originalAutoFarmField = self.selectedOption
+        self.lastFieldChangeSource = "autofarm"
+    end
+end 
+-- Check for Vicious Bee
+if self.killViciousBee then
+    local viciousBeeData = self:CheckForViciousBee()
+    
+    if viciousBeeData then
+        local viciousBeeField = viciousBeeData.field
+        local viciousBeePos = viciousBeeData.position
+        
+        -- Vicious Bee is present
+        if not self.huntingVicious then
     -- Just started hunting
     print("=== VICIOUS BEE DETECTED - SWITCHING TO " .. viciousBeeField.Name .. " ===")
     
@@ -2090,8 +2104,8 @@ end
     
     self.selectedOption = viciousBeeField.Name
     self.sprinklersPlaced = false
-    huntingVicious = true
-    walkedToViciousOnce = false
+    self.huntingVicious = true
+    self.walkedToViciousOnce = false
     self.status = "Going to Vicious Bee Field"
     self.needsRedraw = true
     lastSelectedField = viciousBeeField.Name
@@ -2118,21 +2132,19 @@ end
         end
     end
                             
-                            -- STEP 2: Walk to Vicious Bee position ONCE
-                            if self.autoFarmEnabled and not walkedToViciousOnce then
-                                -- Get fresh Vicious Bee position
-                                viciousBeeData = self:CheckForViciousBee()
-                                if viciousBeeData then
-                                    viciousBeePos = viciousBeeData.position
-                                    
-                                    self.status = "Walking to Vicious Bee"
-                                    self.needsRedraw = true
-                                    print("Step 2: Walking to Vicious Bee at " .. tostring(viciousBeePos))
-                                    WalkTo(viciousBeePos)
-                                    
-                                    -- Wait for arrival with death checks
-                                    local startTime = os.clock()
-                                    -- Wait for arrival with death checks AND position updates
+                           -- STEP 2: Walk to Vicious Bee position ONCE
+if self.autoFarmEnabled and not self.walkedToViciousOnce then
+    -- Get fresh Vicious Bee position
+    viciousBeeData = self:CheckForViciousBee()
+    if viciousBeeData then
+        viciousBeePos = viciousBeeData.position
+        
+        self.status = "Walking to Vicious Bee"
+        self.needsRedraw = true
+        print("Step 2: Walking to Vicious Bee at " .. tostring(viciousBeePos))
+        WalkTo(viciousBeePos)
+        
+        -- Wait for arrival with death checks AND position updates
         local startTime = os.clock()
         local lastUpdateTime = os.clock()
         
@@ -2146,10 +2158,26 @@ end
                 viciousBeeData = self:CheckForViciousBee()
                 if viciousBeeData then
                     viciousBeePos = viciousBeeData.position
-                    WalkTo(viciousBeePos)  -- Update walk target
+                    WalkTo(viciousBeePos)
                     print("Updated Vicious Bee position: " .. tostring(viciousBeePos))
                 end
                 lastUpdateTime = os.clock()
+            end
+            
+            -- ✓ FIX: Check distance WITHOUT Y-axis (only X and Z)
+            hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local currentPos = hrp.Position
+                local dx = currentPos.X - viciousBeePos.X
+                local dz = currentPos.Z - viciousBeePos.Z
+                local distance2D = math.sqrt(dx * dx + dz * dz)
+                
+                -- Arrived if within 15 studs on ground plane (ignoring Y)
+                if distance2D < 15 then
+                    print("✓ Arrived at Vicious Bee (2D distance: " .. string.format("%.1f", distance2D) .. " studs)")
+                    StopWalking()
+                    break
+                end
             end
             
             if os.clock() - startTime > 15 then
@@ -2160,14 +2188,14 @@ end
             
             wait(0.1)
         end
-                                    
-                                    StopWalking()
-                                    walkedToViciousOnce = true
-                                    print("✓ Arrived at Vicious Bee, starting normal farming")
-                                    self.status = "Hunting Vicious Bee"
-                                    self.needsRedraw = true
-                                end
-                            end
+        
+        StopWalking()
+        self.walkedToViciousOnce = true
+        print("✓ Arrived at Vicious Bee, starting normal farming")
+        self.status = "Hunting Vicious Bee"
+        self.needsRedraw = true
+    end
+end
                             
                         elseif viciousBeeField.Name ~= self.selectedOption then
                             -- Vicious Bee moved to a different field
@@ -2237,45 +2265,47 @@ end
                         end
                         -- If already hunting in same field, just continue farming (don't walk to Vicious Bee again)
                     else
-                        -- No Vicious Bee found
-                        if self.huntingVicious and self.originalFieldBeforeVicious then
-    -- Was hunting, but now it's gone
-    local returnField = self.originalAutoFarmField or self.selectedOption
-    print("✓ Vicious Bee defeated or despawned! Returning to " .. returnField)
-                            
-                            self.selectedOption = self.originalAutoFarmField or returnField
-                            self.lastFieldChangeSource = "autofarm"
-                            self.sprinklersPlaced = false
-                            self.huntingVicious = false
-                            self.walkedToViciousOnce = false
-                            self.originalFieldBeforeVicious = nil
-                            self.status = "Returning to Original Field"
-                            self.needsRedraw = true
-                            lastSelectedField = returnField
-                            
-                            -- Stop walking
-                            StopWalking()
-                            
-                            -- Tween back to original field
-                            local flowerZones = game.Workspace.FlowerZones
-                            if flowerZones then
-                                local targetZone = flowerZones:FindFirstChild(returnField)
-                                if targetZone then
-                                    local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
-                                    self:QueueTween(hrp, targetPos, true)
-                                    
-                                    -- Wait for tween to complete
-                                    while self.processingTween and self.autoFarmEnabled do
-                                        wait(0.1)
-                                    end
-                                    
-                                    print("✓ Returned to original field: " .. returnField)
-                                    self.status = "Auto Farm Active"
-                                    self.needsRedraw = true
-                                end
-                            end
-                        end
+    -- No Vicious Bee found
+    if self.huntingVicious then
+        -- Was hunting, but now it's gone
+        local returnField = self.originalAutoFarmField or self.selectedOption
+        print("✓ Vicious Bee defeated or despawned! Returning to " .. returnField)
+        
+        self.selectedOption = returnField
+        self.lastFieldChangeSource = "autofarm"
+        self.sprinklersPlaced = false
+        self.huntingVicious = false
+        walkedToViciousOnce = false
+        self.status = "Returning to Original Field"
+        self.needsRedraw = true
+        lastSelectedField = returnField
+        
+        -- Stop walking
+        StopWalking()
+        
+        -- Tween back to original field
+        local flowerZones = game.Workspace.FlowerZones
+        if flowerZones then
+            local targetZone = flowerZones:FindFirstChild(returnField)
+            if targetZone then
+                local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
+                self:QueueTween(hrp, targetPos, true)
+                
+                -- Wait for tween to complete
+                while self.processingTween and self.autoFarmEnabled do
+                    if checkAndHandleDeath() then
+                        break
                     end
+                    wait(0.1)
+                end
+                
+                print("✓ Returned to original field: " .. returnField)
+                self.status = "Auto Farm Active"
+                self.needsRedraw = true
+            end
+        end
+    end
+end
                 end
                 
                 local flowerZones = game.Workspace.FlowerZones
@@ -2329,7 +2359,7 @@ end
                     end
                     
                     -- CRITICAL: Check for thorns if hunting Vicious Bee
-                    if huntingVicious then
+                    if self.huntingVicious then
                         local thornData = self:CheckForThornsNearby(4)
                         if thornData then
                             print("⚠️ THORN DETECTED " .. string.format("%.1f", thornData.distance) .. " studs away - EVADING!")
@@ -2638,7 +2668,9 @@ function UI:UseSprinkler()
     end
 end
 
-function UI:TokenCollector()
+function UI:TokenCollector(checkField)
+    if checkField == nil then checkField = true end  -- Default to checking field
+    
     if not self.autoFarmEnabled then
         return false
     end
@@ -2685,34 +2717,69 @@ function UI:TokenCollector()
     
 while self.autoFarmEnabled and self.collectTokens do
         -- CRITICAL: Check for death at start of token collection loop
-        character = player.Character
-        if character then
-            local humanoid = character:FindFirstChild("Humanoid")
-            if humanoid and humanoid.Health <= 0 then
-                print("Death detected in TokenCollector, exiting...")
-                StopWalking()
-                return false
-            end
-        else
-            print("No character in TokenCollector, exiting...")
-            return false
-        end
+character = player.Character
+if character then
+    local humanoid = character:FindFirstChild("Humanoid")
+    if humanoid and humanoid.Health <= 0 then
+        print("Death detected in TokenCollector, exiting...")
+        StopWalking()
+        return false
+    end
+else
+    print("No character in TokenCollector, exiting...")
+    return false
+end
+
+-- CRITICAL: Check if sprout despawned during token collection
+-- BUT ONLY if we're actively farming sprouts (not during the 20s collection period)
+if self.farmSprouts and self.lastFieldChangeSource == "sprout" and not self.collectingSproutTokens then
+    local sproutData = self:CheckForSprouts()
+    if not sproutData then
+        print("✓ Sprout despawned during token collection!")
+        StopWalking()
+        return false
+    end
+end
+
+-- CRITICAL: Check if Windy Bee moved to a different field
+if self.killWindy then
+    local windyBeeData = self:CheckForWindyBee()
+    if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
+        print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. " during token collection!")
+        StopWalking()
+        return false
+    end
+end
+ 
+-- CRITICAL: Check if 20-second sprout collection time is up
+if self.sproutCollectionEndTime and os.clock() >= self.sproutCollectionEndTime then
+    print("TokenCollector: 20s timer expired, exiting")
+    StopWalking()
+    return false
+end
+       
         
+
         -- CRITICAL: Check if Windy Bee moved to a different field
         if self.killWindy then
             local windyBeeData = self:CheckForWindyBee()
             if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
                 print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. " during token collection!")
                 StopWalking()
-                return false  -- Exit token collector to trigger field change in main loop
+                return false
             end
         end
         
-        -- CRITICAL: Check if Vicious Bee despawned during token collection
-        -- Only check if we were actually hunting Vicious Bee (not just if the toggle is enabled)
+        -- CRITICAL: Check if Vicious Bee despawned or moved during token collection
         if self.killViciousBee then
             local viciousBeeData = self:CheckForViciousBee()
-            if viciousBeeData and viciousBeeData.field.Name ~= self.selectedOption then
+            
+            if not viciousBeeData then
+                -- Vicious Bee despawned completely!
+                print("✓ Vicious Bee despawned during token collection! Exiting to main loop...")
+                StopWalking()
+                return false
+            elseif viciousBeeData.field.Name ~= self.selectedOption then
                 -- Vicious Bee moved to different field
                 print("⚠️ Vicious Bee moved to " .. viciousBeeData.field.Name .. " during token collection!")
                 StopWalking()
@@ -2804,7 +2871,7 @@ while self.autoFarmEnabled and self.collectTokens do
             end
         end
         
-        -- ============================================================
+       -- ============================================================
         -- FIELD CHECK
         -- ============================================================
         hrp = character:FindFirstChild("HumanoidRootPart")
@@ -2824,9 +2891,20 @@ while self.autoFarmEnabled and self.collectTokens do
                     local inField = withinX and withinZ and withinY
                     
                     if not inField then
-                        print("Left field during token collection, returning to auto farm")
-                        StopWalking()
-                        return false
+                        -- If farming sprouts, just walk back to field center
+                        if self.farmSprouts and self.lastFieldChangeSource == "sprout" then
+                            print("Left field during sprout farming, walking back to center...")
+                            local centerPos = Vector3.new(fieldPos.X, fieldPos.Y + 5, fieldPos.Z)
+                            WalkTo(centerPos)
+                            WaitForArrival(10, 10)
+                            StopWalking()
+                            wait(0.5)
+                            -- Continue token collection, don't exit
+                        else
+                            print("Left field during token collection, returning to auto farm")
+                            StopWalking()
+                            return false
+                        end
                     end
                 end
             end
@@ -3128,30 +3206,34 @@ end
 
 function UI:CheckForSprouts()
     if not self.farmSprouts or not self.autoFarmEnabled then
+        print("DEBUG SPROUT: Check skipped (farmSprouts=" .. tostring(self.farmSprouts) .. " autoFarmEnabled=" .. tostring(self.autoFarmEnabled) .. ")")
         return nil
     end
     
     local sprouts = game.Workspace:FindFirstChild("Sprouts")
-    if not sprouts then
-        return nil
+if not sprouts then
+    print("DEBUG SPROUT: Sprouts folder not found")
+    return nil
+end
+
+print("DEBUG SPROUT: Sprouts folder exists, checking children...")
+print("DEBUG SPROUT: Sprouts has " .. #sprouts:GetChildren() .. " children")
+
+-- Find all sprouts
+local sproutsList = {}
+for _, sprout in pairs(sprouts:GetChildren()) do
+    print("DEBUG SPROUT: Child found - Name: '" .. sprout.Name .. "' | ClassName: " .. sprout.ClassName)
+    
+    if sprout.Name == "Sprout" and sprout:IsA("MeshPart") then
+        table.insert(sproutsList, sprout)
+        print("DEBUG SPROUT: ✓ Valid sprout at " .. tostring(sprout.Position))
+    else
+        print("DEBUG SPROUT: ✗ Not a valid sprout (Name=" .. sprout.Name .. " ClassName=" .. sprout.ClassName .. ")")
     end
-    
-    local player = game.Players.LocalPlayer
-    local character = player.Character
-    if not character then return nil end
-    
-    local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-    
-    -- Find all sprouts
-    local sproutsList = {}
-    for _, sprout in pairs(sprouts:GetChildren()) do
-        if sprout.Name == "Sprout" and sprout:IsA("MeshPart") then
-            table.insert(sproutsList, sprout)
-        end
-    end
+end
     
     if #sproutsList == 0 then
+        print("DEBUG SPROUT: No sprouts in folder")
         return nil
     end
     
@@ -3168,6 +3250,8 @@ function UI:CheckForSprouts()
         local dz = hrp.Position.Z - sproutPos.Z
         local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
         
+        print("DEBUG SPROUT: Sprout distance = " .. string.format("%.1f", distance) .. " studs")
+        
         if distance < closestDistance then
             closestDistance = distance
             closestSprout = sprout
@@ -3175,12 +3259,18 @@ function UI:CheckForSprouts()
     end
     
     if not closestSprout then
+        print("DEBUG SPROUT: No closest sprout found (shouldn't happen)")
         return nil
     end
     
+    print("DEBUG SPROUT: Closest sprout is " .. string.format("%.1f", closestDistance) .. " studs away")
+    
     -- Find closest field to the sprout
     local flowerZones = game.Workspace.FlowerZones
-    if not flowerZones then return nil end
+    if not flowerZones then 
+        print("DEBUG SPROUT: FlowerZones not found")
+        return nil 
+    end
     
     local closestField = nil
     local closestFieldDistance = math.huge
@@ -3207,6 +3297,7 @@ function UI:CheckForSprouts()
         return {sprout = closestSprout, field = closestField}
     end
     
+    print("DEBUG SPROUT: No closest field found")
     return nil
 end
 
@@ -6486,7 +6577,7 @@ end
 -- MAIN LOOP
 -- ============================================================
 
-print("v1.0.8")
+print("v1.0.9")
 UI:Render()
 UI:StartStatusUpdater()
 spawn(function()
