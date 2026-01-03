@@ -560,6 +560,9 @@ local UI = {
     sprinklersPlaced = false,
     selectedSprinkler = "None (0)",
     pausedForTimedAction = false,
+    originalAutoFarmField = nil,
+    lastFieldChangeSource = nil,
+
 }
 
 local GRAVITY_OFFSET = 0x1d0
@@ -723,7 +726,7 @@ function UI:RenderTitleBar()
     self:CreateRect(0, 48, p.width, 2, Color3.fromRGB(16, 185, 129))
     
     -- Title
-    self:CreateText("Wny BSS - test", 20, 15, Color3.fromRGB(255, 255, 255), 18)
+    self:CreateText("Windy BSS - test", 20, 15, Color3.fromRGB(255, 255, 255), 18)
     self:CreateText("Bee Swarm Simulator", 20, 32, Color3.fromRGB(150, 160, 175), 11)
     
     -- Status indicator
@@ -1326,7 +1329,7 @@ function UI:RenderSettingsTab()
     
     -- Version info at bottom
     local versionY = contentY + 240
-    self:CreateText("Version 1.0.7", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
+    self:CreateText("Version 1.0.8", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
     self:CreateText("Lito", sliderX, versionY + 18, Color3.fromRGB(100, 110, 125), 11)
 end
 
@@ -1341,6 +1344,12 @@ function UI:StartAutoFarm()
         return
     end
     
+    if not self.originalAutoFarmField or self.lastFieldChangeSource == "autofarm" then
+        self.originalAutoFarmField = self.selectedOption
+        self.lastFieldChangeSource = "autofarm"
+        print("DEBUG: Set originalAutoFarmField = " .. self.originalAutoFarmField)
+    end
+
     -- Check if coconut crab is running
     if self.killCoconutCrab then
         print("Turn off Coconut Crab first!")
@@ -1369,14 +1378,21 @@ function UI:StartAutoFarm()
     self.needsRedraw = true
     self:StartTimedActionsHandler()
     
-    self.autoFarmThread = spawn(function() 
+    self.autoFarmThread = spawn(function()
+        -- Initialize tracking variables
+        if not self.originalFieldBeforeVicious then
+            self.originalFieldBeforeVicious = nil
+        end
+        if not self.huntingVicious then
+            self.huntingVicious = false
+        end
+        if not self.walkedToViciousOnce then
+            self.walkedToViciousOnce = false
+        end
+        
         local lastSelectedField = self.selectedOption
-        local originalField = self.selectedOption
-        local originalFieldBeforeVicious = nil
-        local huntingVicious = false
         local fullPollenTime = nil
         local returningToHive = false
-        local walkedToViciousOnce = false
         local huntingWindy = false
         local originalFieldBeforeWindy = nil
         local walkedToWindyOnce = false
@@ -1410,15 +1426,11 @@ function UI:StartAutoFarm()
                     self.needsRedraw = true
                     wait(15)
                     -- If was hunting Vicious Bee, return to original field
-                    if huntingVicious and originalFieldBeforeVicious then
-                        print("Was hunting Vicious Bee, returning to " .. originalFieldBeforeVicious)
-                        self.selectedOption = originalFieldBeforeVicious
-                        self.sprinklersPlaced = false
-                        huntingVicious = false
-                        walkedToViciousOnce = false
-                        lastSelectedField = originalFieldBeforeVicious
-                        originalFieldBeforeVicious = nil
-                    end
+                    -- Don't reset Vicious hunting on death - keep hunting until it despawns
+if huntingVicious then
+    print("Died while hunting Vicious Bee, will resume hunting after respawn")
+    walkedToViciousOnce = false  -- Reset so we walk to it again after respawn
+end
                     
                     -- Reset states (INCLUDING SPRINKLERS)
                     returningToHive = false
@@ -1767,6 +1779,9 @@ if self.killWindy then
             -- Just started hunting
             print("=== WINDY BEE DETECTED - SWITCHING TO " .. windyBeeField.Name .. " ===")
             originalFieldBeforeWindy = self.selectedOption
+            if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
+                self.originalAutoFarmField = self.selectedOption
+            end
             self.selectedOption = windyBeeField.Name
             self.sprinklersPlaced = false
             huntingWindy = true
@@ -1894,7 +1909,8 @@ if self.killWindy then
         if huntingWindy then
             -- Was hunting, but now it's gone
             print("✓ Windy Bee despawned! Returning to " .. originalFieldBeforeWindy)
-            self.selectedOption = originalFieldBeforeWindy
+            self.selectedOption = self.originalAutoFarmField or originalFieldBeforeWindy
+            self.lastFieldChangeSource = "autofarm"
             self.sprinklersPlaced = false
             huntingWindy = false
             walkedToWindyOnce = false
@@ -1936,14 +1952,20 @@ end
                         local sproutField = sproutData.field
                         local sprout = sproutData.sprout
                         
-                        -- Switch to sprout field if not already there
                         if self.selectedOption ~= sproutField.Name then
-                            print("=== SPROUT DETECTED - SWITCHING TO " .. sproutField.Name .. " ===")
-                            -- Don't update originalField - we want to return to it
-                            self.selectedOption = sproutField.Name
-                            self.sprinklersPlaced = false
-                            self.status = "Going to Sprout Field"
-                            self.needsRedraw = true
+    print("=== SPROUT DETECTED - SWITCHING TO " .. sproutField.Name .. " ===")
+    
+    -- ADD THESE 4 LINES:
+    if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
+        self.originalAutoFarmField = self.selectedOption
+    end
+    self.lastFieldChangeSource = "sprout"
+    
+    -- Don't update originalField - we want to return to it
+    self.selectedOption = sproutField.Name
+    self.sprinklersPlaced = false
+    self.status = "Going to Sprout Field"
+    self.needsRedraw = true
                             
                             -- Tween to sprout field
                             local flowerZones = game.Workspace.FlowerZones
@@ -2003,7 +2025,8 @@ end
                             -- Return to original field if it's different from sprout field
                             if originalField and originalField ~= sproutField.Name then
                                 print("Returning to original field: " .. originalField)
-                                self.selectedOption = originalField
+                                self.selectedOption = self.originalAutoFarmField or originalField
+                                self.lastFieldChangeSource = "autofarm"
                                 lastSelectedField = originalField
                                 
                                 -- Tween back to original field
@@ -2039,8 +2062,11 @@ end
                     originalField = self.selectedOption  -- Update global field storer
                     self.sprinklersPlaced = false  -- Reset sprinkler flag on field change
                     walkedToViciousOnce = false  -- Reset vicious walk flag on field change
-                end
-                
+                    if not self.lastFieldChangeSource or self.lastFieldChangeSource == "autofarm" then
+                        self.originalAutoFarmField = self.selectedOption
+                        self.lastFieldChangeSource = "autofarm"
+                    end
+                end 
                 -- Check for Vicious Bee
                 if self.killViciousBee then
                     local viciousBeeData = self:CheckForViciousBee()
@@ -2051,38 +2077,46 @@ end
                         
                         -- Vicious Bee is present
                         if not huntingVicious then
-                            -- Just started hunting
-                            print("=== VICIOUS BEE DETECTED - SWITCHING TO " .. viciousBeeField.Name .. " ===")
-                            originalFieldBeforeVicious = self.selectedOption
-                            self.selectedOption = viciousBeeField.Name
-                            self.sprinklersPlaced = false
-                            huntingVicious = true
-                            walkedToViciousOnce = false
-                            self.status = "Going to Vicious Bee Field"
-                            self.needsRedraw = true
-                            lastSelectedField = viciousBeeField.Name
-                            
-                            -- STEP 1: Tween to the field center first
-                            local flowerZones = game.Workspace.FlowerZones
-                            if flowerZones then
-                                local targetZone = flowerZones:FindFirstChild(viciousBeeField.Name)
-                                if targetZone then
-                                    local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
-                                    print("Step 1: Tweening to " .. viciousBeeField.Name .. " center")
-                                    self:QueueTween(hrp, fieldCenterPos, true)
-                                    
-                                    -- Wait for tween to complete
-                                    while self.processingTween and self.autoFarmEnabled do
-                                        if checkAndHandleDeath() then
-                                            break
-                                        end
-                                        wait(0.1)
-                                    end
-                                    
-                                    print("✓ Arrived at field center")
-                                    wait(0.5)
-                                end
-                            end
+    -- Just started hunting
+    print("=== VICIOUS BEE DETECTED - SWITCHING TO " .. viciousBeeField.Name .. " ===")
+    
+    -- Save the current auto-farm field BEFORE switching
+    if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
+        self.originalAutoFarmField = self.selectedOption
+        print("DEBUG: Saved originalAutoFarmField = " .. self.originalAutoFarmField)
+    end
+    
+    self.lastFieldChangeSource = "vicious"
+    
+    self.selectedOption = viciousBeeField.Name
+    self.sprinklersPlaced = false
+    huntingVicious = true
+    walkedToViciousOnce = false
+    self.status = "Going to Vicious Bee Field"
+    self.needsRedraw = true
+    lastSelectedField = viciousBeeField.Name
+    
+    -- STEP 1: Tween to the field center first
+    local flowerZones = game.Workspace.FlowerZones
+    if flowerZones then
+        local targetZone = flowerZones:FindFirstChild(viciousBeeField.Name)
+        if targetZone then
+            local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
+            print("Step 1: Tweening to " .. viciousBeeField.Name .. " center")
+            self:QueueTween(hrp, fieldCenterPos, true)
+            
+            -- Wait for tween to complete
+            while self.processingTween and self.autoFarmEnabled do
+                if checkAndHandleDeath() then
+                    break
+                end
+                wait(0.1)
+            end
+            
+            print("✓ Arrived at field center")
+            wait(0.5)
+        end
+    end
                             
                             -- STEP 2: Walk to Vicious Bee position ONCE
                             if self.autoFarmEnabled and not walkedToViciousOnce then
@@ -2168,7 +2202,7 @@ end
                             end
                             
                             -- STEP 2: Walk to new Vicious Bee position ONCE
-                            if self.autoFarmEnabled and not walkedToViciousOnce then
+                            if self.autoFarmEnabled and not self.walkedToViciousOnce then
                                 -- Get fresh Vicious Bee position
                                 viciousBeeData = self:CheckForViciousBee()
                                 if viciousBeeData then
@@ -2196,28 +2230,28 @@ end
                                     end
                                     
                                     StopWalking()
-                                    walkedToViciousOnce = true
+                                    self.walkedToViciousOnce = true
                                     print("✓ Arrived at new Vicious Bee location, resuming normal farming")
                                 end
                             end
                         end
                         -- If already hunting in same field, just continue farming (don't walk to Vicious Bee again)
                     else
-    -- No Vicious Bee found
-    if huntingVicious then
-        -- Was hunting, but now it's gone
-        print("✓ Vicious Bee defeated or despawned! Returning to " .. originalFieldBeforeVicious)
-        
-        -- Save the original field before clearing the variable
-        local returnToField = originalFieldBeforeVicious
-        
-        self.selectedOption = returnToField
-        self.sprinklersPlaced = false
-        huntingVicious = false
-        walkedToViciousOnce = false
-        self.status = "Returning to Original Field"
-        self.needsRedraw = true
-        lastSelectedField = self.selectedOption
+                        -- No Vicious Bee found
+                        if self.huntingVicious and self.originalFieldBeforeVicious then
+    -- Was hunting, but now it's gone
+    local returnField = self.originalAutoFarmField or self.selectedOption
+    print("✓ Vicious Bee defeated or despawned! Returning to " .. returnField)
+                            
+                            self.selectedOption = self.originalAutoFarmField or returnField
+                            self.lastFieldChangeSource = "autofarm"
+                            self.sprinklersPlaced = false
+                            self.huntingVicious = false
+                            self.walkedToViciousOnce = false
+                            self.originalFieldBeforeVicious = nil
+                            self.status = "Returning to Original Field"
+                            self.needsRedraw = true
+                            lastSelectedField = returnField
                             
                             -- Stop walking
                             StopWalking()
@@ -2225,7 +2259,7 @@ end
                             -- Tween back to original field
                             local flowerZones = game.Workspace.FlowerZones
                             if flowerZones then
-                                local targetZone = flowerZones:FindFirstChild(self.selectedOption)
+                                local targetZone = flowerZones:FindFirstChild(returnField)
                                 if targetZone then
                                     local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 5, targetZone.Position.Z)
                                     self:QueueTween(hrp, targetPos, true)
@@ -2235,10 +2269,9 @@ end
                                         wait(0.1)
                                     end
                                     
-                                    print("✓ Returned to original field")
+                                    print("✓ Returned to original field: " .. returnField)
                                     self.status = "Auto Farm Active"
                                     self.needsRedraw = true
-                                    originalFieldBeforeVicious = nil
                                 end
                             end
                         end
@@ -6453,7 +6486,7 @@ end
 -- MAIN LOOP
 -- ============================================================
 
-print("v1.0.7")
+print("v1.0.8")
 UI:Render()
 UI:StartStatusUpdater()
 spawn(function()
