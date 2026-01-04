@@ -1332,7 +1332,7 @@ function UI:RenderSettingsTab()
     
     -- Version info at bottom
     local versionY = contentY + 240
-    self:CreateText("Version 1.1.0 - Convesion Fix 1", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
+    self:CreateText("Version 1.1.0 - Convesion Fix 2", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
     self:CreateText("Lito", sliderX, versionY + 18, Color3.fromRGB(100, 110, 125), 11)
 end
 
@@ -1814,11 +1814,79 @@ end
                                                                                 self.status = "Converting Balloon"
                                                                                 self.needsRedraw = true
                                                                                 
-                                                                                -- Wait for balloon to disappear
                                                                                 while self.autoFarmEnabled and balloonBody and balloonBody.Parent do
-                                                                                    print("DEBUG BALLOON: Still waiting for balloon to disappear...")
-                                                                                    wait(0.5)
-                                                                                end
+                                                        -- CRITICAL: Check if player is still at hive during balloon conversion
+                                                        hrp = character:FindFirstChild("HumanoidRootPart")
+                                                        if hrp then
+                                                            local cPos = hrp.Position
+                                                            local cdx = hivePos.X - cPos.X
+                                                            local cdy = hivePos.Y - cPos.Y
+                                                            local cdz = hivePos.Z - cPos.Z
+                                                            local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
+                                                            
+                                                            if cDist > 25 then
+                                                                print("⚠️ Player moved away from hive during balloon conversion (" .. string.format("%.1f", cDist) .. " studs)!")
+                                                                print("Attempting to return to hive...")
+                                                                
+                                                                WalkTo(hivePos)
+                                                                local walkStart = os.clock()
+                                                                
+                                                                while IsWalking() and self.autoFarmEnabled do
+                                                                    if os.clock() - walkStart > 5 then
+                                                                        StopWalking()
+                                                                        print("Walk timeout, using tween...")
+                                                                        self:QueueTween(hrp, hivePos, true)
+                                                                        
+                                                                        while self.processingTween and self.autoFarmEnabled do
+                                                                            wait(0.1)
+                                                                        end
+                                                                        break
+                                                                    end
+                                                                    
+                                                                    hrp = character:FindFirstChild("HumanoidRootPart")
+                                                                    if hrp then
+                                                                        local rPos = hrp.Position
+                                                                        local rdx = hivePos.X - rPos.X
+                                                                        local rdy = hivePos.Y - rPos.Y
+                                                                        local rdz = hivePos.Z - rPos.Z
+                                                                        local rDist = math.sqrt(rdx * rdx + rdy * rdy + rdz * rdz)
+                                                                        
+                                                                        if rDist < 5 then
+                                                                            StopWalking()
+                                                                            wait(1)
+                                                                            break
+                                                                        end
+                                                                    end
+                                                                    
+                                                                    wait(0.1)
+                                                                end
+                                                                
+                                                                StopWalking()
+                                                                wait(1)
+                                                                print("✓ Returned to hive")
+                                                                
+                                                                -- Wait for Roblox to be active before pressing E
+                                                                while not isrbxactive() and self.autoFarmEnabled do
+                                                                    warn("Roblox Is Not Active - waiting to press E")
+                                                                    self.status = "Waiting for Roblox window"
+                                                                    self.needsRedraw = true
+                                                                    wait(0.5)
+                                                                end
+                                                                
+                                                                if self.autoFarmEnabled then
+                                                                    print("Pressing E to restart conversion...")
+                                                                    keypress(0x45)
+                                                                    wait(0.2)
+                                                                    keyrelease(0x45)
+                                                                    wait(0.5)
+                                                                    print("✓ Conversion restarted")
+                                                                end
+                                                            end
+                                                        end
+                                                        
+                                                        print("DEBUG BALLOON: Still waiting for balloon to disappear...")
+                                                        wait(0.5)
+                                                    end
                                                                                 
                                                                                 print("✓ Balloon disappeared!")
                                                                                 break
