@@ -1332,7 +1332,7 @@ function UI:RenderSettingsTab()
     
     -- Version info at bottom
     local versionY = contentY + 240
-    self:CreateText("Version 1.1.0 - Convesion Fix 2", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
+    self:CreateText("Version 1.1.0 - Converion Fix 3", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
     self:CreateText("Lito", sliderX, versionY + 18, Color3.fromRGB(100, 110, 125), 11)
 end
 
@@ -1361,14 +1361,12 @@ function UI:StartAutoFarm()
         return
     end
 
-    -- CRITICAL: Kill any existing auto farm thread first
     if self.autoFarmRunning then
         print("ERROR: Auto farm already running! Stopping old instance...")
         self:StopAutoFarm()
         wait(1)
     end
     
-    -- CRITICAL: Kill the thread if it still exists
     if self.autoFarmThread then
         print("Killing old auto farm thread...")
         task.cancel(self.autoFarmThread)
@@ -1381,25 +1379,7 @@ function UI:StartAutoFarm()
     self.needsRedraw = true
     self:StartTimedActionsHandler()
     
-    self.autoFarmThread = spawn(function()
-        -- CRITICAL: Check if Vicious Bee despawned or moved during token collection
--- Only check if we are ACTIVELY hunting Vicious Bee right now
-if self.killViciousBee and huntingVicious then
-    local viciousBeeData = self:CheckForViciousBee()
-    
-    if not viciousBeeData then
-        -- Vicious Bee despawned completely!
-        print("✓ Vicious Bee despawned during token collection! Exiting to main loop...")
-        StopWalking()
-        return false
-    elseif viciousBeeData.field.Name ~= self.selectedOption then
-        -- Vicious Bee moved to different field
-        print("⚠️ Vicious Bee moved to " .. viciousBeeData.field.Name .. " during token collection!")
-        StopWalking()
-        return false
-    end
-end
-        
+    self.autoFarmThread = spawn(function()        
         local lastSelectedField = self.selectedOption
         local fullPollenTime = nil
         local returningToHive = false
@@ -1600,103 +1580,258 @@ end
                                     end
                                 else
                                     -- Original hive behavior
-                                    self.status = "Going to Hive"
-                                    self.needsRedraw = true
-                                    
+self.status = "Going to Hive"
+self.needsRedraw = true
+
+StopWalking()
+
+self:ClearTweenQueue()
+wait(0.5)
+
+-- STEP 1: Tween to waypoint first
+local waypointPos = Vector3.new(-114, 5, 271)
+print("Tweening to waypoint before hive...")
+self:QueueTween(hrp, waypointPos, true)
+
+local maxWaitTime = 60
+local startWait = os.clock()
+
+while self.processingTween and self.autoFarmEnabled do
+    if checkAndHandleDeath() then
+        break
+    end
+    
+    if os.clock() - startWait > maxWaitTime then
+        print("ERROR: Waypoint tween timeout!")
+        self:ClearTweenQueue()
+        break
+    end
+    wait(0.1)
+end
+
+print("✓ Arrived at waypoint, now finding hive...")
+wait(0.5)
+
+-- STEP 2: Find hive and walk to it
+local hivePlatforms = game.Workspace:FindFirstChild("HivePlatforms")
+
+if hivePlatforms then
+    local playerHive = nil
+    
+    for _, platform in pairs(hivePlatforms:GetChildren()) do
+        local playerRef = platform:FindFirstChild("PlayerRef")
+        if playerRef and playerRef.Value then
+            local refPlayer = playerRef.Value
+            
+            if refPlayer.Name == player.Name then
+                playerHive = platform
+                break
+            end
+        end
+    end
+    
+    if playerHive then
+        local hivePart = playerHive:FindFirstChild("Platform") or playerHive:FindFirstChildWhichIsA("BasePart")
+        
+        if hivePart then
+            local hivePos = Vector3.new(hivePart.Position.X, hivePart.Position.Y + 5, hivePart.Position.Z)
+            
+            -- WALK to hive (not tween)
+            print("Walking to hive from waypoint...")
+            WalkTo(hivePos)
+            
+            local walkStartTime = os.clock()
+            while IsWalking() and self.autoFarmEnabled do
+                if os.clock() - walkStartTime > 30 then
+                    print("Walk to hive timeout")
+                    StopWalking()
+                    break
+                end
+                
+                hrp = character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local currentPos = hrp.Position
+                    local dx = hivePos.X - currentPos.X
+                    local dy = hivePos.Y - currentPos.Y
+                    local dz = hivePos.Z - currentPos.Z
+                    local distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
+                    
+                    if distanceToHive < 15 then
+                        print("✓ Arrived at hive")
+                        StopWalking()
+                        break
+                    end
+                end
+                
+                wait(0.1)
+            end
+            
+            StopWalking()
+            wait(2)
+            
+            while not isrbxactive() and self.autoFarmEnabled do
+                warn("Roblox Is Not Active")
+                self.status = "Waiting for Roblox window"
+                self.needsRedraw = true
+                wait(0.5)
+            end
+            
+            if self.autoFarmEnabled then
+                -- CRITICAL: Verify player is actually at hive before converting
+                hrp = character:FindFirstChild("HumanoidRootPart")
+                if not hrp then
+                    print("ERROR: No HRP for conversion check")
+                    returningToHive = false
+                    fullPollenTime = nil
+                else
+                    local currentPos = hrp.Position
+                    local dx = hivePos.X - currentPos.X
+                    local dy = hivePos.Y - currentPos.Y
+                    local dz = hivePos.Z - currentPos.Z
+                    local distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
+                    
+                    print("Distance to hive: " .. string.format("%.1f", distanceToHive) .. " studs")
+                    
+                    -- If player is NOT at hive (more than 25 studs away), try to return
+                    if distanceToHive > 25 then
+                        print("⚠️ Player is " .. string.format("%.1f", distanceToHive) .. " studs from hive!")
+                        
+                        self.status = "Returning to Hive"
+                        self.needsRedraw = true
+                        
+                        -- Try walking back first (5 second attempt)
+                        print("Attempting to walk back to hive...")
+                        WalkTo(hivePos)
+                        
+                        local walkStartTime = os.clock()
+                        local walkSuccess = false
+                        
+                        while IsWalking() and self.autoFarmEnabled do
+                            if os.clock() - walkStartTime > 5 then
+                                print("Walk timeout (5s), switching to tween...")
+                                StopWalking()
+                                break
+                            end
+                            
+                            hrp = character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                local cPos = hrp.Position
+                                local cdx = hivePos.X - cPos.X
+                                local cdy = hivePos.Y - cPos.Y
+                                local cdz = hivePos.Z - cPos.Z
+                                local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
+                                
+                                if cDist < 25 then
+                                    print("✓ Walked back to hive successfully")
                                     StopWalking()
-                                    
+                                    walkSuccess = true
+                                    break
+                                end
+                            end
+                            
+                            wait(0.1)
+                        end
+                        
+                        StopWalking()
+                        
+                        -- If walk failed, use tween
+                        if not walkSuccess then
+                            print("Walk failed, using tween to return to hive...")
+                            self:QueueTween(hrp, hivePos, true)
+                            
+                            local tweenStartTime = os.clock()
+                            while self.processingTween and self.autoFarmEnabled do
+                                if os.clock() - tweenStartTime > 60 then
+                                    print("ERROR: Tween timeout!")
                                     self:ClearTweenQueue()
-                                    wait(0.5)
+                                    returningToHive = false
+                                    fullPollenTime = nil
+                                    break
+                                end
+                                wait(0.1)
+                            end
+                            
+                            if self.processingTween then
+                                wait(1)
+                                print("✓ Tweened back to hive")
+                            end
+                        end
+                        
+                        wait(0.5)
+                    end
+                    
+                    -- Final distance check before converting
+                    hrp = character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        currentPos = hrp.Position
+                        dx = hivePos.X - currentPos.X
+                        dy = hivePos.Y - currentPos.Y
+                        dz = hivePos.Z - currentPos.Z
+                        distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
+                        
+                        if distanceToHive > 25 then
+                            print("ERROR: Still not at hive after return attempts (" .. string.format("%.1f", distanceToHive) .. " studs)")
+                            print("Skipping conversion and resuming farming")
+                            returningToHive = false
+                            fullPollenTime = nil
+                        else
+                            print("✓ At hive, starting conversion")
+                            self.status = "Converting Pollen"
+                            self.needsRedraw = true
+                            
+                            -- CRITICAL: Re-enable animations before converting
+                            disableUnwalk()
+                            wait(0.3)
+                            
+                            keypress(0x45)
+                            wait(0.1)
+                            keyrelease(0x45)
+                        end
+                    end
+                end
+                
+                -- Check for nearby hive balloon if Convert Balloon is enabled
+                print("DEBUG BALLOON: convertBalloon = " .. tostring(self.convertBalloon))
+
+                local balloonFound = false
+                if self.convertBalloon then
+                    print("DEBUG BALLOON: Checking for balloons...")
+                    local balloons = game.Workspace:FindFirstChild("Balloons")
+                    print("DEBUG BALLOON: Balloons folder exists: " .. tostring(balloons ~= nil))
+                    
+                    if balloons then
+                        local hiveBalloons = balloons:FindFirstChild("HiveBalloons")
+                        print("DEBUG BALLOON: HiveBalloons exists: " .. tostring(hiveBalloons ~= nil))
+                        
+                        if hiveBalloons then
+                            print("DEBUG BALLOON: HiveBalloons children count: " .. #hiveBalloons:GetChildren())
+                            
+                            for _, balloonInstance in pairs(hiveBalloons:GetChildren()) do
+                                print("DEBUG BALLOON: Checking balloonInstance: " .. balloonInstance.Name)
+                                
+                                if balloonInstance.Name == "HiveBalloonInstance" then
+                                    local balloonBody = balloonInstance:FindFirstChild("BalloonBody")
+                                    print("DEBUG BALLOON: BalloonBody exists: " .. tostring(balloonBody ~= nil))
                                     
-                                    local hivePlatforms = game.Workspace:FindFirstChild("HivePlatforms")
-                                    
-                                    if hivePlatforms then
-                                        local playerHive = nil
+                                    if balloonBody and balloonBody:IsA("BasePart") then
+                                        local balloonPos = balloonBody.Position
+                                        local hrpPos = hrp.Position
                                         
-                                        for _, platform in pairs(hivePlatforms:GetChildren()) do
-                                            local playerRef = platform:FindFirstChild("PlayerRef")
-                                            if playerRef and playerRef.Value then
-                                                local refPlayer = playerRef.Value
-                                                
-                                                if refPlayer.Name == player.Name then
-                                                    playerHive = platform
-                                                    break
-                                                end
-                                            end
-                                        end
+                                        local dx = balloonPos.X - hrpPos.X
+                                        local dy = balloonPos.Y - hrpPos.Y
+                                        local dz = balloonPos.Z - hrpPos.Z
+                                        local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
                                         
-                                        if playerHive then
-                                            local hivePart = playerHive:FindFirstChild("Platform") or playerHive:FindFirstChildWhichIsA("BasePart")
-                                            
-                                            if hivePart then
-                                                local hivePos = Vector3.new(hivePart.Position.X, hivePart.Position.Y + 5, hivePart.Position.Z)
-                                                
-                                                local startPos = hrp.Position
-                                                local dx = hivePos.X - startPos.X
-                                                local dy = hivePos.Y - startPos.Y
-                                                local dz = hivePos.Z - startPos.Z
-                                                local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-                                                
-                                                self:QueueTween(hrp, hivePos, true)
-                                                local maxWaitTime = 60
-                                                local startWait = os.clock()
-                                                local loopCount = 0
-                                                
-                                                while self.processingTween and self.autoFarmEnabled do
-                                                    loopCount = loopCount + 1
-                                                    
-                                                    if os.clock() - startWait > maxWaitTime then
-                                                        print("ee: TIMEOUT!")
-                                                        self:ClearTweenQueue()
-                                                        break
-                                                    end
-                                                    wait(0.1)
-                                                end
-                                                wait(2)
-                                                while not isrbxactive() and self.autoFarmEnabled do
-                                                    warn("Roblox Is Not Active")
-                                                    self.status = "Waiting for Roblox window"
-                                                    self.needsRedraw = true
-                                                    wait(0.5)
-                                                end
-                                                
-                                                if self.autoFarmEnabled then
-                                    -- CRITICAL: Verify player is actually at hive before converting
-                                    hrp = character:FindFirstChild("HumanoidRootPart")
-                                    if not hrp then
-                                        print("ERROR: No HRP for conversion check")
-                                        returningToHive = false
-                                        fullPollenTime = nil
-                                    else
-                                        local currentPos = hrp.Position
-                                        local dx = hivePos.X - currentPos.X
-                                        local dy = hivePos.Y - currentPos.Y
-                                        local dz = hivePos.Z - currentPos.Z
-                                        local distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
+                                        print("DEBUG BALLOON: Balloon distance: " .. string.format("%.1f", distance) .. " studs")
                                         
-                                        print("Distance to hive: " .. string.format("%.1f", distanceToHive) .. " studs")
-                                        
-                                        -- If player is NOT at hive (more than 25 studs away), try to return
-                                        if distanceToHive > 25 then
-                                            print("⚠️ Player is " .. string.format("%.1f", distanceToHive) .. " studs from hive!")
-                                            
-                                            self.status = "Returning to Hive"
+                                        if distance <= 20 then
+                                            print("✓✓✓ Hive balloon found within 20 studs! Waiting for it to disappear...")
+                                            balloonFound = true
+                                            self.status = "Converting Balloon"
                                             self.needsRedraw = true
                                             
-                                            -- Try walking back first (5 second attempt)
-                                            print("Attempting to walk back to hive...")
-                                            WalkTo(hivePos)
-                                            
-                                            local walkStartTime = os.clock()
-                                            local walkSuccess = false
-                                            
-                                            while IsWalking() and self.autoFarmEnabled do
-                                                if os.clock() - walkStartTime > 5 then
-                                                    print("Walk timeout (5s), switching to tween...")
-                                                    StopWalking()
-                                                    break
-                                                end
-                                                
+                                            while self.autoFarmEnabled and balloonBody and balloonBody.Parent do
+                                                -- CRITICAL: Check if player is still at hive during balloon conversion
                                                 hrp = character:FindFirstChild("HumanoidRootPart")
                                                 if hrp then
                                                     local cPos = hrp.Position
@@ -1705,198 +1840,79 @@ end
                                                     local cdz = hivePos.Z - cPos.Z
                                                     local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
                                                     
-                                                    if cDist < 25 then
-                                                        print("✓ Walked back to hive successfully")
-                                                        StopWalking()
-                                                        walkSuccess = true
-                                                        break
-                                                    end
-                                                end
-                                                
-                                                wait(0.1)
-                                            end
-                                            
-                                            StopWalking()
-                                            
-                                            -- If walk failed, use tween
-                                            if not walkSuccess then
-                                                print("Walk failed, using tween to return to hive...")
-                                                self:QueueTween(hrp, hivePos, true)
-                                                
-                                                local tweenStartTime = os.clock()
-                                                while self.processingTween and self.autoFarmEnabled do
-                                                    if os.clock() - tweenStartTime > 60 then
-                                                        print("ERROR: Tween timeout!")
-                                                        self:ClearTweenQueue()
-                                                        returningToHive = false
-                                                        fullPollenTime = nil
-                                                        break
-                                                    end
-                                                    wait(0.1)
-                                                end
-                                                
-                                                if self.processingTween then
-                                                    wait(1)
-                                                    print("✓ Tweened back to hive")
-                                                end
-                                            end
-                                            
-                                            wait(0.5)
-                                        end
-                                        
-                                        -- Final distance check before converting
-                                        hrp = character:FindFirstChild("HumanoidRootPart")
-                                        if hrp then
-                                            currentPos = hrp.Position
-                                            dx = hivePos.X - currentPos.X
-                                            dy = hivePos.Y - currentPos.Y
-                                            dz = hivePos.Z - currentPos.Z
-                                            distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
-                                            
-                                            if distanceToHive > 25 then
-                                                print("ERROR: Still not at hive after return attempts (" .. string.format("%.1f", distanceToHive) .. " studs)")
-                                                print("Skipping conversion and resuming farming")
-                                                returningToHive = false
-                                                fullPollenTime = nil
-                                            else
-                                                print("✓ At hive, starting conversion")
-                                                self.status = "Converting Pollen"
-                                                self.needsRedraw = true
-                                                
-                                                -- CRITICAL: Re-enable animations before converting
-                                                disableUnwalk()
-                                                wait(0.3)
-                                                
-                                                keypress(0x45)
-                                                wait(0.1)
-                                                keyrelease(0x45)
-                                            end
-                                        end
-                                    end
-                                                    
-                                                    -- Check for nearby hive balloon if Convert Balloon is enabled
-                                                    print("DEBUG BALLOON: convertBalloon = " .. tostring(self.convertBalloon))
-
-                                                    local balloonFound = false
-                                                    if self.convertBalloon then
-                                                        print("DEBUG BALLOON: Checking for balloons...")
-                                                        local balloons = game.Workspace:FindFirstChild("Balloons")
-                                                        print("DEBUG BALLOON: Balloons folder exists: " .. tostring(balloons ~= nil))
+                                                    if cDist > 25 then
+                                                        print("⚠️ Player moved away from hive during balloon conversion (" .. string.format("%.1f", cDist) .. " studs)!")
+                                                        print("Attempting to return to hive...")
                                                         
-                                                        if balloons then
-                                                            local hiveBalloons = balloons:FindFirstChild("HiveBalloons")
-                                                            print("DEBUG BALLOON: HiveBalloons exists: " .. tostring(hiveBalloons ~= nil))
-                                                            
-                                                            if hiveBalloons then
-                                                                print("DEBUG BALLOON: HiveBalloons children count: " .. #hiveBalloons:GetChildren())
+                                                        WalkTo(hivePos)
+                                                        local walkStart = os.clock()
+                                                        
+                                                        while IsWalking() and self.autoFarmEnabled do
+                                                            if os.clock() - walkStart > 5 then
+                                                                StopWalking()
+                                                                print("Walk timeout, using tween...")
+                                                                self:QueueTween(hrp, hivePos, true)
                                                                 
-                                                                for _, balloonInstance in pairs(hiveBalloons:GetChildren()) do
-                                                                    print("DEBUG BALLOON: Checking balloonInstance: " .. balloonInstance.Name)
-                                                                    
-                                                                    if balloonInstance.Name == "HiveBalloonInstance" then
-                                                                        local balloonBody = balloonInstance:FindFirstChild("BalloonBody")
-                                                                        print("DEBUG BALLOON: BalloonBody exists: " .. tostring(balloonBody ~= nil))
-                                                                        
-                                                                        if balloonBody and balloonBody:IsA("BasePart") then
-                                                                            local balloonPos = balloonBody.Position
-                                                                            local hrpPos = hrp.Position
-                                                                            
-                                                                            local dx = balloonPos.X - hrpPos.X
-                                                                            local dy = balloonPos.Y - hrpPos.Y
-                                                                            local dz = balloonPos.Z - hrpPos.Z
-                                                                            local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-                                                                            
-                                                                            print("DEBUG BALLOON: Balloon distance: " .. string.format("%.1f", distance) .. " studs")
-                                                                            
-                                                                            if distance <= 20 then
-                                                                                print("✓✓✓ Hive balloon found within 12 studs! Waiting for it to disappear...")
-                                                                                balloonFound = true
-                                                                                self.status = "Converting Balloon"
-                                                                                self.needsRedraw = true
-                                                                                
-                                                                                while self.autoFarmEnabled and balloonBody and balloonBody.Parent do
-                                                        -- CRITICAL: Check if player is still at hive during balloon conversion
-                                                        hrp = character:FindFirstChild("HumanoidRootPart")
-                                                        if hrp then
-                                                            local cPos = hrp.Position
-                                                            local cdx = hivePos.X - cPos.X
-                                                            local cdy = hivePos.Y - cPos.Y
-                                                            local cdz = hivePos.Z - cPos.Z
-                                                            local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
-                                                            
-                                                            if cDist > 25 then
-                                                                print("⚠️ Player moved away from hive during balloon conversion (" .. string.format("%.1f", cDist) .. " studs)!")
-                                                                print("Attempting to return to hive...")
-                                                                
-                                                                WalkTo(hivePos)
-                                                                local walkStart = os.clock()
-                                                                
-                                                                while IsWalking() and self.autoFarmEnabled do
-                                                                    if os.clock() - walkStart > 5 then
-                                                                        StopWalking()
-                                                                        print("Walk timeout, using tween...")
-                                                                        self:QueueTween(hrp, hivePos, true)
-                                                                        
-                                                                        while self.processingTween and self.autoFarmEnabled do
-                                                                            wait(0.1)
-                                                                        end
-                                                                        break
-                                                                    end
-                                                                    
-                                                                    hrp = character:FindFirstChild("HumanoidRootPart")
-                                                                    if hrp then
-                                                                        local rPos = hrp.Position
-                                                                        local rdx = hivePos.X - rPos.X
-                                                                        local rdy = hivePos.Y - rPos.Y
-                                                                        local rdz = hivePos.Z - rPos.Z
-                                                                        local rDist = math.sqrt(rdx * rdx + rdy * rdy + rdz * rdz)
-                                                                        
-                                                                        if rDist < 5 then
-                                                                            StopWalking()
-                                                                            wait(1)
-                                                                            break
-                                                                        end
-                                                                    end
-                                                                    
+                                                                while self.processingTween and self.autoFarmEnabled do
                                                                     wait(0.1)
                                                                 end
+                                                                break
+                                                            end
+                                                            
+                                                            hrp = character:FindFirstChild("HumanoidRootPart")
+                                                            if hrp then
+                                                                local rPos = hrp.Position
+                                                                local rdx = hivePos.X - rPos.X
+                                                                local rdy = hivePos.Y - rPos.Y
+                                                                local rdz = hivePos.Z - rPos.Z
+                                                                local rDist = math.sqrt(rdx * rdx + rdy * rdy + rdz * rdz)
                                                                 
-                                                                StopWalking()
-                                                                wait(1)
-                                                                print("✓ Returned to hive")
-                                                                
-                                                                -- Wait for Roblox to be active before pressing E
-                                                                while not isrbxactive() and self.autoFarmEnabled do
-                                                                    warn("Roblox Is Not Active - waiting to press E")
-                                                                    self.status = "Waiting for Roblox window"
-                                                                    self.needsRedraw = true
-                                                                    wait(0.5)
-                                                                end
-                                                                
-                                                                if self.autoFarmEnabled then
-                                                                    print("Pressing E to restart conversion...")
-                                                                    keypress(0x45)
-                                                                    wait(0.2)
-                                                                    keyrelease(0x45)
-                                                                    wait(0.5)
-                                                                    print("✓ Conversion restarted")
+                                                                if rDist < 5 then
+                                                                    StopWalking()
+                                                                    wait(1)
+                                                                    break
                                                                 end
                                                             end
+                                                            
+                                                            wait(0.1)
                                                         end
                                                         
-                                                        print("DEBUG BALLOON: Still waiting for balloon to disappear...")
-                                                        wait(0.5)
-                                                    end
-                                                                                
-                                                                                print("✓ Balloon disappeared!")
-                                                                                break
-                                                                            end
-                                                                        end
-                                                                    end
-                                                                end
-                                                            end
+                                                        StopWalking()
+                                                        wait(1)
+                                                        print("✓ Returned to hive")
+                                                        
+                                                        -- Wait for Roblox to be active before pressing E
+                                                        while not isrbxactive() and self.autoFarmEnabled do
+                                                            warn("Roblox Is Not Active - waiting to press E")
+                                                            self.status = "Waiting for Roblox window"
+                                                            self.needsRedraw = true
+                                                            wait(0.5)
+                                                        end
+                                                        
+                                                        if self.autoFarmEnabled then
+                                                            print("Pressing E to restart conversion...")
+                                                            keypress(0x45)
+                                                            wait(0.2)
+                                                            keyrelease(0x45)
+                                                            wait(0.5)
+                                                            print("✓ Conversion restarted")
                                                         end
                                                     end
+                                                end
+                                                
+                                                print("DEBUG BALLOON: Still waiting for balloon to disappear...")
+                                                wait(0.5)
+                                            end
+                                            
+                                            print("✓ Balloon disappeared!")
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
 
                                                     while self.autoFarmEnabled do
                                                 -- CRITICAL: Check if player is still at hive during conversion
@@ -3030,7 +3046,8 @@ end
         end
         
         -- CRITICAL: Check if Vicious Bee despawned or moved during token collection
-        if self.killViciousBee then
+        -- BUT ONLY if we were actively hunting it!
+        if self.killViciousBee and self.huntingVicious then
             local viciousBeeData = self:CheckForViciousBee()
             
             if not viciousBeeData then
