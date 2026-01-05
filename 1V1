@@ -1881,7 +1881,7 @@ if hivePlatforms then
                                         
                                         print("DEBUG BALLOON: Balloon distance: " .. string.format("%.1f", distance) .. " studs")
                                         
-                                        if distance <= 20 then
+                                        if distance <= 25 then
                                             print("✓✓✓ Hive balloon found within 20 studs! Waiting for it to disappear...")
                                             balloonFound = true
                                             self.status = "Converting Balloon"
