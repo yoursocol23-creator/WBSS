@@ -549,7 +549,7 @@ local UI = {
     selectedCombatTarget = "Any Mob",
     autoFarmEnabled = false,
     autoFarmRunning = false,
-    tweenSpeed = 50,
+    tweenSpeed = 70,
     autoDigEnabled = false,
     autoDigRunning = false,
     tweenQueue = {},
@@ -565,6 +565,9 @@ local UI = {
     pausedForTimedAction = false,
     originalAutoFarmField = nil,
     lastFieldChangeSource = nil,
+    gatherTime = 30,
+    gatherStartTime = nil,
+    returningFromConversion = false,
 
 }
 
@@ -1330,9 +1333,36 @@ function UI:RenderSettingsTab()
     self:CreateText("20", sliderX, sliderY + 20, Color3.fromRGB(120, 130, 145), 10)
     self:CreateText("120", sliderX + sliderWidth - 15, sliderY + 20, Color3.fromRGB(120, 130, 145), 10)
     
+-- Gather Time Slider
+    local gatherSliderY = sliderY + 60
+    
+    self:CreateText("Gather Time (Minutes)", sliderX, gatherSliderY - 25, Color3.fromRGB(200, 210, 220), 14)
+    self:CreateText("Time: " .. tostring(self.gatherTime) .. " min", sliderX, gatherSliderY - 12, Color3.fromRGB(120, 130, 145), 10)
+    
+    -- Slider background
+    self:CreateRect(sliderX, gatherSliderY + 8, sliderWidth, 6, Color3.fromRGB(40, 45, 55))
+    
+    -- Calculate slider position (map 1-30 to 0-150)
+    local gatherNormalizedValue = (self.gatherTime - 1) / (30 - 1)
+    local gatherSliderPos = gatherNormalizedValue * sliderWidth
+    
+    -- Slider fill
+    self:CreateRect(sliderX, gatherSliderY + 8, gatherSliderPos, 6, Color3.fromRGB(16, 185, 129))
+    
+    -- Slider handle
+    self:CreateRect(sliderX + gatherSliderPos - 4, gatherSliderY + 2, 8, 18, Color3.fromRGB(16, 185, 129))
+    
+    self:RegisterButton(sliderX, gatherSliderY + 2, sliderWidth, 18, function()
+        self.draggingGatherSlider = true
+    end)
+    
+    -- Min/Max labels
+    self:CreateText("1", sliderX, gatherSliderY + 20, Color3.fromRGB(120, 130, 145), 10)
+    self:CreateText("30", sliderX + sliderWidth - 15, gatherSliderY + 20, Color3.fromRGB(120, 130, 145), 10)
+
     -- Version info at bottom
     local versionY = contentY + 240
-    self:CreateText("Version 1.1.0 - Converion Fix 3", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
+    self:CreateText("Version 1.1.1 - Converion Fix 4 & Gather Timer", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
     self:CreateText("Lito", sliderX, versionY + 18, Color3.fromRGB(100, 110, 125), 11)
 end
 
@@ -1378,6 +1408,9 @@ function UI:StartAutoFarm()
     self.status = "Auto Farm Active"
     self.needsRedraw = true
     self:StartTimedActionsHandler()
+    self.gatherStartTime = os.clock()
+    print("DEBUG: [StartAutoFarm] Initial gatherStartTime set to " .. self.gatherStartTime)
+    self.returningFromConversion = false
     
     self.autoFarmThread = spawn(function()        
         local lastSelectedField = self.selectedOption
@@ -1501,6 +1534,17 @@ end
                 
                 local coreStats = player:FindFirstChild("CoreStats")
                 
+                -- Calculate gather time (moved outside pollen check)
+                local gatherTimeSeconds = self.gatherTime * 60
+                local timeElapsed = os.clock() - (self.gatherStartTime or os.clock())
+                local gatherTimeFull = timeElapsed >= gatherTimeSeconds
+                
+                -- DEBUG: Print timer status every 10 seconds
+                if not self.lastTimerDebug or os.clock() - self.lastTimerDebug >= 10 then
+                    print("DEBUG TIMER: Elapsed=" .. string.format("%.1f", timeElapsed) .. "s / Target=" .. gatherTimeSeconds .. "s | Full=" .. tostring(gatherTimeFull))
+                    self.lastTimerDebug = os.clock()
+                end
+                
                 if coreStats then
                     local pollen = coreStats:FindFirstChild("Pollen")
                     local capacity = coreStats:FindFirstChild("Capacity")
@@ -1508,18 +1552,32 @@ end
                     if pollen and capacity then
                         local pollenValue = pollen.Value
                         local capacityValue = capacity.Value
-                                                
-                        if pollenValue >= capacityValue then
+                        
+                        print("DEBUG: pollenValue=" .. pollenValue .. " capacityValue=" .. capacityValue .. " gatherTimeFull=" .. tostring(gatherTimeFull))
+                        
+                        -- Check if should return to hive (either full OR time limit reached)
+                        if pollenValue >= capacityValue or gatherTimeFull then
+                            print("DEBUG: Triggered hive return! Reason: " .. (pollenValue >= capacityValue and "POLLEN FULL" or "TIME LIMIT"))
+                            
                             if not fullPollenTime then
-                                fullPollenTime = os.clock()
+                                if gatherTimeFull then
+                                    print("=== GATHER TIME LIMIT REACHED (" .. self.gatherTime .. " minutes) ===")
+                                end
+                                if pollenValue >= capacityValue then
+                                    print("=== POLLEN FULL ===")
+                                end
+                                fullPollenTime = os.clock() - 2
+                                print("DEBUG: Set fullPollenTime=" .. fullPollenTime)
                             else
                                 local elapsed = os.clock() - fullPollenTime
+                                print("DEBUG: fullPollenTime elapsed=" .. string.format("%.1f", elapsed) .. "s")
                             end
                             
                             if fullPollenTime and os.clock() - fullPollenTime >= 2 and not returningToHive then
+                                print("DEBUG: Starting hive return sequence NOW")
                                 returningToHive = true
+                                self.returningFromConversion = true
                                 
-                                -- Check if Reset When Full is enabled
                                 if self.resetWhenFull then
                                     self.status = "Resetting (Full)"
                                     self.needsRedraw = true
@@ -1528,8 +1586,7 @@ end
                                     self:ClearTweenQueue()
                                     
                                     print("=== RESET WHEN FULL TRIGGERED ===")
-                                    ResetPlayer()
-                                    
+                                    ResetPlayer()                                    
                                     -- Wait for respawn
                                     local respawned = WaitForRespawn(30)
                                     
@@ -1656,7 +1713,7 @@ if hivePlatforms then
                     local dz = hivePos.Z - currentPos.Z
                     local distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
                     
-                    if distanceToHive < 15 then
+                    if distanceToHive < 3 then
                         print("✓ Arrived at hive")
                         StopWalking()
                         break
@@ -1988,6 +2045,12 @@ if hivePlatforms then
                                                 if currentPollen <= 0 then
                                                     print("Pollen reached 0, waiting 4 seconds for bees to convert...")
                                                     wait(4)
+                                                    if self.returningFromConversion then
+                                                        print("✓ Resetting gather timer after conversion")
+                                                        self.gatherStartTime = os.clock()
+                                                        print("DEBUG: [After Conversion] gatherStartTime reset to " .. self.gatherStartTime)
+                                                        self.returningFromConversion = false
+                                                    end
                                                     break
                                                 end
                                                 
@@ -2990,80 +3053,79 @@ function UI:TokenCollector(checkField)
     local recentTokens = {}
     
 while self.autoFarmEnabled and self.collectTokens do
-        -- CRITICAL: Check for death at start of token collection loop
-character = player.Character
-if character then
-    local humanoid = character:FindFirstChild("Humanoid")
-    if humanoid and humanoid.Health <= 0 then
-        print("Death detected in TokenCollector, exiting...")
+    -- CRITICAL: Check gather time inside token collector
+    local gatherTimeSeconds = self.gatherTime * 60
+    local timeElapsed = os.clock() - (self.gatherStartTime or os.clock())
+    local gatherTimeFull = timeElapsed >= gatherTimeSeconds
+    
+    if gatherTimeFull then
+        print("=== GATHER TIME LIMIT REACHED IN TOKEN COLLECTOR (" .. self.gatherTime .. " minutes, " .. string.format("%.1f", timeElapsed) .. "s elapsed) ===")
         StopWalking()
-        return false
+        return false  -- Exit token collector to trigger hive return
     end
-else
-    print("No character in TokenCollector, exiting...")
-    return false
-end
-
--- CRITICAL: Check if sprout despawned during token collection
--- BUT ONLY if we're actively farming sprouts (not during the 20s collection period)
-if self.farmSprouts and self.lastFieldChangeSource == "sprout" and not self.collectingSproutTokens then
-    print("DEBUG: Checking for sprouts (hasReachedFieldOnce=true)...")
-    local sproutData = self:CheckForSprouts()
-    if not sproutData then
-        print("✓ Sprout despawned during token collection!")
-        StopWalking()
-        return false
-    end
-end
-
--- CRITICAL: Check if Windy Bee moved to a different field
-if self.killWindy then
-    local windyBeeData = self:CheckForWindyBee()
-    if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
-        print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. " during token collection!")
-        StopWalking()
-        return false
-    end
-end
- 
--- CRITICAL: Check if 20-second sprout collection time is up
-if self.sproutCollectionEndTime and os.clock() >= self.sproutCollectionEndTime then
-    print("TokenCollector: 20s timer expired, exiting")
-    StopWalking()
-    return false
-end
-       
-        
-
-        -- CRITICAL: Check if Windy Bee moved to a different field
-        if self.killWindy then
-            local windyBeeData = self:CheckForWindyBee()
-            if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
-                print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. " during token collection!")
-                StopWalking()
-                return false
-            end
+    
+    -- CRITICAL: Check for death at start of token collection loop
+    character = player.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid and humanoid.Health <= 0 then
+            print("Death detected in TokenCollector, exiting...")
+            StopWalking()
+            return false
         end
-        
-        -- CRITICAL: Check if Vicious Bee despawned or moved during token collection
-        -- BUT ONLY if we were actively hunting it!
-        if self.killViciousBee and self.huntingVicious then
-            local viciousBeeData = self:CheckForViciousBee()
-            
-            if not viciousBeeData then
-                -- Vicious Bee despawned completely!
-                print("✓ Vicious Bee despawned during token collection! Exiting to main loop...")
-                StopWalking()
-                return false
-            elseif viciousBeeData.field.Name ~= self.selectedOption then
-                -- Vicious Bee moved to different field
-                print("⚠️ Vicious Bee moved to " .. viciousBeeData.field.Name .. " during token collection!")
-                StopWalking()
-                return false
-            end
-        end
+    else
+        print("No character in TokenCollector, exiting...")
+        return false
+    end
 
-        local currentTime = os.clock()
+    -- CRITICAL: Check if sprout despawned during token collection
+    -- BUT ONLY if we're actively farming sprouts (not during the 20s collection period)
+    if self.farmSprouts and self.lastFieldChangeSource == "sprout" and not self.collectingSproutTokens then
+        print("DEBUG: Checking for sprouts (hasReachedFieldOnce=true)...")
+        local sproutData = self:CheckForSprouts()
+        if not sproutData then
+            print("✓ Sprout despawned during token collection!")
+            StopWalking()
+            return false
+        end
+    end
+
+    -- CRITICAL: Check if Windy Bee moved to a different field
+    if self.killWindy then
+        local windyBeeData = self:CheckForWindyBee()
+        if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
+            print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. " during token collection!")
+            StopWalking()
+            return false
+        end
+    end
+
+    -- CRITICAL: Check if 20-second sprout collection time is up
+    if self.sproutCollectionEndTime and os.clock() >= self.sproutCollectionEndTime then
+        print("TokenCollector: 20s timer expired, exiting")
+        StopWalking()
+        return false
+    end
+
+    -- CRITICAL: Check if Vicious Bee despawned or moved during token collection
+    -- BUT ONLY if we were actively hunting it!
+    if self.killViciousBee and self.huntingVicious then
+        local viciousBeeData = self:CheckForViciousBee()
+
+        if not viciousBeeData then
+            -- Vicious Bee despawned completely!
+            print("✓ Vicious Bee despawned during token collection! Exiting to main loop...")
+            StopWalking()
+            return false
+        elseif viciousBeeData.field.Name ~= self.selectedOption then
+            -- Vicious Bee moved to different field
+            print("⚠️ Vicious Bee moved to " .. viciousBeeData.field.Name .. " during token collection!")
+            StopWalking()
+            return false
+        end
+    end
+
+    local currentTime = os.clock()
         
         -- ============================================================
         -- POLLEN CHECK
@@ -6297,9 +6359,13 @@ function UI:HandleInput()
         if self.draggingSlider then
             self:HandleSliderDrag(mX, mY)
         end
+        if self.draggingGatherSlider then
+            self:HandleGatherSliderDrag(mX, mY)
+        end
     else
         self.dragging = nil
         self.draggingSlider = false
+        self.draggingGatherSlider = false
     end
     
     self.lastMousePressed = pressed
@@ -6318,6 +6384,23 @@ function UI:HandleSliderDrag(mX, mY)
     local normalizedValue = relX / sliderWidth
     self.tweenSpeed = 20 + (normalizedValue * 100)
     self.tweenSpeed = math.floor(self.tweenSpeed)
+    
+    self.needsRedraw = true
+end
+
+function UI:HandleGatherSliderDrag(mX, mY)
+    local sliderX = self.panel.x + self.panel.sidebarWidth + 30 + 220
+    local sliderY = self.panel.y + 80 + 40 + 8 + 60
+    local sliderWidth = 150
+    
+    -- Calculate position relative to slider
+    local relX = mX - sliderX
+    relX = math.max(0, math.min(relX, sliderWidth))
+    
+    -- Map to time range (1-30 minutes)
+    local normalizedValue = relX / sliderWidth
+    self.gatherTime = 1 + (normalizedValue * 29)
+    self.gatherTime = math.floor(self.gatherTime)
     
     self.needsRedraw = true
 end
@@ -6889,7 +6972,7 @@ end
 -- MAIN LOOP
 -- ============================================================
 
-print("v1.1.0")
+print("v1.1.1")
 UI:Render()
 UI:StartStatusUpdater()
 spawn(function()
