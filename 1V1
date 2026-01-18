@@ -781,6 +781,137 @@ function UI:RenderMainTab()
     end
 end
 
+-- ============================================================
+-- PATHFINDING SYSTEM
+-- ============================================================
+UI.pathNodes = {
+    -- Sunflower waypoints (existing)
+    sf1 = Vector3.new(-224, 4, 256),
+    sf2 = Vector3.new(-186, 4, 299),
+    
+    -- Dandelion/Mushroom shared hive path
+    dand_mush_w1 = Vector3.new(-40, 4, 252),
+    dand_mush_w2 = Vector3.new(-15, 4, 296),
+    
+    -- Blue Flower hive path
+    blue_w1 = Vector3.new(41, 4, 99),
+    blue_w2 = Vector3.new(24, 4, 160),
+    blue_w3 = Vector3.new(-71, 4, 291),
+    
+    -- Clover hive path
+    clover_w1 = Vector3.new(119, 33, 179),
+    clover_w2 = Vector3.new(77, 18, 179),    
+    clover_w3 = Vector3.new(70, 18, 218),    
+    clover_w4 = Vector3.new(45, 4, 217),
+    clover_w5 = Vector3.new(-47, 4, 257),    
+    clover_w6 = Vector3.new(-70, 4, 292),    
+
+}
+
+-- Define which nodes can connect to each other
+UI.pathConnections = {
+    -- Sunflower
+    sf1 = {"sf2"},
+    sf2 = {"sf1"},
+    
+    -- Dandelion/Mushroom (since they're close, they share the same path)
+    dand_mush_w1 = {"dand_mush_w2"},
+    dand_mush_w2 = {"dand_mush_w1"},
+    
+    -- Blue Flower
+    blue_w1 = {"blue_w2"},
+    blue_w2 = {"blue_w1",},
+    blue_w3 = {"blue_w2",},
+    
+    -- Clover
+    clover_w1 = {"clover_w2"},
+    clover_w2 = {"clover_w1", "clover_w3"},
+    clover_w3 = {"clover_w2", "clover_w4"},
+    clover_w4 = {"clover_w3", "clover_w5"},
+    clover_w5 = {"clover_w4", "clover_w6"},
+    clover_w6 = {"clover_w5"},
+    
+}
+
+UI.fieldToNode = {
+    ["Sunflower Field"] = "sf1",
+    ["Dandelion Field"] = "dand_mush_w1",
+    ["Mushroom Field"] = "dand_mush_w1",
+    ["Blue Flower Field"] = "blue_w1",
+    ["Clover Field"] = "clover_w1",
+}
+
+function UI:PathfindBetweenNodes(startNode, endNode)
+    if startNode == endNode then
+        return {startNode}
+    end
+    
+    -- Check if direct connection exists
+    if self.pathConnections[startNode] then
+        for _, neighbor in ipairs(self.pathConnections[startNode]) do
+            if neighbor == endNode then
+                return {startNode, endNode}
+            end
+        end
+    end
+    
+    -- If no direct connection, go through master
+    return {startNode, "master", endNode}
+end
+
+function UI:WalkPath(pathNodes)
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if not character then return false end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+    
+    for i, nodeName in ipairs(pathNodes) do
+        if not self.autoFarmEnabled then break end
+        
+        local targetPos = self.pathNodes[nodeName]
+        if not targetPos then
+            print("ERROR: Invalid node " .. nodeName)
+            return false
+        end
+        
+        print("Walking to node: " .. nodeName)
+        WalkTo(targetPos)
+        
+        local startTime = os.clock()
+        while IsWalking() and self.autoFarmEnabled do
+            if os.clock() - startTime > 30 then
+                print("Walk timeout at node " .. nodeName)
+                StopWalking()
+                return false
+            end
+            
+            -- Yield to let UI update
+            task.wait(0.05)
+            
+            hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local currentPos = hrp.Position
+                local dx = currentPos.X - targetPos.X
+                local dz = currentPos.Z - targetPos.Z
+                local distance2D = math.sqrt(dx * dx + dz * dz)
+                
+                if distance2D < 5 then
+                    StopWalking()
+                    break
+                end
+            end
+        end
+        StopWalking()
+        
+        -- Small delay between waypoints
+        task.wait(0.1)
+    end
+    
+    return true
+end
+
 function UI:RenderFarmingTab()
     local contentX = self.panel.sidebarWidth + 30
     local contentY = 80
@@ -890,7 +1021,7 @@ function UI:RenderFarmingTab()
     fieldAbilityY = fieldAbilityY + 25
     
     local fieldToggles = {
-        {label = "Hi", key = "Hi"},
+        {label = "Path Find (starter area)", key = "testWalkEnabled"},
         {label = "Hi", key = "Hi"},
         {label = "Hi", key = "Hi"},
         {label = "Hi", key = "Hi"},
@@ -1524,16 +1655,49 @@ end
                             if flowerZones and self.selectedOption then
                                 local targetZone = flowerZones:FindFirstChild(self.selectedOption)
                                 if targetZone then
-                                    print("Forcing tween back to field after death...")
                                     local targetPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
-                                    self:QueueTween(hrp, targetPos, true)
                                     
-                                    while self.processingTween and self.autoFarmEnabled do
-                                        wait(0.1)
+                                    -- ===== TEST WALK: Return after death =====
+                                    if self.testWalkEnabled and self.selectedOption == "Sunflower Field" then
+                                        print("=== TEST WALK: Returning to Sunflower after death ===")
+                                        
+                                        -- Walk from hive: sf2 -> sf1 -> sunflower
+                                        local pathToField = {"sf2", "sf1"}
+                                        local walkSuccess = self:WalkPath(pathToField)
+                                        
+                                        if walkSuccess then
+                                            print("Walking to sunflower center...")
+                                            WalkTo(targetPos)
+                                            local startTime = os.clock()
+                                            while IsWalking() and self.autoFarmEnabled do
+                                                if os.clock() - startTime > 15 then
+                                                    StopWalking()
+                                                    break
+                                                end
+                                                wait(0.1)
+                                            end
+                                            StopWalking()
+                                            print("✓ Arrived back at field after death (Test Walk)")
+                                        else
+                                            print("Test Walk failed, using tween")
+                                            self:QueueTween(hrp, targetPos, true)
+                                            while self.processingTween and self.autoFarmEnabled do
+                                                wait(0.1)
+                                            end
+                                        end
+                                    else
+                                        -- Original tween method
+                                        print("Forcing tween back to field after death...")
+                                        self:QueueTween(hrp, targetPos, true)
+                                        
+                                        while self.processingTween and self.autoFarmEnabled do
+                                            wait(0.1)
+                                        end
+                                        
+                                        wait(1)
+                                        print("✓ Arrived back at field after death")
                                     end
                                     
-                                    wait(1)
-                                    print("✓ Arrived back at field after death")
                                     print("Sprinklers will be placed next time in field")
                                 end
                             end
@@ -1649,32 +1813,70 @@ self.status = "Going to Hive"
 self.needsRedraw = true
 
 StopWalking()
-
 self:ClearTweenQueue()
 wait(0.5)
 
--- STEP 1: Tween to waypoint first
-local waypointPos = Vector3.new(-114, 5, 271)
-print("Tweening to waypoint before hive...")
-self:QueueTween(hrp, waypointPos, true)
-
-local maxWaitTime = 60
-local startWait = os.clock()
-
-while self.processingTween and self.autoFarmEnabled do
-    if checkAndHandleDeath() then
-        break
+-- Check if Test Walk is enabled and in Sunflower Field
+-- Check if Test Walk is enabled
+if self.testWalkEnabled then
+    print("=== TEST WALK: " .. self.selectedOption .. " -> Hive ===")
+    
+    -- Build path to hive for ALL supported fields
+    local pathToHive = {}
+    if self.selectedOption == "Sunflower Field" then
+        pathToHive = {"sf1", "sf2"}
+    elseif self.selectedOption == "Dandelion Field" or self.selectedOption == "Mushroom Field" then
+        pathToHive = {"dand_mush_w1", "dand_mush_w2"}
+    elseif self.selectedOption == "Blue Flower Field" then
+        pathToHive = {"blue_w1", "blue_w2", "blue_w3"}
+    elseif self.selectedOption == "Clover Field" then
+        pathToHive = {"clover_w1", "clover_w2", "clover_w3", "clover_w4", "clover_w5", "clover_w6"}
     end
     
-    if os.clock() - startWait > maxWaitTime then
-        print("ERROR: Waypoint tween timeout!")
-        self:ClearTweenQueue()
-        break
+    if #pathToHive > 0 then
+        print("Path to hive: " .. table.concat(pathToHive, " -> "))
+        local walkSuccess = self:WalkPath(pathToHive)
+        
+        if not walkSuccess then
+            print("Test Walk failed, falling back to tween")
+            local waypointPos = Vector3.new(-114, 5, 271)
+            self:QueueTween(hrp, waypointPos, true)
+            
+            while self.processingTween and self.autoFarmEnabled do
+                if checkAndHandleDeath() then
+                    break
+                end
+                wait(0.1)
+            end
+        end
+    else
+        -- No path for this field, use tween
+        print("No Test Walk path for " .. self.selectedOption .. ", using tween")
+        local waypointPos = Vector3.new(-114, 5, 271)
+        self:QueueTween(hrp, waypointPos, true)
+        
+        while self.processingTween and self.autoFarmEnabled do
+            if checkAndHandleDeath() then
+                break
+            end
+            wait(0.1)
+        end
     end
-    wait(0.1)
+else
+    -- Test Walk is OFF - just tween to hive area
+    print("Test Walk disabled, tweening to hive area")
+    local waypointPos = Vector3.new(-114, 5, 271)
+    self:QueueTween(hrp, waypointPos, true)
+    
+    while self.processingTween and self.autoFarmEnabled do
+        if checkAndHandleDeath() then
+            break
+        end
+        wait(0.1)
+    end
 end
 
-print("✓ Arrived at waypoint, now finding hive...")
+print("✓ Arrived near hive area, now finding hive...")
 wait(0.5)
 
 -- STEP 2: Find hive and walk to it
@@ -2063,9 +2265,114 @@ if hivePlatforms then
                                             end
                                                                                     
                                                     returningToHive = false
-                                                    fullPollenTime = nil
-                                                    self.status = "Auto Farm Active"
-                                                    self.needsRedraw = true
+fullPollenTime = nil
+self.status = "Auto Farm Active"
+self.needsRedraw = true
+
+-- ===== PATHFINDING: Return to field after conversion =====
+if self.autoFarmEnabled and self.selectedOption then
+    local flowerZones = game.Workspace.FlowerZones
+    if flowerZones then
+        local targetZone = flowerZones:FindFirstChild(self.selectedOption)
+        if targetZone then
+            local fieldPos = Vector3.new(targetZone.Position.X, targetZone.Position.Y + 10, targetZone.Position.Z)
+            
+            if self.testWalkEnabled then
+                -- Test Walk is enabled - use pathfinding
+                print("=== TEST WALK: Hive -> " .. self.selectedOption .. " ===")
+                
+                -- Build path from hive to field
+                local testPath = {}
+                if self.selectedOption == "Sunflower Field" then
+                    testPath = {"sf2", "sf1"}
+                elseif self.selectedOption == "Dandelion Field" or self.selectedOption == "Mushroom Field" then
+                    testPath = {"dand_mush_w2", "dand_mush_w1"}
+                elseif self.selectedOption == "Blue Flower Field" then
+                    testPath = {"blue_w3", "blue_w2", "blue_w1"}
+                elseif self.selectedOption == "Clover Field" then
+                    testPath = {"clover_w6", "clover_w5", "clover_w4", "clover_w3", "clover_w2", "clover_w1"}
+                end
+                
+                if #testPath > 0 then
+                    print("Test Walk Path: " .. table.concat(testPath, " -> "))
+                    
+                    local walkSuccess = self:WalkPath(testPath)
+                    
+                    if walkSuccess then
+                        print("Walking to field center...")
+                        WalkTo(fieldPos)
+                        local startTime = os.clock()
+                        while IsWalking() and self.autoFarmEnabled do
+                            local character = game.Players.LocalPlayer.Character
+                            if character then
+                                local hrp = character:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    local currentPos = hrp.Position
+                                    local dx = currentPos.X - fieldPos.X
+                                    local dz = currentPos.Z - fieldPos.Z
+                                    local distance2D = math.sqrt(dx * dx + dz * dz)
+                                    
+                                    if distance2D < 15 then
+                                        StopWalking()
+                                        break
+                                    end
+                                end
+                            end
+                            
+                            if os.clock() - startTime > 15 then
+                                StopWalking()
+                                break
+                            end
+                            wait(0.1)
+                        end
+                        StopWalking()
+                        print("✓ Returned to field (Test Walk)")
+                    else
+                        print("Test Walk failed, falling back to tween")
+                        local character = game.Players.LocalPlayer.Character
+                        if character then
+                            local hrp = character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                self:QueueTween(hrp, fieldPos, true)
+                                while self.processingTween and self.autoFarmEnabled do
+                                    wait(0.1)
+                                end
+                            end
+                        end
+                    end
+                else
+                    -- No test path for this field, use tween
+                    print("No test path for " .. self.selectedOption .. ", using tween")
+                    local character = game.Players.LocalPlayer.Character
+                    if character then
+                        local hrp = character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            self:QueueTween(hrp, fieldPos, true)
+                            while self.processingTween and self.autoFarmEnabled do
+                                wait(0.1)
+                            end
+                        end
+                    end
+                end
+            else
+                -- Test Walk is DISABLED - use tween
+                print("Test Walk disabled, using tween to return to field")
+                local character = game.Players.LocalPlayer.Character
+                if character then
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        self:QueueTween(hrp, fieldPos, true)
+                        while self.processingTween and self.autoFarmEnabled do
+                            wait(0.1)
+                        end
+                        print("✓ Returned to field (Tween)")
+                    end
+                end
+            end
+        end
+    end
+end
+-- ===== END PATHFINDING =====
                                                 end
                                             else
                                                 wait(0.1)
@@ -3558,8 +3865,22 @@ if #nearbyTokens > 0 then
     local currentPathIndex = 1
     local lastRescanTime = os.clock()
     
-    -- STEP 3: Collect tokens with live re-scanning (0.1s intervals)
     while currentPathIndex <= #optimalPath and self.autoFarmEnabled and self.collectTokens do
+        
+        local coreStats = player:FindFirstChild("CoreStats")
+            if coreStats then
+                local pollen = coreStats:FindFirstChild("Pollen")
+                local capacity = coreStats:FindFirstChild("Capacity")
+                if pollen and capacity then
+                    local pollenValue = pollen.Value
+                    local capacityValue = capacity.Value
+                    if pollenValue >= capacityValue then
+                        print("Pollen full during token collection! Exiting to return to hive...")
+                        StopWalking()
+                    return true
+                end
+            end
+        end
 
         if self.selectedOption ~= startingField then
             print("FIELD CHANGED (" .. startingField .. " -> " .. self.selectedOption .. ") - Exiting token collection immediately")
@@ -3620,11 +3941,22 @@ if #nearbyTokens > 0 then
         local reachedToken = false
         
         while IsWalking() and self.autoFarmEnabled and self.collectTokens do
-            if self.selectedOption ~= startingField then
+            local coreStats = player:FindFirstChild("CoreStats")
+            if coreStats then
+                local pollen = coreStats:FindFirstChild("Pollen")
+                local capacity = coreStats:FindFirstChild("Capacity")
+                if pollen and capacity and pollen.Value >= capacity.Value then
+                    print("Pollen full during walk to token - stopping!")
+                    StopWalking()
+                return true
+            end
+        end
+    
+        if self.selectedOption ~= startingField then
                 print("FIELD CHANGED during walk - Exiting")
                 StopWalking()
-                return false
-            end
+            return false
+        end
 
             character = player.Character
             if character then
