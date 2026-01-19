@@ -1298,7 +1298,7 @@ function UI:RenderCombatTab()
                 end
             elseif toggle.key == "trainSnail" then
                 if not value and self.autoFarmEnabled then
-                    notify("Windy - Train Snail", "Turn off Auto Farm first", 8)
+                    notify("Windy - Train Snail", "Turn off Auto Farm first", "8")
                     return
                 end
                 
@@ -1588,7 +1588,7 @@ end
 
 function UI:StartAutoFarm()
     if self.selectedOption == "Select Field..." or self.selectedOption == "" then
-        notify("Turn On Autofarm First , Windy - Autofarm , 8")
+        notify("Windy Auto Farm", "Select A field", "8")
         self.autoFarmEnabled = false
         self.needsRedraw = true
         return
@@ -1600,7 +1600,7 @@ function UI:StartAutoFarm()
     end
 
     if self.killCoconutCrab then
-        notify("Turn Off Kill Coconut Crab First , Windy - CONTROL , 8")
+        notify("Turn Off Kill Coconut Crab First", "Windy - CONTROL", 8)
         self.autoFarmEnabled = false
         self.needsRedraw = true
         return
