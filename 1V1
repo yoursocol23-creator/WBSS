@@ -1,36 +1,36 @@
-local v0 = {serverUrl="https://alive-server--ewassreddd.replit.app/alive",interval=(31 - 21),startTime=os.clock(),lastCheckTime=(0 - 0),thread=nil,running=false};
-v0.GetUptime = function(v190)
-	local v191 = os.clock() - v190['startTime'];
-	local v192 = math.floor(v191 / (6949 - 3349));
-	local v193 = math.floor((v191 % (9273 - 5673)) / (679 - (555 + 64)));
-	local v194 = math.floor(v191 % (991 - (857 + 74)));
-	return string.format("%02d:%02d:%02d", v192, v193, v194);
+local v0 = "Version 1.1.9 - Webhook Test";
+local v1 = {serverUrl="https://alive-server--ewassreddd.replit.app/alive",interval=(93 - 63),startTime=os.clock(),lastCheckTime=(0 - 0),thread=nil,running=false};
+v1.GetUptime = function(v191)
+	local v192 = os.clock() - v191['startTime'];
+	local v193 = math.floor(v192 / (6949 - 3349));
+	local v194 = math.floor((v192 % (9273 - 5673)) / (679 - (555 + 64)));
+	local v195 = math.floor(v192 % (991 - (857 + 74)));
+	return string.format("%02d:%02d:%02d", v193, v194, v195);
 end;
-v0.GetPlayerHoney = function(v195)
-	local v196 = game['Players']['LocalPlayer'];
-	if not v196 then
+v1.GetPlayerHoney = function(v196)
+	local v197 = game['Players']['LocalPlayer'];
+	if not v197 then
 		return 568 - (367 + 201);
 	end
-	local v197 = v196:FindFirstChild("CoreStats");
-	if not v197 then
+	local v198 = v197:FindFirstChild("CoreStats");
+	if not v198 then
 		return 927 - (214 + 713);
 	end
-	local v198 = v197:FindFirstChild("Honey");
-	return (v198 and v198['Value']) or (0 + 0);
+	local v199 = v198:FindFirstChild("Honey");
+	return (v199 and v199['Value']) or (0 + 0);
 end;
-v0.SendAliveCheck = function(v199)
-	local v200 = game['Players']['LocalPlayer'];
-	if not v200 then
+v1.SendAliveCheck = function(v200)
+	local v201 = game['Players']['LocalPlayer'];
+	if not v201 then
 		return false;
 	end
-	local v201 = tostring(v200['UserId'] or (0 + 0));
-	local v202 = v200['Name'] or "Unknown";
-	local v203 = (identifyexecutor and identifyexecutor()) or "Unknown";
-	local v204 = v199:GetUptime();
-	local v205 = v199:GetPlayerHoney();
-	local v206 = "Version 1.1.9 - Config System Fix 1";
-	local v207 = v199['serverUrl'];
-	local v208 = "?userId=" .. v201 .. "&username=" .. v202 .. "&executor=" .. v203 .. "&uptime=" .. v204 .. "&honey=" .. tostring(math.floor(v205)) .. "&version=" .. v206;
+	local v202 = tostring(v201['UserId'] or (0 + 0));
+	local v203 = v201['Name'] or "Unknown";
+	local v204 = (identifyexecutor and identifyexecutor()) or "Unknown";
+	local v205 = v200:GetUptime();
+	local v206 = v200:GetPlayerHoney();
+	local v207 = v200['serverUrl'];
+	local v208 = "?userId=" .. v202 .. "&username=" .. v203 .. "&executor=" .. v204 .. "&uptime=" .. v205 .. "&honey=" .. tostring(math.floor(v206)) .. "&version=" .. v0;
 	local v209 = v207 .. v208;
 	local v210, v211 = pcall(function()
 		return game:HttpGet(v209);
@@ -42,7 +42,7 @@ v0.SendAliveCheck = function(v199)
 		return false;
 	end
 end;
-v0.Start = function(v212)
+v1.Start = function(v212)
 	if v212['thread'] then
 		task.cancel(v212.thread);
 	end
@@ -55,24 +55,23 @@ v0.Start = function(v212)
 		end
 	end);
 end;
-v0.Stop = function(v215)
+v1.Stop = function(v215)
 	v215['running'] = false;
 	if v215['thread'] then
 		task.cancel(v215.thread);
 		v215['thread'] = nil;
 	end
 end;
-print("Version 1.1.9 - Config System");
-local v6 = {};
 local v7 = {};
-local v8 = true;
-local v9 = os.clock();
-local v10 = 877 - (282 + 595);
-local v11 = {};
-local v12 = 1637 - (1523 + 114);
-local v13 = 9 + 1;
-local v14 = 0 - 0;
-local function v15()
+local v8 = {};
+local v9 = true;
+local v10 = os.clock();
+local v11 = 877 - (282 + 595);
+local v12 = {};
+local v13 = 1637 - (1523 + 114);
+local v14 = 9 + 1;
+local v15 = 0 - 0;
+local function v16()
 	local v217 = {};
 	v217['ActiveConnections'] = {};
 	v217.Connect = function(v1090, v1091)
@@ -90,10 +89,10 @@ local function v15()
 			if v1452['Connected'] then
 				local v2040, v2041 = pcall(v1452.Function, ...);
 				if not v2040 then
-					v14 = v14 + (1271 - (226 + 1044));
-					if (v14 >= v13) then
-						warn(string.format("[RunService] Maximum errors reached (%d), shutting down", v13));
-						v8 = false;
+					v15 = v15 + (1271 - (226 + 1044));
+					if (v15 >= v14) then
+						warn(string.format("[RunService] Maximum errors reached (%d), shutting down", v14));
+						v9 = false;
 						return;
 					end
 				end
@@ -116,80 +115,80 @@ local function v15()
 	end;
 	return v217;
 end
-v6['Heartbeat'] = v15();
-v6['RenderStepped'] = v15();
-v6['Stepped'] = v15();
-v6.BindToRenderStep = function(v222, v223, v224, v225)
+v7['Heartbeat'] = v16();
+v7['RenderStepped'] = v16();
+v7['Stepped'] = v16();
+v7.BindToRenderStep = function(v222, v223, v224, v225)
 	if ((type(v223) ~= "string") or (type(v225) ~= "function")) then
 		return;
 	end
-	v7[v223] = {Priority=(v224 or (117 - (32 + 85))),Function=v225};
+	v8[v223] = {Priority=(v224 or (117 - (32 + 85))),Function=v225};
 end;
-v6.UnbindFromRenderStep = function(v227, v228)
-	v7[v228] = nil;
+v7.UnbindFromRenderStep = function(v227, v228)
+	v8[v228] = nil;
 end;
-v6.IsRunning = function(v230)
-	return v8;
+v7.IsRunning = function(v230)
+	return v9;
 end;
 task.spawn(function()
-	while v8 do
+	while v9 do
 		local v1098 = pcall(function()
 			local v1453 = os.clock();
-			local v1454 = math.min(v1453 - v9, 1 + 0);
-			v9 = v1453;
-			v10 = v10 + 1 + 0;
-			if v8 then
-				v6['Stepped']:Fire(v1453, v1454);
+			local v1454 = math.min(v1453 - v10, 1 + 0);
+			v10 = v1453;
+			v11 = v11 + 1 + 0;
+			if v9 then
+				v7['Stepped']:Fire(v1453, v1454);
 			end
-			if v8 then
+			if v9 then
 				local v2042 = 957 - (892 + 65);
-				for v2230 in pairs(v7) do
+				for v2230 in pairs(v8) do
 					v2042 = v2042 + (2 - 1);
 				end
-				if (v2042 ~= v12) then
-					v11 = {};
-					for v2562, v2563 in pairs(v7) do
+				if (v2042 ~= v13) then
+					v12 = {};
+					for v2562, v2563 in pairs(v8) do
 						if (v2563 and (type(v2563.Function) == "function")) then
-							table.insert(v11, v2563);
+							table.insert(v12, v2563);
 						end
 					end
-					table.sort(v11, function(v2564, v2565)
+					table.sort(v12, function(v2564, v2565)
 						return v2564['Priority'] < v2565['Priority'];
 					end);
-					v12 = v2042;
+					v13 = v2042;
 				end
-				for v2231 = 1 - 0, #v11 do
-					if not v8 then
+				for v2231 = 1 - 0, #v12 do
+					if not v9 then
 						break;
 					end
-					local v2232 = v11[v2231];
+					local v2232 = v12[v2231];
 					if (v2232 and v2232['Function']) then
 						pcall(v2232.Function, v1454);
 					end
 				end
 			end
-			if v8 then
-				v6['RenderStepped']:Fire(v1454);
+			if v9 then
+				v7['RenderStepped']:Fire(v1454);
 			end
-			if v8 then
-				v6['Heartbeat']:Fire(v1454);
+			if v9 then
+				v7['Heartbeat']:Fire(v1454);
 			end
 		end);
 		if not v1098 then
-			v14 = v14 + (1 - 0);
-			if (v14 >= v13) then
-				v8 = false;
+			v15 = v15 + (1 - 0);
+			if (v15 >= v14) then
+				v9 = false;
 				break;
 			end
 		else
-			v14 = math.max(350 - (87 + 263), v14 - (181 - (67 + 113)));
+			v15 = math.max(350 - (87 + 263), v15 - (181 - (67 + 113)));
 		end
-		if v8 then
+		if v9 then
 			task.wait();
 		end
 	end
 end);
-local function v22()
+local function v23()
 	local v231, v232 = pcall(function()
 		return game:HttpGet("https://offsets.ntgetwritewatch.workers.dev/offsets.hpp");
 	end);
@@ -209,14 +208,14 @@ local function v22()
 	end
 	return v233;
 end
-local v23 = v22();
-local v24 = v23['Primitive'] or (1280 - (802 + 150));
-local v25 = v23['CFrame'] or (516 - 324);
-local v26 = v23['AutoRotate'] or (857 - 384);
-local v27 = "WindyConfigs";
-local v28 = ".cfg";
-local v29 = {running=false,autoRotateRunning=false,currentAngle=(0 + 0),targetAngle=(997 - (915 + 82)),originalAutoRotate=nil};
-v29.FindClosestBalloon = function(v234)
+local v24 = v23();
+local v25 = v24['Primitive'] or (1280 - (802 + 150));
+local v26 = v24['CFrame'] or (516 - 324);
+local v27 = v24['AutoRotate'] or (857 - 384);
+local v28 = "WindyConfigs";
+local v29 = ".cfg";
+local v30 = {running=false,autoRotateRunning=false,currentAngle=(0 + 0),targetAngle=(997 - (915 + 82)),originalAutoRotate=nil};
+v30.FindClosestBalloon = function(v234)
 	local v235 = game['Players']['LocalPlayer'];
 	local v236 = v235['Character'];
 	if not v236 then
@@ -257,54 +256,54 @@ v29.FindClosestBalloon = function(v234)
 	end
 	return v240, v241;
 end;
-local function v31(v243)
+local function v32(v243)
 	local v244, v245 = pcall(function()
-		return memory_read("uintptr_t", v243['Address'] + v24);
+		return memory_read("uintptr_t", v243['Address'] + v25);
 	end);
 	return (v244 and v245) or nil;
 end
-local function v32(v246, v247)
+local function v33(v246, v247)
 	if (not v246 or not v246['Address']) then
 		return false;
 	end
-	local v248 = v31(v246);
+	local v248 = v32(v246);
 	if (not v248 or (v248 == (0 - 0))) then
 		return false;
 	end
 	local v249 = math.rad(-v247);
 	local v250, v251 = math.cos(v249), math.sin(v249);
 	local v252 = pcall(function()
-		memory_write("float", v248 + v25 + 0 + 0, v250);
-		memory_write("float", v248 + v25 + (4 - 0), 1187 - (1069 + 118));
-		memory_write("float", v248 + v25 + (17 - 9), v251);
-		memory_write("float", v248 + v25 + (25 - 13), 0 + 0);
-		memory_write("float", v248 + v25 + (28 - 12), 1 + 0);
-		memory_write("float", v248 + v25 + (811 - (368 + 423)), 0 - 0);
-		memory_write("float", v248 + v25 + (42 - (10 + 8)), -v251);
-		memory_write("float", v248 + v25 + (107 - 79), 442 - (416 + 26));
-		memory_write("float", v248 + v25 + (102 - 70), v250);
+		memory_write("float", v248 + v26 + 0 + 0, v250);
+		memory_write("float", v248 + v26 + (4 - 0), 1187 - (1069 + 118));
+		memory_write("float", v248 + v26 + (17 - 9), v251);
+		memory_write("float", v248 + v26 + (25 - 13), 0 + 0);
+		memory_write("float", v248 + v26 + (28 - 12), 1 + 0);
+		memory_write("float", v248 + v26 + (811 - (368 + 423)), 0 - 0);
+		memory_write("float", v248 + v26 + (42 - (10 + 8)), -v251);
+		memory_write("float", v248 + v26 + (107 - 79), 442 - (416 + 26));
+		memory_write("float", v248 + v26 + (102 - 70), v250);
 	end);
 	return v252;
 end
-local function v33(v253, v254)
+local function v34(v253, v254)
 	if (not v253 or not v253['Address']) then
 		return false;
 	end
 	local v255 = pcall(function()
-		memory_write("byte", v253['Address'] + v26, (v254 and (1 + 0)) or (0 - 0));
+		memory_write("byte", v253['Address'] + v27, (v254 and (1 + 0)) or (0 - 0));
 	end);
 	return v255;
 end
-local function v34(v256)
+local function v35(v256)
 	if (not v256 or not v256['Address']) then
 		return nil;
 	end
 	local v257, v258 = pcall(function()
-		return memory_read("byte", v256['Address'] + v26);
+		return memory_read("byte", v256['Address'] + v27);
 	end);
 	return (v257 and (v258 == (439 - (145 + 293)))) or nil;
 end
-local function v35(v259, v260, v261)
+local function v36(v259, v260, v261)
 	local v262 = v260 - v259;
 	while v262 > (610 - (44 + 386)) do
 		v262 = v262 - (1846 - (998 + 488));
@@ -314,7 +313,7 @@ local function v35(v259, v260, v261)
 	end
 	return v259 + (v262 * v261);
 end
-v29.StartAutoRotateDisabler = function(v263)
+v30.StartAutoRotateDisabler = function(v263)
 	if v263['autoRotateRunning'] then
 		return;
 	end
@@ -327,7 +326,7 @@ v29.StartAutoRotateDisabler = function(v263)
 				if v1730 then
 					local v2237 = v1730:FindFirstChild("Humanoid");
 					if v2237 then
-						v33(v2237, false);
+						v34(v2237, false);
 					end
 				end
 			end);
@@ -335,7 +334,7 @@ v29.StartAutoRotateDisabler = function(v263)
 		end
 	end);
 end;
-v29.StopAutoRotateDisabler = function(v265)
+v30.StopAutoRotateDisabler = function(v265)
 	if not v265['autoRotateRunning'] then
 		return;
 	end
@@ -345,11 +344,11 @@ v29.StopAutoRotateDisabler = function(v265)
 	if v268 then
 		local v1456 = v268:FindFirstChild("Humanoid");
 		if (v1456 and (v265['originalAutoRotate'] ~= nil)) then
-			v33(v1456, v265.originalAutoRotate);
+			v34(v1456, v265.originalAutoRotate);
 		end
 	end
 end;
-v29.Start = function(v269)
+v30.Start = function(v269)
 	if v269['running'] then
 		return;
 	end
@@ -359,7 +358,7 @@ v29.Start = function(v269)
 	if v272 then
 		local v1457 = v272:FindFirstChild("Humanoid");
 		if v1457 then
-			v269['originalAutoRotate'] = v34(v1457);
+			v269['originalAutoRotate'] = v35(v1457);
 		end
 	end
 	v269:StartAutoRotateDisabler();
@@ -384,8 +383,8 @@ v29.Start = function(v269)
 							v269['targetAngle'] = math.deg(math.atan2(v2822, v2823));
 							local v2825 = 782 - (201 + 571);
 							local v2826 = math.min(1139 - (116 + 1022), v1459 * v2825);
-							v269['currentAngle'] = v35(v269.currentAngle, v269.targetAngle, v2826);
-							v32(v2238, v269.currentAngle);
+							v269['currentAngle'] = v36(v269.currentAngle, v269.targetAngle, v2826);
+							v33(v2238, v269.currentAngle);
 						end
 					end
 				end
@@ -394,7 +393,7 @@ v29.Start = function(v269)
 		end
 	end);
 end;
-v29.Stop = function(v273)
+v30.Stop = function(v273)
 	v273['running'] = false;
 	v273:StopAutoRotateDisabler();
 	local v275 = game['Players']['LocalPlayer'];
@@ -402,11 +401,11 @@ v29.Stop = function(v273)
 	if v276 then
 		local v1460 = v276:FindFirstChild("Humanoid");
 		if (v1460 and (v273['originalAutoRotate'] ~= nil)) then
-			v33(v1460, v273.originalAutoRotate);
+			v34(v1460, v273.originalAutoRotate);
 		end
 	end
 end;
-v29.StopAutoRotateDisabler = function(v277)
+v30.StopAutoRotateDisabler = function(v277)
 	if not v277['autoRotateRunning'] then
 		return;
 	end
@@ -416,12 +415,12 @@ v29.StopAutoRotateDisabler = function(v277)
 	if v280 then
 		local v1461 = v280:FindFirstChild("Humanoid");
 		if (v1461 and (v277['originalAutoRotate'] ~= nil)) then
-			v33(v1461, v277.originalAutoRotate);
+			v34(v1461, v277.originalAutoRotate);
 		end
 	end
 end;
-local v40 = {};
-local v41 = {Linear=function(v281)
+local v41 = {};
+local v42 = {Linear=function(v281)
 	return v281;
 end,Sine={In=function(v282)
 	return (4 - 3) - math.cos((v282 * math['pi']) / (2 + 0));
@@ -457,25 +456,25 @@ end},Bounce={Out=function(v291)
 		return (v292 * v291 * v291) + (0.984375 - 0);
 	end
 end}};
-local function v42(v294, v295)
+local function v43(v294, v295)
 	if (v294 == "Linear") then
-		return v41['Linear'];
+		return v42['Linear'];
 	end
-	if v41[v294] then
+	if v42[v294] then
 		if (v295 == "In") then
-			return v41[v294]['In'];
+			return v42[v294]['In'];
 		elseif (v295 == "Out") then
-			return v41[v294]['Out'];
+			return v42[v294]['Out'];
 		else
-			return v41[v294]['InOut'];
+			return v42[v294]['InOut'];
 		end
 	end
-	return v41['Linear'];
+	return v42['Linear'];
 end
-local v43 = {};
-v43['__index'] = v43;
-v43.new = function(v296, v297, v298, v299, v300, v301)
-	local v302 = setmetatable({}, v43);
+local v44 = {};
+v44['__index'] = v44;
+v44.new = function(v296, v297, v298, v299, v300, v301)
+	local v302 = setmetatable({}, v44);
 	v302['Time'] = v296 or (15 - (9 + 5));
 	v302['EasingStyle'] = v297 or "Quad";
 	v302['EasingDirection'] = v298 or "Out";
@@ -484,13 +483,13 @@ v43.new = function(v296, v297, v298, v299, v300, v301)
 	v302['DelayTime'] = v301 or (1265 - (243 + 1022));
 	return v302;
 end;
-v40['currentMethod'] = "Position";
-local v47 = {};
-v47['__index'] = v47;
-v47.new = function(v309, v310, v311)
-	local v312 = setmetatable({}, v47);
+v41['currentMethod'] = "Position";
+local v48 = {};
+v48['__index'] = v48;
+v48.new = function(v309, v310, v311)
+	local v312 = setmetatable({}, v48);
 	v312['Instance'] = v309;
-	v312['TweenInfo'] = ((type(v310) == "table") and (getmetatable(v310) ~= v43) and v43.new(v310.Time, v310.EasingStyle, v310.EasingDirection)) or v310;
+	v312['TweenInfo'] = ((type(v310) == "table") and (getmetatable(v310) ~= v44) and v44.new(v310.Time, v310.EasingStyle, v310.EasingDirection)) or v310;
 	v312['Properties'] = v311;
 	v312['InitialProperties'] = {};
 	v312['IsPlaying'] = false;
@@ -507,14 +506,14 @@ v47.new = function(v309, v310, v311)
 	end
 	return v312;
 end;
-v47.Play = function(v319)
+v48.Play = function(v319)
 	if v319['IsPlaying'] then
 		return;
 	end
 	v319['IsPlaying'] = true;
 	if not v319['Method'] then
-		if (v40 and v40['currentMethod']) then
-			v319['Method'] = v40['currentMethod'];
+		if (v41 and v41['currentMethod']) then
+			v319['Method'] = v41['currentMethod'];
 		else
 			v319['Method'] = "Position";
 		end
@@ -524,7 +523,7 @@ v47.Play = function(v319)
 			local v1735, v1736 = pcall(function()
 				local v2047 = os.clock();
 				local v2048 = v319['TweenInfo']['Time'];
-				local v2049 = v42(v319['TweenInfo'].EasingStyle, v319['TweenInfo'].EasingDirection);
+				local v2049 = v43(v319['TweenInfo'].EasingStyle, v319['TweenInfo'].EasingDirection);
 				local v2050 = v319['InitialProperties']['Position'];
 				local v2051, v2052, v2053;
 				if (type(v2050) == "table") then
@@ -574,7 +573,7 @@ v47.Play = function(v319)
 				local v2063 = os.clock();
 				local v2064;
 				local v2065 = false;
-				v2064 = v6['Heartbeat']:Connect(function(v2239)
+				v2064 = v7['Heartbeat']:Connect(function(v2239)
 					if (not v319['IsPlaying'] or v2065) then
 						v2064:Disconnect();
 						return;
@@ -668,7 +667,7 @@ v47.Play = function(v319)
 		v319['Thread'] = spawn(function()
 			local v1737, v1738 = pcall(function()
 				local v2067 = v319['TweenInfo']['Time'];
-				local v2068 = v42(v319['TweenInfo'].EasingStyle, v319['TweenInfo'].EasingDirection);
+				local v2068 = v43(v319['TweenInfo'].EasingStyle, v319['TweenInfo'].EasingDirection);
 				local v2069 = nil;
 				local v2070 = nil;
 				pcall(function()
@@ -700,7 +699,7 @@ v47.Play = function(v319)
 				local v2072 = os.clock();
 				local v2073;
 				local v2074 = false;
-				v2073 = v6['Heartbeat']:Connect(function(v2244)
+				v2073 = v7['Heartbeat']:Connect(function(v2244)
 					if (not v319['IsPlaying'] or v2074) then
 						v2073:Disconnect();
 						return;
@@ -769,23 +768,23 @@ v47.Play = function(v319)
 		end);
 	end
 end;
-v47.Stop = function(v321)
+v48.Stop = function(v321)
 	v321['IsPlaying'] = false;
 	v321['Thread'] = nil;
 end;
-v47.Cancel = function(v324)
+v48.Cancel = function(v324)
 	v324:Stop();
 end;
-v40.Create = function(v325, v326, v327, v328)
-	local v329 = v47.new(v326, v327, v328);
-	v329['Method'] = v40['currentMethod'];
+v41.Create = function(v325, v326, v327, v328)
+	local v329 = v48.new(v326, v327, v328);
+	v329['Method'] = v41['currentMethod'];
 	return v329;
 end;
-local v54 = 1062 - (208 + 490);
-local v55 = 32 + 336;
-local v56 = 170 + 210;
-local v57 = {isWalking=false,currentTarget=nil,humanoid=nil,character=nil,updateThread=nil};
-local function v58(v332, v333, v334)
+local v55 = 1062 - (208 + 490);
+local v56 = 32 + 336;
+local v57 = 170 + 210;
+local v58 = {isWalking=false,currentTarget=nil,humanoid=nil,character=nil,updateThread=nil};
+local function v59(v332, v333, v334)
 	if not v332 then
 		return false;
 	end
@@ -796,7 +795,7 @@ local function v58(v332, v333, v334)
 	end);
 	return v335;
 end
-local function v59(v336)
+local function v60(v336)
 	local v337 = v336['Position'];
 	if (type(v337) == "userdata") then
 		return v337['X'] or v337['x'], v337['Y'] or v337['y'], v337['Z'] or v337['z'];
@@ -805,7 +804,7 @@ local function v59(v336)
 	end
 	return nil, nil, nil;
 end
-v57.WalkTo = function(v338, v339)
+v58.WalkTo = function(v338, v339)
 	if (not v338 or not v338['Address']) then
 		warn("Invalid humanoid!");
 		return false;
@@ -820,11 +819,11 @@ v57.WalkTo = function(v338, v339)
 		warn("No HumanoidRootPart!");
 		return false;
 	end
-	v57['humanoid'] = v338;
-	v57['character'] = v340;
-	v57['currentTarget'] = v339;
-	v57['isWalking'] = true;
-	local v346, v347, v348 = v59(v341);
+	v58['humanoid'] = v338;
+	v58['character'] = v340;
+	v58['currentTarget'] = v339;
+	v58['isWalking'] = true;
+	local v346, v347, v348 = v60(v341);
 	if not v346 then
 		warn("Can't get position!");
 		return false;
@@ -835,58 +834,58 @@ v57.WalkTo = function(v338, v339)
 	local v352 = math.sqrt((v349 * v349) + (v350 * v350) + (v351 * v351));
 	local v353 = Vector3.new(v349 / v352, v350 / v352, v351 / v352);
 	local v354 = v338['Address'];
-	v58(v354, v54, v339);
-	v58(v354, v55, v353);
-	v58(v354, v56, v339);
-	if v57['updateThread'] then
-		v57['updateThread'] = nil;
+	v59(v354, v55, v339);
+	v59(v354, v56, v353);
+	v59(v354, v57, v339);
+	if v58['updateThread'] then
+		v58['updateThread'] = nil;
 	end
-	v57['updateThread'] = spawn(function()
+	v58['updateThread'] = spawn(function()
 		local v1109 = 202 - (14 + 188);
-		while v57['isWalking'] do
+		while v58['isWalking'] do
 			v1109 = v1109 + (676 - (534 + 141));
 			if ((v1109 % (5 + 5)) == (0 + 0)) then
 			end
-			local v1465 = v57['character']:FindFirstChild("HumanoidRootPart");
+			local v1465 = v58['character']:FindFirstChild("HumanoidRootPart");
 			if not v1465 then
-				v57.Stop();
+				v58.Stop();
 				break;
 			end
-			local v1466, v1467, v1468 = v59(v1465);
+			local v1466, v1467, v1468 = v60(v1465);
 			if not v1466 then
-				v57.Stop();
+				v58.Stop();
 				break;
 			end
-			local v1469 = v57['currentTarget']['X'] - v1466;
-			local v1470 = v57['currentTarget']['Y'] - v1467;
-			local v1471 = v57['currentTarget']['Z'] - v1468;
+			local v1469 = v58['currentTarget']['X'] - v1466;
+			local v1470 = v58['currentTarget']['Y'] - v1467;
+			local v1471 = v58['currentTarget']['Z'] - v1468;
 			local v1472 = math.sqrt((v1469 * v1469) + (v1470 * v1470) + (v1471 * v1471));
 			if ((v1109 % (10 + 0)) == (0 - 0)) then
 			end
 			if (v1472 < (7 - 2)) then
-				v57.Stop();
+				v58.Stop();
 				break;
 			end
 			local v1473 = Vector3.new(v1469 / v1472, v1470 / v1472, v1471 / v1472);
-			v58(v354, v54, v57.currentTarget);
-			v58(v354, v55, v1473);
-			v58(v354, v56, v57.currentTarget);
+			v59(v354, v55, v58.currentTarget);
+			v59(v354, v56, v1473);
+			v59(v354, v57, v58.currentTarget);
 			wait(0.1 - 0);
 		end
 	end);
 	return true;
 end;
-v57.Stop = function()
-	v57['isWalking'] = false;
-	if (v57['humanoid'] and v57['humanoid']['Address']) then
-		local v1474 = v57['humanoid']['Address'];
+v58.Stop = function()
+	v58['isWalking'] = false;
+	if (v58['humanoid'] and v58['humanoid']['Address']) then
+		local v1474 = v58['humanoid']['Address'];
 		local v1475 = Vector3.new(0 + 0, 0 + 0, 396 - (115 + 281));
-		v58(v1474, v54, v1475);
-		v58(v1474, v55, v1475);
-		v58(v1474, v56, v1475);
+		v59(v1474, v55, v1475);
+		v59(v1474, v56, v1475);
+		v59(v1474, v57, v1475);
 	end
-	v57['currentTarget'] = nil;
-	v57['updateThread'] = nil;
+	v58['currentTarget'] = nil;
+	v58['updateThread'] = nil;
 end;
 function WalkTo(v359)
 	local v360 = game['Players']['LocalPlayer'];
@@ -900,7 +899,7 @@ function WalkTo(v359)
 		warn("No humanoid!");
 		return false;
 	end
-	return v57.WalkTo(v362, v359);
+	return v58.WalkTo(v362, v359);
 end
 function WalkToPart(v363)
 	if (not v363 or not v363['Position']) then
@@ -910,10 +909,10 @@ function WalkToPart(v363)
 	return WalkTo(v363.Position);
 end
 function StopWalking()
-	v57.Stop();
+	v58.Stop();
 end
 function IsWalking()
-	return v57['isWalking'];
+	return v58['isWalking'];
 end
 function WaitForArrival(v364, v365)
 	v364 = v364 or (4 - 2);
@@ -934,11 +933,11 @@ function WaitForArrival(v364, v365)
 			StopWalking();
 			return false;
 		end
-		if v57['currentTarget'] then
+		if v58['currentTarget'] then
 			local v1739 = v369['Position'];
-			local v1740 = v57['currentTarget']['X'] - v1739['X'];
-			local v1741 = v57['currentTarget']['Y'] - v1739['Y'];
-			local v1742 = v57['currentTarget']['Z'] - v1739['Z'];
+			local v1740 = v58['currentTarget']['X'] - v1739['X'];
+			local v1741 = v58['currentTarget']['Y'] - v1739['Y'];
+			local v1742 = v58['currentTarget']['Z'] - v1739['Z'];
 			local v1743 = math.sqrt((v1740 * v1740) + (v1741 * v1741) + (v1742 * v1742));
 			if (v1743 < v365) then
 				StopWalking();
@@ -949,7 +948,7 @@ function WaitForArrival(v364, v365)
 	end
 	return true;
 end
-local function v62()
+local function v63()
 	local v370 = {};
 	local v371 = game['Workspace']['FlowerZones'];
 	if v371 then
@@ -962,22 +961,22 @@ local function v62()
 	table.sort(v370);
 	return v370;
 end
-local v63 = {isRunning=true,activeTab=(3 - 2),dragging=nil,lastMousePressed=false,needsRedraw=true,drawings={},buttons={},statusUpdaterThread=nil,autoFarmThread=nil,autoDigThread=nil,coconutCrabThread=nil,tweenQueueThread=nil,huntingVicious=false,walkedToViciousOnce=false,collectingSproutTokens=false,spawnerTimerTracking={},tweenMethod="Position",tweenMethodDropdownOpen=false,uiVisible=true,killMondo=false,lootMondo=false,mondoTimeToKill=(987 - (550 + 317)),savedConfigs={},selectedSavedConfig="None",savedConfigDropdownOpen=false,configNameInputOpen=false,configNameText="",configNameInputActive=false,tabLerpProgress={},tabLerpTarget=(1 - 0),uptime="00:00:00",playerHoney=(0 - 0),lastHoneyUpdate=(0 - 0),catchCoconuts=false,catchStars=false,panel={x=(685 - (134 + 151)),y=(1865 - (970 + 695)),width=(1526 - 726),height=(2485 - (582 + 1408)),sidebarWidth=(485 - 345)},tabs={{name="Home",icon="H"},{name="Farming",icon="F"},{name="Combat",icon="C"},{name="Quest",icon="Q"},{name="Misc",icon="M"},{name="Settings",icon="S"}},status="Ready",dropdownOpen=false,selectedOption="Dandelion Field",dropdownScroll=(0 + 0),combatDropdownOpen=false,selectedCombatTarget="Any Mob",autoFarmEnabled=false,autoFarmRunning=false,tweenSpeed=(47 + 23),autoDigEnabled=false,autoDigRunning=false,tweenQueue={},currentTween=nil,processingTween=false,autoGrindBlooms=false,lastCloudTime=(0 - 0),lastFlameTime=(0 - 0),trainSnail=false,trainSnailRunning=false,sprinklersPlaced=false,selectedSprinkler="None (0)",pausedForTimedAction=false,originalAutoFarmField=nil,lastFieldChangeSource=nil,gatherTime=(3 + 27),gatherStartTime=nil,returningFromConversion=false,questDebugEnabled=false,avoidMobs=true,farmFaceBalloons=false,collectTokens=true};
-local v64 = 2100 - (1373 + 263);
-local v65 = 1968 - (451 + 549);
-local v66 = 306 + 662;
-local v67 = 896 - 320;
-local v68 = 4168 - 1688;
+local v64 = {isRunning=true,activeTab=(3 - 2),dragging=nil,lastMousePressed=false,needsRedraw=true,drawings={},buttons={},statusUpdaterThread=nil,autoFarmThread=nil,autoDigThread=nil,coconutCrabThread=nil,tweenQueueThread=nil,huntingVicious=false,walkedToViciousOnce=false,collectingSproutTokens=false,spawnerTimerTracking={},tweenMethod="Position",tweenMethodDropdownOpen=false,uiVisible=true,killMondo=false,lootMondo=false,mondoTimeToKill=(987 - (550 + 317)),savedConfigs={},selectedSavedConfig="None",savedConfigDropdownOpen=false,configNameInputOpen=false,configNameText="",configNameInputActive=false,tabLerpProgress={},tabLerpTarget=(1 - 0),uptime="00:00:00",playerHoney=(0 - 0),lastHoneyUpdate=(0 - 0),catchCoconuts=false,catchStars=false,panel={x=(685 - (134 + 151)),y=(1865 - (970 + 695)),width=(1526 - 726),height=(2485 - (582 + 1408)),sidebarWidth=(485 - 345)},tabs={{name="Home",icon="H"},{name="Farming",icon="F"},{name="Combat",icon="C"},{name="Quest",icon="Q"},{name="Misc",icon="M"},{name="Settings",icon="S"}},status="Ready",dropdownOpen=false,selectedOption="Dandelion Field",dropdownScroll=(0 + 0),combatDropdownOpen=false,selectedCombatTarget="Any Mob",autoFarmEnabled=false,autoFarmRunning=false,tweenSpeed=(47 + 23),autoDigEnabled=false,autoDigRunning=false,tweenQueue={},currentTween=nil,processingTween=false,autoGrindBlooms=false,lastCloudTime=(0 - 0),lastFlameTime=(0 - 0),trainSnail=false,trainSnailRunning=false,sprinklersPlaced=false,selectedSprinkler="None (0)",pausedForTimedAction=false,originalAutoFarmField=nil,lastFieldChangeSource=nil,gatherTime=(3 + 27),gatherStartTime=nil,returningFromConversion=false,questDebugEnabled=false,avoidMobs=true,farmFaceBalloons=false,collectTokens=true};
+local v65 = 2100 - (1373 + 263);
+local v66 = 1968 - (451 + 549);
+local v67 = 306 + 662;
+local v68 = 896 - 320;
+local v69 = 4168 - 1688;
 function SetGravity(v372, v373)
 	if (not v372 or not v372['Address']) then
 		return false;
 	end
 	local v374 = pcall(function()
-		memory_write("float", v372['Address'] + v64, v373);
 		memory_write("float", v372['Address'] + v65, v373);
-		local v1110 = memory_read("ptr", v372['Address'] + v66);
+		memory_write("float", v372['Address'] + v66, v373);
+		local v1110 = memory_read("ptr", v372['Address'] + v67);
 		if (v1110 and (v1110 ~= (1384 - (746 + 638)))) then
-			local v1746 = memory_read("ptr", v1110 + v67);
+			local v1746 = memory_read("ptr", v1110 + v68);
 			if (v1746 and (v1746 ~= (0 + 0))) then
 				memory_write("float", v1746, v373);
 			end
@@ -990,7 +989,7 @@ function GetGravity(v375)
 		return nil;
 	end
 	local v376, v377 = pcall(function()
-		return memory_read("float", v375['Address'] + v64);
+		return memory_read("float", v375['Address'] + v65);
 	end);
 	return (v376 and v377) or nil;
 end
@@ -1037,17 +1036,17 @@ function WaitForRespawn(v384)
 	print("ERROR: Respawn timeout!");
 	return false;
 end
-local v69 = {};
-local v70 = false;
-local v71 = nil;
-local v72 = {};
-local v73 = false;
-local v74 = nil;
-v63.Track = function(v387, v388, v389, v390, v391, v392)
+local v70 = {};
+local v71 = false;
+local v72 = nil;
+local v73 = {};
+local v74 = false;
+local v75 = nil;
+v64.Track = function(v387, v388, v389, v390, v391, v392)
 	table.insert(v387.drawings, {instance=v388,relX=v389,relY=v390,relX2=v391,relY2=v392,isLine=(v391 ~= nil)});
 	return v388;
 end;
-v63.Clear = function(v393)
+v64.Clear = function(v393)
 	for v1114, v1115 in pairs(v393.drawings) do
 		pcall(function()
 			v1115['instance']:Remove();
@@ -1056,7 +1055,7 @@ v63.Clear = function(v393)
 	v393['drawings'] = {};
 	v393['buttons'] = {};
 end;
-v63.CreateRect = function(v396, v397, v398, v399, v400, v401, v402, v403, v404)
+v64.CreateRect = function(v396, v397, v398, v399, v400, v401, v402, v403, v404)
 	local v405 = Drawing.new("Square");
 	v405['Size'] = Vector2.new(v399, v400);
 	v405['Color'] = v401;
@@ -1072,7 +1071,7 @@ v63.CreateRect = function(v396, v397, v398, v399, v400, v401, v402, v403, v404)
 	end
 	return v396:Track(v405, v397, v398);
 end;
-v63.CreateText = function(v412, v413, v414, v415, v416, v417, v418)
+v64.CreateText = function(v412, v413, v414, v415, v416, v417, v418)
 	local v419 = Drawing.new("Text");
 	v419['Text'] = v413;
 	v419['Color'] = v416;
@@ -1083,7 +1082,7 @@ v63.CreateText = function(v412, v413, v414, v415, v416, v417, v418)
 	v419['Position'] = Vector2.new(v412['panel']['x'] + v414, v412['panel']['y'] + v415);
 	return v412:Track(v419, v414, v415);
 end;
-v63.CreateLine = function(v427, v428, v429, v430, v431, v432, v433)
+v64.CreateLine = function(v427, v428, v429, v430, v431, v432, v433)
 	local v434 = Drawing.new("Line");
 	v434['From'] = Vector2.new(v427['panel']['x'] + v428, v427['panel']['y'] + v429);
 	v434['To'] = Vector2.new(v427['panel']['x'] + v430, v427['panel']['y'] + v431);
@@ -1092,10 +1091,10 @@ v63.CreateLine = function(v427, v428, v429, v430, v431, v432, v433)
 	v434['Visible'] = true;
 	return v427:Track(v434, v428, v429, v430, v431);
 end;
-v63.RegisterButton = function(v440, v441, v442, v443, v444, v445)
+v64.RegisterButton = function(v440, v441, v442, v443, v444, v445)
 	table.insert(v440.buttons, {x=v441,y=v442,width=v443,height=v444,callback=v445});
 end;
-v63.RenderTitleBar = function(v446)
+v64.RenderTitleBar = function(v446)
 	local v447 = v446['panel'];
 	v446:CreateRect(0 + 0, 1456 - (282 + 1174), v447.width, 861 - (569 + 242), Color3.fromRGB(72 - 47, 2 + 26, 1059 - (706 + 318)), 1252 - (721 + 530), 1283 - (945 + 326), true);
 	v446:CreateRect(0 - 0, 43 + 5, v447.width, 702 - (271 + 429), Color3.fromRGB(15 + 1, 1685 - (1408 + 92), 1215 - (461 + 625)), 1289 - (993 + 295), 0 + 0, true);
@@ -1109,7 +1108,7 @@ v63.RenderTitleBar = function(v446)
 		notify("Windy", "Discord invite copied to clipboard!", 10 - 5);
 	end);
 end;
-v63.RenderSidebar = function(v449)
+v64.RenderSidebar = function(v449)
 	local v450 = v449['panel'];
 	local v451 = v450['sidebarWidth'];
 	v449:CreateRect(65 - (30 + 35), 35 + 15, v451, v450['height'] - (1307 - (1043 + 214)), Color3.fromRGB(75 - 55, 1235 - (323 + 889), 80 - 50), 581 - (361 + 219), 320 - (53 + 267), true);
@@ -1153,7 +1152,7 @@ v63.RenderSidebar = function(v449)
 		end
 	end
 end;
-v63.RenderMainTab = function(v454)
+v64.RenderMainTab = function(v454)
 	local v455 = v454['panel']['sidebarWidth'] + (886 - (564 + 292));
 	local v456 = 138 - 58;
 	v454:CreateText("Dashboard", v455, v456, Color3.fromRGB(768 - 513, 559 - (244 + 60), 197 + 58), 496 - (41 + 435));
@@ -1194,7 +1193,7 @@ v63.RenderMainTab = function(v454)
 		v454:RegisterButton(v1141, v457, 177 - 67, 977 - (714 + 225), v1140.callback);
 	end
 end;
-v63.FindNearestHub = function(v459, v460)
+v64.FindNearestHub = function(v459, v460)
 	local v461 = {"sunflower_fence_1","dand_mush_mid","gate_5_ramp","Blue_Front"};
 	local v462 = nil;
 	local v463 = math['huge'];
@@ -1212,15 +1211,15 @@ v63.FindNearestHub = function(v459, v460)
 	end
 	return v462;
 end;
-v63['pathNodes'] = {sf1=Vector3.new(-(1030 - (118 + 688)), 52 - (25 + 23), 50 + 206),sf2=Vector3.new(-(2072 - (927 + 959)), 13 - 9, 1031 - (16 + 716)),dand_mush_w1=Vector3.new(-(77 - 37), 101 - (11 + 86), 614 - 362),dand_mush_w2=Vector3.new(-(300 - (175 + 110)), 9 - 5, 1459 - 1163),clover_ladder_1_before=Vector3.new(1843 - (503 + 1293), 11 - 7, 157 + 60),clover_ladder_1_after=Vector3.new(1128 - (810 + 251), 13 + 5, 67 + 150),clover_ladder_2_before=Vector3.new(82 + 8, 551 - (43 + 490), 913 - (711 + 22)),clover_ladder_2_after=Vector3.new(425 - 315, 892 - (240 + 619), 44 + 136),sunflower_fence_1=Vector3.new(-(255 - 94), 1 + 3, 1906 - (1344 + 400)),dand_mush_mid=Vector3.new(-(475 - (255 + 150)), 4 + 0, 92 + 79),gate_5_ramp=Vector3.new(-(8 - 6), 12 - 8, 1909 - (404 + 1335)),gate_5=Vector3.new(-(409 - (183 + 223)), 25 - 4, 52 + 25),Blue_Front=Vector3.new(15 + 24, 341 - (10 + 327), 84 + 36),spider_bamboo_hub=Vector3.new(-(342 - (118 + 220)), 7 + 13, 463 - (108 + 341)),instant_converter_1=Vector3.new(-(67 + 80), 16 - 12, 1686 - (711 + 782)),instant_converter_2=Vector3.new(540 - 258, 537 - (270 + 199), -(21 + 42)),instant_converter_3=Vector3.new(1962 - (580 + 1239), 540 - 358, -(213 + 9)),snow_bear=Vector3.new(2 + 40, 10 + 11, 91 - 56),gumdrop_shop=Vector3.new(44 + 26, 1189 - (645 + 522), 1817 - (1010 + 780)),stringer_shop=Vector3.new(119 + 0, 157 - 124, 1283 - 845),spider_bamboo_mid=Vector3.new(1868 - (1045 + 791), 50 - 30, -(30 - 10)),spider_straw_mid=Vector3.new(-(622 - (351 + 154)), 1594 - (1281 + 293), 276 - (28 + 238)),bamboo_ramp_to_area_10=Vector3.new(395 - 218, 1579 - (1381 + 178), -(18 + 1)),area_5_ladder_1_before=Vector3.new(138 + 33, 9 + 11, 165 - 117),area_5_ladder_1_after=Vector3.new(82 + 75, 505 - (381 + 89), 43 + 5),ramp_to_area_10_1=Vector3.new(140 + 66, 34 - 14, -(1177 - (1074 + 82))),ramp_to_area_10_2=Vector3.new(460 - 250, 1826 - (214 + 1570), 1504 - (990 + 465)),ramp_to_area_10_3=Vector3.new(92 + 129, 19 + 23, 45 + 1),gate_10=Vector3.new(905 - 675, 1795 - (1668 + 58), -(676 - (512 + 114))),stump_path_start=Vector3.new(808 - 498, 140 - 72, -(713 - 508)),stump_path_end=Vector3.new(177 + 203, 18 + 78, -(169 + 25)),area_10_ramp_to_cannon_start=Vector3.new(1058 - 744, 2062 - (109 + 1885), -(1612 - (1269 + 200))),area_10_ramp_to_cannon_end=Vector3.new(609 - 291, 918 - (98 + 717), -(855 - (802 + 24))),area_10_elevated_area_main=Vector3.new(517 - 217, 129 - 26, -(2 + 8)),area_10_elevated_area_cannon_jump=Vector3.new(217 + 65, 17 + 86, -(4 + 12)),area_10_cannon=Vector3.new(745 - 477, 366 - 256, -(9 + 15)),wealth_clock_1=Vector3.new(112 + 161, 28 + 5, 123 + 46),wealth_clock_2=Vector3.new(136 + 154, 1480 - (797 + 636), 1043 - 828),wealth_clock_3=Vector3.new(1913 - (1427 + 192), 17 + 30, 443 - 252),wealth_clock_final=Vector3.new(296.4962 + 33, 22.441200000000002 + 26, 518.2157 - (192 + 134)),leaderboard_daily_honey=Vector3.new(-(1434 - (316 + 960)), 3 + 1, 210 + 62),leaderboard_all_time_honey=Vector3.new(-(81 + 6), 15 - 11, 829 - (83 + 468)),leaderboard_battle_points=Vector3.new(1939 - (1202 + 604), 163 - 128, 64 - 25),brown_bear=Vector3.new(777 - 496, 370 - (45 + 280), 229 + 8),panda_bear=Vector3.new(92 + 13, 14 + 22, 28 + 21),science_bear=Vector3.new(48 + 221, 190 - 87, 1930 - (340 + 1571)),polar_bear=Vector3.new(-(42 + 64), 1891 - (1733 + 39), -(211 - 134)),start_area_to_area_15_jump=Vector3.new(-(1289 - (125 + 909)), 1952 - (1096 + 852), 95 + 115),dispenser_honeystorm=Vector3.new(335 - 100, 33 + 1, 673 - (409 + 103)),dispenser_honey=Vector3.new(281 - (46 + 190), 100 - (51 + 44), 91 + 230),dispenser_blueberry=Vector3.new(1626 - (1114 + 203), 730 - (228 + 498), 30 + 108),dispenser_sprout=Vector3.new(-(150 + 120), 690 - (174 + 489), 687 - 423),dispenser_strawberry=Vector3.new(-(2224 - (830 + 1075)), 571 - (303 + 221), 1539 - (231 + 1038)),dispenser_treat=Vector3.new(162 + 32, 1231 - (171 + 991), -(515 - 390)),red_hq_entrance=Vector3.new(-(751 - 471), 49 - 29, 173 + 42),red_hq_shop=Vector3.new(-(1156 - 826), 57 - 37, 344 - 130),red_hq_portal=Vector3.new(-(1106 - 748), 1269 - (111 + 1137), 344 - (91 + 67)),red_hq_booster=Vector3.new(-(946 - 628), 6 + 15, 768 - (423 + 100)),red_hq_ladder_1_before=Vector3.new(-(3 + 363), 55 - 35, 124 + 112),red_hq_ladder_1_after=Vector3.new(-(1142 - (326 + 445)), 200 - 154, 621 - 342),red_hq_ladder_2_before=Vector3.new(-(793 - 453), 757 - (530 + 181), 1153 - (614 + 267)),red_hq_ladder_2_after=Vector3.new(-(372 - (19 + 13)), 110 - 42, 579 - 330),red_hq_riley_jump=Vector3.new(-(1014 - 659), 18 + 50, 402 - 173),red_hq_riley_1=Vector3.new(-(785 - 406), 1885 - (1293 + 519), 442 - 225),red_hq_riley_final=Vector3.new(-(934 - 576), 139 - 66, 909 - 698),red_hq_ledge=Vector3.new(-(718 - 413), 25 + 21, 60 + 234),area_10_main=Vector3.new(543 - 309, 16 + 52, -(41 + 82)),area_10_ledge=Vector3.new(99 + 58, 1164 - (709 + 387), -(1934 - (673 + 1185))),area_10_shop_entrance=Vector3.new(481 - 315, 218 - 150, -(211 - 82)),area_10_shop=Vector3.new(119 + 46, 52 + 17, -(229 - 59)),start_area_to_area_20_1=Vector3.new(5 + 12, 7 - 3, 635 - 311),start_area_to_area_20_2_jump=Vector3.new(1901 - (446 + 1434), 1290 - (1040 + 243), 1020 - 678),start_area_to_area_20_3=Vector3.new(1868 - (559 + 1288), 1946 - (609 + 1322), 815 - (13 + 441)),start_area_to_area_20_ladder_1_before=Vector3.new(14 - 10, 39 - 24, 2012 - 1608),start_area_to_area_20_ladder_1_after=Vector3.new(1 + 3, 116 - 84, 153 + 275),gate_20=Vector3.new(20 + 25, 97 - 64, 237 + 195),area_20_hub=Vector3.new(150 - 68, 22 + 11, 278 + 221),area_20_ant_pass_free=Vector3.new(91 + 35, 28 + 5, 485 + 10),area_20_ant_pass_paid=Vector3.new(575 - (153 + 280), 95 - 62, 462 + 52),area_20_ant_leaderboard=Vector3.new(60 + 91, 17 + 15, 491 + 49),area_20_ant_challenge=Vector3.new(66 + 24, 50 - 17, 341 + 210),area_20_ant_npc=Vector3.new(710 - (89 + 578), 24 + 9, 1130 - 586),rose_ramp_start=Vector3.new(-(1311 - (572 + 477)), 3 + 17, 98 + 65),rose_ramp_end=Vector3.new(-(32 + 230), 137 - (84 + 2), 136 - 53),royal_jelly_shop=Vector3.new(-(215 + 83), 894 - (497 + 345), 2 + 72),rj_ladder_1_before=Vector3.new(-(54 + 260), 1384 - (605 + 728), 40 + 16),rj_ladder_1_after=Vector3.new(-(697 - 383), 4 + 65, 140 - 102),blue_cannon_area_1=Vector3.new(-(281 + 30), 188 - 120, -(29 + 9)),area_15_rose_entrance=Vector3.new(-(813 - (457 + 32)), 29 + 39, -(1503 - (832 + 570))),area_15_cactus=Vector3.new(-(258 + 15), 18 + 50, -(374 - 268)),area_15_hub=Vector3.new(-(132 + 141), 864 - (588 + 208), -(485 - 305)),area_5_to_area_15_ramp_start=Vector3.new(-(1917 - (884 + 916)), 41 - 21, 31 + 22),area_5_to_area_15_ramp_mid=Vector3.new(-(886 - (232 + 421)), 1924 - (1569 + 320), 14 + 39),area_5_to_area_15_ramp_end=Vector3.new(-(46 + 194), 228 - 160, -(677 - (316 + 289))),beesmas_stocking=Vector3.new(-(1049 - 648), 3 + 44, 1733 - (666 + 787)),beesmas_stocking_real=Vector3.new(659 - (360 + 65), 33 + 2, 487 - (79 + 175)),beesmas_feast=Vector3.new(-(168 - 61), 100 + 28, -(345 - 232)),beesmas_snow_machine=Vector3.new(532 - 255, 992 - (503 + 396), 285 - (92 + 89)),beesmas_samovar=Vector3.new(824 - 399, 68 + 63, -(200 + 137)),beesmas_lid_art=Vector3.new(132 - 98, 33 + 202, -(1167 - 655)),blue_hq_entrance=Vector3.new(213 + 30, 2 + 2, 295 - 198),blue_hq_shop=Vector3.new(38 + 259, 5 - 1, 1341 - (485 + 759)),blue_hq_portal=Vector3.new(744 - 422, 1193 - (442 + 747), 1245 - (832 + 303)),area_25_ramp_start=Vector3.new(-(1193 - (88 + 858)), 21 + 47, -(197 + 40)),area_25_ramp_1=Vector3.new(-(5 + 113), 907 - (766 + 23), -(1095 - 873)),area_25_ramp_2=Vector3.new(-(114 - 30), 310 - 192, -(532 - 375)),area_25_ramp_3=Vector3.new(-(1149 - (1036 + 37)), 84 + 34, -(192 - 93)),area_25_ramp_final=Vector3.new(76 + 20, 1657 - (641 + 839), -(990 - (910 + 3))),dispenser_sprout_jump=Vector3.new(-(693 - 421), 1704 - (1466 + 218), 113 + 132),beesmas_feast_jump=Vector3.new(-(1255 - (556 + 592)), 43 + 76, -(903 - (329 + 479))),spawn=Vector3.new(-(968 - (174 + 680)), 17 - 12, 561 - 290)};
-v63['pathConnections'] = {sf1={"sf2","sunflower_fence_1","start_area_to_area_15_jump","start_area_to_area_20_1"},sf2={"sf1","dand_mush_w2","dispenser_honey","spawn","leaderboard_daily_honey","leaderboard_all_time_honey"},dand_mush_w1={"dand_mush_w2","gate_5_ramp"},dand_mush_w2={"dand_mush_w1","dand_mush_mid","sf2","dispenser_honey","start_area_to_area_20_1"},clover_ladder_1_before={"dand_mush_w1","clover_ladder_1_after","instant_converter_1"},clover_ladder_1_after={"clover_ladder_1_before","clover_ladder_2_before","instant_converter_1"},clover_ladder_2_before={"clover_ladder_1_after","clover_ladder_2_after","instant_converter_1"},clover_ladder_2_after={"clover_ladder_2_before","gate_5_ramp","sunflower_fence_1","dand_mush_w1","instant_converter_1","dispenser_honeystorm","wealth_clock_1","beesmas_stocking_real"},sunflower_fence_1={"dand_mush_mid","gate_5_ramp","clover_ladder_1_before","instant_converter_1","start_area_to_area_15_jump"},dand_mush_mid={"dand_mush_w1","sunflower_fence_1","gate_5_ramp","instant_converter_1","dand_mush_w2","spawn"},gate_5_ramp={"clover_ladder_1_before","dand_mush_mid","Blue_Front","sunflower_fence_1","instant_converter_1","gate_5","dand_mush_w1"},gate_5={"spider_bamboo_hub","Blue_Front","dand_mush_mid","gate_5_ramp"},Blue_Front={"gate_5_ramp","clover_ladder_1_before","dand_mush_w1","blue_hq_entrance"},spider_bamboo_hub={"gate_5","spider_bamboo_mid","snow_bear","gumdrop_shop","spider_straw_mid","area_5_to_area_15_ramp_start"},spider_straw_mid={"spider_bamboo_hub","spider_bamboo_mid","dand_mush_mid","bamboo_ramp_to_area_10","area_5_to_area_15_ramp_start"},instant_converter_1={"sunflower_fence_1","dand_mush_mid","gate_5_ramp","clover_ladder_1_before"},instant_converter_2={"area_10_main"},dispenser_honeystorm={"clover_ladder_2_after","wealth_clock_1","beesmas_stocking_real"},dispenser_honey={"sf2","dand_mush_w2","start_area_to_area_20_1"},dispenser_blueberry={"blue_hq_shop","blue_hq_portal"},wealth_clock_1={"brown_bear","dispenser_honeystorm","clover_ladder_2_after"},wealth_clock_2={"wealth_clock_1","wealth_clock_3","brown_bear","clover_ladder_2_after"},wealth_clock_3={"wealth_clock_1","wealth_clock_2","wealth_clock_final","brown_bear","clover_ladder_2_after"},wealth_clock_final={"wealth_clock_3","clover_ladder_2_after"},brown_bear={"wealth_clock_1","wealth_clock_2","clover_ladder_2_after"},spawn={"dand_mush_mid","sf2","leaderboard_daily_honey","leaderboard_all_time_honey"},leaderboard_all_time_honey={"spawn","sf2"},leaderboard_daily_honey={"spawn","sf2"},blue_hq_entrance={"Blue_Front","blue_hq_shop","blue_hq_portal"},blue_hq_shop={"blue_hq_entrance","blue_hq_portal","dispenser_blueberry"},blue_hq_portal={"blue_hq_shop","dispenser_blueberry"},snow_bear={"gumdrop_shop","spider_bamboo_hub","spider_bamboo_mid"},gumdrop_shop={"snow_bear","spider_bamboo_hub","spider_bamboo_mid"},spider_bamboo_mid={"spider_bamboo_hub","snow_bear","gumdrop_shop","spider_straw_mid","bamboo_ramp_to_area_10","area_5_to_area_15_ramp_start"},start_area_to_area_15_jump={"sf1","sunflower_fence_1","red_hq_entrance"},red_hq_entrance={"start_area_to_area_15_jump","red_hq_shop","dispenser_sprout_jump","rose_ramp_start"},dispenser_sprout_jump={"red_hq_entrance","dispenser_sprout"},red_hq_shop={"red_hq_entrance","red_hq_portal","red_hq_booster","red_hq_ladder_1_before"},red_hq_portal={"red_hq_shop","red_hq_booster"},red_hq_booster={"red_hq_shop","red_hq_portal"},dispenser_sprout={"dispenser_sprout_jump","sf1"},red_hq_ladder_1_before={"red_hq_shop","red_hq_ladder_1_after"},red_hq_ladder_1_after={"red_hq_ladder_1_before","red_hq_ladder_2_before","beesmas_stocking","red_hq_ledge","dispenser_strawberry"},red_hq_ladder_2_before={"red_hq_ladder_1_after","red_hq_ladder_2_after"},red_hq_ladder_2_after={"red_hq_ladder_2_before","red_hq_riley_jump"},red_hq_riley_jump={"red_hq_ladder_2_after","red_hq_riley_1"},red_hq_riley_1={"red_hq_riley_jump","red_hq_riley_final"},red_hq_riley_final={"red_hq_ladder_2_after"},beesmas_stocking={"red_hq_ladder_1_after"},red_hq_ledge={"red_hq_ladder_1_after","dispenser_strawberry","sf2"},dispenser_strawberry={"red_hq_ledge","red_hq_ladder_1_after"},start_area_to_area_20_1={"sf2","dispenser_honey","dand_mush_w2","start_area_to_area_20_2_jump"},start_area_to_area_20_2_jump={"start_area_to_area_20_1","start_area_to_area_20_3"},start_area_to_area_20_3={"start_area_to_area_20_1","start_area_to_area_20_ladder_1_before"},start_area_to_area_20_ladder_1_before={"start_area_to_area_20_3","start_area_to_area_20_ladder_1_after"},start_area_to_area_20_ladder_1_after={"start_area_to_area_20_ladder_1_before","gate_20"},gate_20={"start_area_to_area_20_ladder_1_after","area_20_hub","start_area_to_area_20_1"},area_20_hub={"gate_20","area_20_ant_pass_free","area_20_ant_pass_paid","area_20_ant_leaderboard","area_20_ant_challenge","area_20_ant_npc","stringer_shop"},area_20_ant_pass_free={"area_20_hub"},area_20_ant_pass_paid={"area_20_hub"},area_20_ant_leaderboard={"area_20_hub"},area_20_ant_challenge={"area_20_hub"},area_20_ant_npc={"area_20_hub"},stringer_shop={"area_20_hub"},panda_bear={"area_5_ladder_1_after","Blue_Front","blue_hq_entrance","gumdrop_shop","leaderboard_battle_points"},leaderboard_battle_points={"panda_bear","Blue_Front","blue_hq_entrance","area_5_ladder_1_after"},bamboo_ramp_to_area_10={"spider_straw_mid","area_5_ladder_1_before","spider_bamboo_mid","ramp_to_area_10_1"},area_5_ladder_1_before={"bamboo_ramp_to_area_10","area_5_ladder_1_after"},area_5_ladder_1_after={"area_5_ladder_1_before","panda_bear","leaderboard_battle_points"},ramp_to_area_10_1={"bamboo_ramp_to_area_10","ramp_to_area_10_2"},ramp_to_area_10_2={"ramp_to_area_10_1","ramp_to_area_10_3"},ramp_to_area_10_3={"ramp_to_area_10_2","gate_10"},gate_10={"ramp_to_area_10_3","area_10_main"},area_10_main={"gate_10","area_10_ledge","area_10_shop_entrance","instant_converter_2","dispenser_treat","stump_path_start"},area_10_ledge={"area_10_main","bamboo_ramp_to_area_10"},area_10_shop_entrance={"area_10_main","area_10_shop","dispenser_treat"},area_10_shop={"area_10_shop_entrance"},dispenser_treat={"area_10_main","area_10_shop_entrance"},stump_path_start={"area_10_main","stump_path_end","area_10_ramp_to_cannon_start"},stump_path_end={"stump_path_start"},area_10_ramp_to_cannon_start={"area_10_main","area_10_ramp_to_cannon_end","stump_path_start"},area_10_ramp_to_cannon_end={"area_10_ramp_to_cannon_start","area_10_elevated_area_main"},area_10_elevated_area_main={"area_10_ramp_to_cannon_end","area_10_elevated_area_cannon_jump","science_bear"},area_10_elevated_area_cannon_jump={"area_10_cannon"},area_10_cannon={"area_10_elevated_area_cannon_jump","spawn"},science_bear={"area_10_elevated_area_main"},rose_ramp_start={"red_hq_entrance","rose_ramp_end"},rose_ramp_end={"rose_ramp_start","royal_jelly_shop"},royal_jelly_shop={"rose_ramp_end","rj_ladder_1_before"},rj_ladder_1_before={"royal_jelly_shop","rj_ladder_1_after"},rj_ladder_1_after={"rj_ladder_1_before","blue_cannon_area_1"},blue_cannon_area_1={"rj_ladder_1_after","area_15_rose_entrance"},area_15_rose_entrance={"blue_cannon_area_1","area_15_cactus","area_15_hub"},area_15_cactus={"area_15_rose_entrance","area_15_hub","area_5_to_area_15_ramp_end"},area_15_hub={"area_15_rose_entrance","area_15_cactus","area_25_ramp_start"},area_5_to_area_15_ramp_start={"spider_straw_mid","spider_bamboo_hub","spider_bamboo_mid","area_5_to_area_15_ramp_mid"},area_5_to_area_15_ramp_mid={"area_5_to_area_15_ramp_start","area_5_to_area_15_ramp_end"},area_5_to_area_15_ramp_end={"area_5_to_area_15_ramp_mid","area_15_cactus"},beesmas_stocking_real={"clover_ladder_2_after","dispenser_honeystorm"},area_25_ramp_start={"area_15_hub","area_25_ramp_1"},area_25_ramp_1={"area_25_ramp_start","area_25_ramp_2"},area_25_ramp_2={"area_25_ramp_1","area_25_ramp_3"},area_25_ramp_3={"area_25_ramp_2","polar_bear","area_25_ramp_final"},area_25_ramp_final={"area_25_ramp_3"},polar_bear={"area_25_ramp_3","beesmas_feast_jump"},beesmas_feast_jump={"beesmas_feast","polar_bear"},beesmas_feast={"area_25_ramp_3","beesmas_feast_jump"}};
-v63['fieldToNode'] = {["Sunflower Field"]="sf1",["Dandelion Field"]="dand_mush_w1",["Mushroom Field"]="dand_mush_w1",["Blue Flower Field"]="Blue_Front",["Clover Field"]="clover_ladder_1_before",["Spider Field"]="spider_bamboo_hub",["Bamboo Field"]="spider_bamboo_hub",["Strawberry Field"]="spider_straw_mid",["Pineapple Patch"]="area_10_main",["Stump Field"]="stump_path_end",["Rose Field"]="rose_ramp_start",["Pumpkin Patch"]="area_15_hub",["Pine Tree Forest"]="area_15_hub",["Cactus Field"]="area_15_cactus"};
-v63['fieldToHub'] = {["Sunflower Field"]="sunflower_fence_1",["Dandelion Field"]="dand_mush_mid",["Mushroom Field"]="dand_mush_mid",["Blue Flower Field"]="Blue_Front",["Clover Field"]="clover_ladder_2_after",["Spider Field"]="spider_bamboo_hub",["Bamboo Field"]="spider_bamboo_hub",["Strawberry Field"]="spider_straw_mid",["Pineapple Patch"]="area_10_main",["Stump Field"]="stump_path_end",["Rose Field"]="rose_ramp_start",["Pumpkin Patch"]="area_15_hub",["Pine Tree Forest"]="area_15_hub",["Cactus Field"]="area_15_cactus"};
-v63['mobSpawners'] = {["Ladybug Bush"]={mob="Ladybugs",field=nil},MushroomBush={mob="Ladybugs",field=nil},["Ladybug Bush 2"]={mob="Ladybugs",field=nil},["Ladybug Bush 3"]={mob="Ladybugs",field=nil}};
-v63['mobCooldowns'] = {};
-v63['commandoChickConfig'] = {minDistance=(8 + 8),idealDistance=(41 - 23),maxDistance=(20 + 8),predictionTime=(5 - 3),moveInterval=(0.05 - 0),boundaryMin=Vector3.new(909 - (279 + 154), 825 - (454 + 324), 93 + 25),boundaryMax=Vector3.new(580 - (12 + 5), 26 + 21, 516 - 313),spawnPoint=Vector3.new(184 + 313, 1140 - (277 + 816), 687 - 526)};
-v63['mondoChickConfig'] = {minDistance=(1205 - (1058 + 125)),idealDistance=(6 + 22),maxDistance=(1040 - (815 + 160)),predictionTime=(8 - 6),moveInterval=(0.1 - 0),boundaryMin=Vector3.new(6 + 17, 514 - 338, -(2120 - (41 + 1857))),boundaryMax=Vector3.new(2016 - (1222 + 671), 454 - 278, -(163 - 49)),fightPosition=Vector3.new(1215 - (229 + 953), 1960 - (1111 + 663), -(1698 - (874 + 705))),escapeTween=Vector3.new(14 + 81, 158 + 73, -(200 - 103)),spawnPoint=Vector3.new(-(4 + 110), 684 - (642 + 37), 62 + 209)};
-v63['pathActions'] = {jump=function()
+v64['pathNodes'] = {sf1=Vector3.new(-(1030 - (118 + 688)), 52 - (25 + 23), 50 + 206),sf2=Vector3.new(-(2072 - (927 + 959)), 13 - 9, 1031 - (16 + 716)),dand_mush_w1=Vector3.new(-(77 - 37), 101 - (11 + 86), 614 - 362),dand_mush_w2=Vector3.new(-(300 - (175 + 110)), 9 - 5, 1459 - 1163),clover_ladder_1_before=Vector3.new(1843 - (503 + 1293), 11 - 7, 157 + 60),clover_ladder_1_after=Vector3.new(1128 - (810 + 251), 13 + 5, 67 + 150),clover_ladder_2_before=Vector3.new(82 + 8, 551 - (43 + 490), 913 - (711 + 22)),clover_ladder_2_after=Vector3.new(425 - 315, 892 - (240 + 619), 44 + 136),sunflower_fence_1=Vector3.new(-(255 - 94), 1 + 3, 1906 - (1344 + 400)),dand_mush_mid=Vector3.new(-(475 - (255 + 150)), 4 + 0, 92 + 79),gate_5_ramp=Vector3.new(-(8 - 6), 12 - 8, 1909 - (404 + 1335)),gate_5=Vector3.new(-(409 - (183 + 223)), 25 - 4, 52 + 25),Blue_Front=Vector3.new(15 + 24, 341 - (10 + 327), 84 + 36),spider_bamboo_hub=Vector3.new(-(342 - (118 + 220)), 7 + 13, 463 - (108 + 341)),instant_converter_1=Vector3.new(-(67 + 80), 16 - 12, 1686 - (711 + 782)),instant_converter_2=Vector3.new(540 - 258, 537 - (270 + 199), -(21 + 42)),instant_converter_3=Vector3.new(1962 - (580 + 1239), 540 - 358, -(213 + 9)),snow_bear=Vector3.new(2 + 40, 10 + 11, 91 - 56),gumdrop_shop=Vector3.new(44 + 26, 1189 - (645 + 522), 1817 - (1010 + 780)),stringer_shop=Vector3.new(119 + 0, 157 - 124, 1283 - 845),spider_bamboo_mid=Vector3.new(1868 - (1045 + 791), 50 - 30, -(30 - 10)),spider_straw_mid=Vector3.new(-(622 - (351 + 154)), 1594 - (1281 + 293), 276 - (28 + 238)),bamboo_ramp_to_area_10=Vector3.new(395 - 218, 1579 - (1381 + 178), -(18 + 1)),area_5_ladder_1_before=Vector3.new(138 + 33, 9 + 11, 165 - 117),area_5_ladder_1_after=Vector3.new(82 + 75, 505 - (381 + 89), 43 + 5),ramp_to_area_10_1=Vector3.new(140 + 66, 34 - 14, -(1177 - (1074 + 82))),ramp_to_area_10_2=Vector3.new(460 - 250, 1826 - (214 + 1570), 1504 - (990 + 465)),ramp_to_area_10_3=Vector3.new(92 + 129, 19 + 23, 45 + 1),gate_10=Vector3.new(905 - 675, 1795 - (1668 + 58), -(676 - (512 + 114))),stump_path_start=Vector3.new(808 - 498, 140 - 72, -(713 - 508)),stump_path_end=Vector3.new(177 + 203, 18 + 78, -(169 + 25)),area_10_ramp_to_cannon_start=Vector3.new(1058 - 744, 2062 - (109 + 1885), -(1612 - (1269 + 200))),area_10_ramp_to_cannon_end=Vector3.new(609 - 291, 918 - (98 + 717), -(855 - (802 + 24))),area_10_elevated_area_main=Vector3.new(517 - 217, 129 - 26, -(2 + 8)),area_10_elevated_area_cannon_jump=Vector3.new(217 + 65, 17 + 86, -(4 + 12)),area_10_cannon=Vector3.new(745 - 477, 366 - 256, -(9 + 15)),wealth_clock_1=Vector3.new(112 + 161, 28 + 5, 123 + 46),wealth_clock_2=Vector3.new(136 + 154, 1480 - (797 + 636), 1043 - 828),wealth_clock_3=Vector3.new(1913 - (1427 + 192), 17 + 30, 443 - 252),wealth_clock_final=Vector3.new(296.4962 + 33, 22.441200000000002 + 26, 518.2157 - (192 + 134)),leaderboard_daily_honey=Vector3.new(-(1434 - (316 + 960)), 3 + 1, 210 + 62),leaderboard_all_time_honey=Vector3.new(-(81 + 6), 15 - 11, 829 - (83 + 468)),leaderboard_battle_points=Vector3.new(1939 - (1202 + 604), 163 - 128, 64 - 25),brown_bear=Vector3.new(777 - 496, 370 - (45 + 280), 229 + 8),panda_bear=Vector3.new(92 + 13, 14 + 22, 28 + 21),science_bear=Vector3.new(48 + 221, 190 - 87, 1930 - (340 + 1571)),polar_bear=Vector3.new(-(42 + 64), 1891 - (1733 + 39), -(211 - 134)),start_area_to_area_15_jump=Vector3.new(-(1289 - (125 + 909)), 1952 - (1096 + 852), 95 + 115),dispenser_honeystorm=Vector3.new(335 - 100, 33 + 1, 673 - (409 + 103)),dispenser_honey=Vector3.new(281 - (46 + 190), 100 - (51 + 44), 91 + 230),dispenser_blueberry=Vector3.new(1626 - (1114 + 203), 730 - (228 + 498), 30 + 108),dispenser_sprout=Vector3.new(-(150 + 120), 690 - (174 + 489), 687 - 423),dispenser_strawberry=Vector3.new(-(2224 - (830 + 1075)), 571 - (303 + 221), 1539 - (231 + 1038)),dispenser_treat=Vector3.new(162 + 32, 1231 - (171 + 991), -(515 - 390)),red_hq_entrance=Vector3.new(-(751 - 471), 49 - 29, 173 + 42),red_hq_shop=Vector3.new(-(1156 - 826), 57 - 37, 344 - 130),red_hq_portal=Vector3.new(-(1106 - 748), 1269 - (111 + 1137), 344 - (91 + 67)),red_hq_booster=Vector3.new(-(946 - 628), 6 + 15, 768 - (423 + 100)),red_hq_ladder_1_before=Vector3.new(-(3 + 363), 55 - 35, 124 + 112),red_hq_ladder_1_after=Vector3.new(-(1142 - (326 + 445)), 200 - 154, 621 - 342),red_hq_ladder_2_before=Vector3.new(-(793 - 453), 757 - (530 + 181), 1153 - (614 + 267)),red_hq_ladder_2_after=Vector3.new(-(372 - (19 + 13)), 110 - 42, 579 - 330),red_hq_riley_jump=Vector3.new(-(1014 - 659), 18 + 50, 402 - 173),red_hq_riley_1=Vector3.new(-(785 - 406), 1885 - (1293 + 519), 442 - 225),red_hq_riley_final=Vector3.new(-(934 - 576), 139 - 66, 909 - 698),red_hq_ledge=Vector3.new(-(718 - 413), 25 + 21, 60 + 234),area_10_main=Vector3.new(543 - 309, 16 + 52, -(41 + 82)),area_10_ledge=Vector3.new(99 + 58, 1164 - (709 + 387), -(1934 - (673 + 1185))),area_10_shop_entrance=Vector3.new(481 - 315, 218 - 150, -(211 - 82)),area_10_shop=Vector3.new(119 + 46, 52 + 17, -(229 - 59)),start_area_to_area_20_1=Vector3.new(5 + 12, 7 - 3, 635 - 311),start_area_to_area_20_2_jump=Vector3.new(1901 - (446 + 1434), 1290 - (1040 + 243), 1020 - 678),start_area_to_area_20_3=Vector3.new(1868 - (559 + 1288), 1946 - (609 + 1322), 815 - (13 + 441)),start_area_to_area_20_ladder_1_before=Vector3.new(14 - 10, 39 - 24, 2012 - 1608),start_area_to_area_20_ladder_1_after=Vector3.new(1 + 3, 116 - 84, 153 + 275),gate_20=Vector3.new(20 + 25, 97 - 64, 237 + 195),area_20_hub=Vector3.new(150 - 68, 22 + 11, 278 + 221),area_20_ant_pass_free=Vector3.new(91 + 35, 28 + 5, 485 + 10),area_20_ant_pass_paid=Vector3.new(575 - (153 + 280), 95 - 62, 462 + 52),area_20_ant_leaderboard=Vector3.new(60 + 91, 17 + 15, 491 + 49),area_20_ant_challenge=Vector3.new(66 + 24, 50 - 17, 341 + 210),area_20_ant_npc=Vector3.new(710 - (89 + 578), 24 + 9, 1130 - 586),rose_ramp_start=Vector3.new(-(1311 - (572 + 477)), 3 + 17, 98 + 65),rose_ramp_end=Vector3.new(-(32 + 230), 137 - (84 + 2), 136 - 53),royal_jelly_shop=Vector3.new(-(215 + 83), 894 - (497 + 345), 2 + 72),rj_ladder_1_before=Vector3.new(-(54 + 260), 1384 - (605 + 728), 40 + 16),rj_ladder_1_after=Vector3.new(-(697 - 383), 4 + 65, 140 - 102),blue_cannon_area_1=Vector3.new(-(281 + 30), 188 - 120, -(29 + 9)),area_15_rose_entrance=Vector3.new(-(813 - (457 + 32)), 29 + 39, -(1503 - (832 + 570))),area_15_cactus=Vector3.new(-(258 + 15), 18 + 50, -(374 - 268)),area_15_hub=Vector3.new(-(132 + 141), 864 - (588 + 208), -(485 - 305)),area_5_to_area_15_ramp_start=Vector3.new(-(1917 - (884 + 916)), 41 - 21, 31 + 22),area_5_to_area_15_ramp_mid=Vector3.new(-(886 - (232 + 421)), 1924 - (1569 + 320), 14 + 39),area_5_to_area_15_ramp_end=Vector3.new(-(46 + 194), 228 - 160, -(677 - (316 + 289))),beesmas_stocking=Vector3.new(-(1049 - 648), 3 + 44, 1733 - (666 + 787)),beesmas_stocking_real=Vector3.new(659 - (360 + 65), 33 + 2, 487 - (79 + 175)),beesmas_feast=Vector3.new(-(168 - 61), 100 + 28, -(345 - 232)),beesmas_snow_machine=Vector3.new(532 - 255, 992 - (503 + 396), 285 - (92 + 89)),beesmas_samovar=Vector3.new(824 - 399, 68 + 63, -(200 + 137)),beesmas_lid_art=Vector3.new(132 - 98, 33 + 202, -(1167 - 655)),blue_hq_entrance=Vector3.new(213 + 30, 2 + 2, 295 - 198),blue_hq_shop=Vector3.new(38 + 259, 5 - 1, 1341 - (485 + 759)),blue_hq_portal=Vector3.new(744 - 422, 1193 - (442 + 747), 1245 - (832 + 303)),area_25_ramp_start=Vector3.new(-(1193 - (88 + 858)), 21 + 47, -(197 + 40)),area_25_ramp_1=Vector3.new(-(5 + 113), 907 - (766 + 23), -(1095 - 873)),area_25_ramp_2=Vector3.new(-(114 - 30), 310 - 192, -(532 - 375)),area_25_ramp_3=Vector3.new(-(1149 - (1036 + 37)), 84 + 34, -(192 - 93)),area_25_ramp_final=Vector3.new(76 + 20, 1657 - (641 + 839), -(990 - (910 + 3))),dispenser_sprout_jump=Vector3.new(-(693 - 421), 1704 - (1466 + 218), 113 + 132),beesmas_feast_jump=Vector3.new(-(1255 - (556 + 592)), 43 + 76, -(903 - (329 + 479))),spawn=Vector3.new(-(968 - (174 + 680)), 17 - 12, 561 - 290)};
+v64['pathConnections'] = {sf1={"sf2","sunflower_fence_1","start_area_to_area_15_jump","start_area_to_area_20_1"},sf2={"sf1","dand_mush_w2","dispenser_honey","spawn","leaderboard_daily_honey","leaderboard_all_time_honey"},dand_mush_w1={"dand_mush_w2","gate_5_ramp"},dand_mush_w2={"dand_mush_w1","dand_mush_mid","sf2","dispenser_honey","start_area_to_area_20_1"},clover_ladder_1_before={"dand_mush_w1","clover_ladder_1_after","instant_converter_1"},clover_ladder_1_after={"clover_ladder_1_before","clover_ladder_2_before","instant_converter_1"},clover_ladder_2_before={"clover_ladder_1_after","clover_ladder_2_after","instant_converter_1"},clover_ladder_2_after={"clover_ladder_2_before","gate_5_ramp","sunflower_fence_1","dand_mush_w1","instant_converter_1","dispenser_honeystorm","wealth_clock_1","beesmas_stocking_real"},sunflower_fence_1={"dand_mush_mid","gate_5_ramp","clover_ladder_1_before","instant_converter_1","start_area_to_area_15_jump"},dand_mush_mid={"dand_mush_w1","sunflower_fence_1","gate_5_ramp","instant_converter_1","dand_mush_w2","spawn"},gate_5_ramp={"clover_ladder_1_before","dand_mush_mid","Blue_Front","sunflower_fence_1","instant_converter_1","gate_5","dand_mush_w1"},gate_5={"spider_bamboo_hub","Blue_Front","dand_mush_mid","gate_5_ramp"},Blue_Front={"gate_5_ramp","clover_ladder_1_before","dand_mush_w1","blue_hq_entrance"},spider_bamboo_hub={"gate_5","spider_bamboo_mid","snow_bear","gumdrop_shop","spider_straw_mid","area_5_to_area_15_ramp_start"},spider_straw_mid={"spider_bamboo_hub","spider_bamboo_mid","dand_mush_mid","bamboo_ramp_to_area_10","area_5_to_area_15_ramp_start"},instant_converter_1={"sunflower_fence_1","dand_mush_mid","gate_5_ramp","clover_ladder_1_before"},instant_converter_2={"area_10_main"},dispenser_honeystorm={"clover_ladder_2_after","wealth_clock_1","beesmas_stocking_real"},dispenser_honey={"sf2","dand_mush_w2","start_area_to_area_20_1"},dispenser_blueberry={"blue_hq_shop","blue_hq_portal"},wealth_clock_1={"brown_bear","dispenser_honeystorm","clover_ladder_2_after"},wealth_clock_2={"wealth_clock_1","wealth_clock_3","brown_bear","clover_ladder_2_after"},wealth_clock_3={"wealth_clock_1","wealth_clock_2","wealth_clock_final","brown_bear","clover_ladder_2_after"},wealth_clock_final={"wealth_clock_3","clover_ladder_2_after"},brown_bear={"wealth_clock_1","wealth_clock_2","clover_ladder_2_after"},spawn={"dand_mush_mid","sf2","leaderboard_daily_honey","leaderboard_all_time_honey"},leaderboard_all_time_honey={"spawn","sf2"},leaderboard_daily_honey={"spawn","sf2"},blue_hq_entrance={"Blue_Front","blue_hq_shop","blue_hq_portal"},blue_hq_shop={"blue_hq_entrance","blue_hq_portal","dispenser_blueberry"},blue_hq_portal={"blue_hq_shop","dispenser_blueberry"},snow_bear={"gumdrop_shop","spider_bamboo_hub","spider_bamboo_mid"},gumdrop_shop={"snow_bear","spider_bamboo_hub","spider_bamboo_mid"},spider_bamboo_mid={"spider_bamboo_hub","snow_bear","gumdrop_shop","spider_straw_mid","bamboo_ramp_to_area_10","area_5_to_area_15_ramp_start"},start_area_to_area_15_jump={"sf1","sunflower_fence_1","red_hq_entrance"},red_hq_entrance={"start_area_to_area_15_jump","red_hq_shop","dispenser_sprout_jump","rose_ramp_start"},dispenser_sprout_jump={"red_hq_entrance","dispenser_sprout"},red_hq_shop={"red_hq_entrance","red_hq_portal","red_hq_booster","red_hq_ladder_1_before"},red_hq_portal={"red_hq_shop","red_hq_booster"},red_hq_booster={"red_hq_shop","red_hq_portal"},dispenser_sprout={"dispenser_sprout_jump","sf1"},red_hq_ladder_1_before={"red_hq_shop","red_hq_ladder_1_after"},red_hq_ladder_1_after={"red_hq_ladder_1_before","red_hq_ladder_2_before","beesmas_stocking","red_hq_ledge","dispenser_strawberry"},red_hq_ladder_2_before={"red_hq_ladder_1_after","red_hq_ladder_2_after"},red_hq_ladder_2_after={"red_hq_ladder_2_before","red_hq_riley_jump"},red_hq_riley_jump={"red_hq_ladder_2_after","red_hq_riley_1"},red_hq_riley_1={"red_hq_riley_jump","red_hq_riley_final"},red_hq_riley_final={"red_hq_ladder_2_after"},beesmas_stocking={"red_hq_ladder_1_after"},red_hq_ledge={"red_hq_ladder_1_after","dispenser_strawberry","sf2"},dispenser_strawberry={"red_hq_ledge","red_hq_ladder_1_after"},start_area_to_area_20_1={"sf2","dispenser_honey","dand_mush_w2","start_area_to_area_20_2_jump"},start_area_to_area_20_2_jump={"start_area_to_area_20_1","start_area_to_area_20_3"},start_area_to_area_20_3={"start_area_to_area_20_1","start_area_to_area_20_ladder_1_before"},start_area_to_area_20_ladder_1_before={"start_area_to_area_20_3","start_area_to_area_20_ladder_1_after"},start_area_to_area_20_ladder_1_after={"start_area_to_area_20_ladder_1_before","gate_20"},gate_20={"start_area_to_area_20_ladder_1_after","area_20_hub","start_area_to_area_20_1"},area_20_hub={"gate_20","area_20_ant_pass_free","area_20_ant_pass_paid","area_20_ant_leaderboard","area_20_ant_challenge","area_20_ant_npc","stringer_shop"},area_20_ant_pass_free={"area_20_hub"},area_20_ant_pass_paid={"area_20_hub"},area_20_ant_leaderboard={"area_20_hub"},area_20_ant_challenge={"area_20_hub"},area_20_ant_npc={"area_20_hub"},stringer_shop={"area_20_hub"},panda_bear={"area_5_ladder_1_after","Blue_Front","blue_hq_entrance","gumdrop_shop","leaderboard_battle_points"},leaderboard_battle_points={"panda_bear","Blue_Front","blue_hq_entrance","area_5_ladder_1_after"},bamboo_ramp_to_area_10={"spider_straw_mid","area_5_ladder_1_before","spider_bamboo_mid","ramp_to_area_10_1"},area_5_ladder_1_before={"bamboo_ramp_to_area_10","area_5_ladder_1_after"},area_5_ladder_1_after={"area_5_ladder_1_before","panda_bear","leaderboard_battle_points"},ramp_to_area_10_1={"bamboo_ramp_to_area_10","ramp_to_area_10_2"},ramp_to_area_10_2={"ramp_to_area_10_1","ramp_to_area_10_3"},ramp_to_area_10_3={"ramp_to_area_10_2","gate_10"},gate_10={"ramp_to_area_10_3","area_10_main"},area_10_main={"gate_10","area_10_ledge","area_10_shop_entrance","instant_converter_2","dispenser_treat","stump_path_start"},area_10_ledge={"area_10_main","bamboo_ramp_to_area_10"},area_10_shop_entrance={"area_10_main","area_10_shop","dispenser_treat"},area_10_shop={"area_10_shop_entrance"},dispenser_treat={"area_10_main","area_10_shop_entrance"},stump_path_start={"area_10_main","stump_path_end","area_10_ramp_to_cannon_start"},stump_path_end={"stump_path_start"},area_10_ramp_to_cannon_start={"area_10_main","area_10_ramp_to_cannon_end","stump_path_start"},area_10_ramp_to_cannon_end={"area_10_ramp_to_cannon_start","area_10_elevated_area_main"},area_10_elevated_area_main={"area_10_ramp_to_cannon_end","area_10_elevated_area_cannon_jump","science_bear"},area_10_elevated_area_cannon_jump={"area_10_cannon"},area_10_cannon={"area_10_elevated_area_cannon_jump","spawn"},science_bear={"area_10_elevated_area_main"},rose_ramp_start={"red_hq_entrance","rose_ramp_end"},rose_ramp_end={"rose_ramp_start","royal_jelly_shop"},royal_jelly_shop={"rose_ramp_end","rj_ladder_1_before"},rj_ladder_1_before={"royal_jelly_shop","rj_ladder_1_after"},rj_ladder_1_after={"rj_ladder_1_before","blue_cannon_area_1"},blue_cannon_area_1={"rj_ladder_1_after","area_15_rose_entrance"},area_15_rose_entrance={"blue_cannon_area_1","area_15_cactus","area_15_hub"},area_15_cactus={"area_15_rose_entrance","area_15_hub","area_5_to_area_15_ramp_end"},area_15_hub={"area_15_rose_entrance","area_15_cactus","area_25_ramp_start"},area_5_to_area_15_ramp_start={"spider_straw_mid","spider_bamboo_hub","spider_bamboo_mid","area_5_to_area_15_ramp_mid"},area_5_to_area_15_ramp_mid={"area_5_to_area_15_ramp_start","area_5_to_area_15_ramp_end"},area_5_to_area_15_ramp_end={"area_5_to_area_15_ramp_mid","area_15_cactus"},beesmas_stocking_real={"clover_ladder_2_after","dispenser_honeystorm"},area_25_ramp_start={"area_15_hub","area_25_ramp_1"},area_25_ramp_1={"area_25_ramp_start","area_25_ramp_2"},area_25_ramp_2={"area_25_ramp_1","area_25_ramp_3"},area_25_ramp_3={"area_25_ramp_2","polar_bear","area_25_ramp_final"},area_25_ramp_final={"area_25_ramp_3"},polar_bear={"area_25_ramp_3","beesmas_feast_jump"},beesmas_feast_jump={"beesmas_feast","polar_bear"},beesmas_feast={"area_25_ramp_3","beesmas_feast_jump"}};
+v64['fieldToNode'] = {["Sunflower Field"]="sf1",["Dandelion Field"]="dand_mush_w1",["Mushroom Field"]="dand_mush_w1",["Blue Flower Field"]="Blue_Front",["Clover Field"]="clover_ladder_1_before",["Spider Field"]="spider_bamboo_hub",["Bamboo Field"]="spider_bamboo_hub",["Strawberry Field"]="spider_straw_mid",["Pineapple Patch"]="area_10_main",["Stump Field"]="stump_path_end",["Rose Field"]="rose_ramp_start",["Pumpkin Patch"]="area_15_hub",["Pine Tree Forest"]="area_15_hub",["Cactus Field"]="area_15_cactus"};
+v64['fieldToHub'] = {["Sunflower Field"]="sunflower_fence_1",["Dandelion Field"]="dand_mush_mid",["Mushroom Field"]="dand_mush_mid",["Blue Flower Field"]="Blue_Front",["Clover Field"]="clover_ladder_2_after",["Spider Field"]="spider_bamboo_hub",["Bamboo Field"]="spider_bamboo_hub",["Strawberry Field"]="spider_straw_mid",["Pineapple Patch"]="area_10_main",["Stump Field"]="stump_path_end",["Rose Field"]="rose_ramp_start",["Pumpkin Patch"]="area_15_hub",["Pine Tree Forest"]="area_15_hub",["Cactus Field"]="area_15_cactus"};
+v64['mobSpawners'] = {["Ladybug Bush"]={mob="Ladybugs",field=nil},MushroomBush={mob="Ladybugs",field=nil},["Ladybug Bush 2"]={mob="Ladybugs",field=nil},["Ladybug Bush 3"]={mob="Ladybugs",field=nil}};
+v64['mobCooldowns'] = {};
+v64['commandoChickConfig'] = {minDistance=(8 + 8),idealDistance=(41 - 23),maxDistance=(20 + 8),predictionTime=(5 - 3),moveInterval=(0.05 - 0),boundaryMin=Vector3.new(909 - (279 + 154), 825 - (454 + 324), 93 + 25),boundaryMax=Vector3.new(580 - (12 + 5), 26 + 21, 516 - 313),spawnPoint=Vector3.new(184 + 313, 1140 - (277 + 816), 687 - 526)};
+v64['mondoChickConfig'] = {minDistance=(1205 - (1058 + 125)),idealDistance=(6 + 22),maxDistance=(1040 - (815 + 160)),predictionTime=(8 - 6),moveInterval=(0.1 - 0),boundaryMin=Vector3.new(6 + 17, 514 - 338, -(2120 - (41 + 1857))),boundaryMax=Vector3.new(2016 - (1222 + 671), 454 - 278, -(163 - 49)),fightPosition=Vector3.new(1215 - (229 + 953), 1960 - (1111 + 663), -(1698 - (874 + 705))),escapeTween=Vector3.new(14 + 81, 158 + 73, -(200 - 103)),spawnPoint=Vector3.new(-(4 + 110), 684 - (642 + 37), 62 + 209)};
+v64['pathActions'] = {jump=function()
 	keypress(6 + 26);
 	wait(0.1 - 0);
 	keyrelease(486 - (233 + 221));
@@ -1237,8 +1236,8 @@ end,pressE=function()
 	wait(0.1 - 0);
 	keyrelease(55 + 14);
 end};
-v63['nodeActions'] = {start_area_to_area_15_jump={action="jump",timing="after"},dispenser_sprout_jump={action="jump",timing="after"},red_hq_riley_jump={action="jump",timing="after"},start_area_to_area_20_2_jump={action="jump",timing="after"},area_10_elevated_area_cannon_jump={action="jump",timing="after"},area_10_cannon={action="pressE",timing="before"},beesmas_feast_jump={action="jump",timing="after"}};
-v63.ExecuteNodeAction = function(v464, v465)
+v64['nodeActions'] = {start_area_to_area_15_jump={action="jump",timing="after"},dispenser_sprout_jump={action="jump",timing="after"},red_hq_riley_jump={action="jump",timing="after"},start_area_to_area_20_2_jump={action="jump",timing="after"},area_10_elevated_area_cannon_jump={action="jump",timing="after"},area_10_cannon={action="pressE",timing="before"},beesmas_feast_jump={action="jump",timing="after"}};
+v64.ExecuteNodeAction = function(v464, v465)
 	local v466 = v464['nodeActions'][v465];
 	if not v466 then
 		return false;
@@ -1255,7 +1254,7 @@ v63.ExecuteNodeAction = function(v464, v465)
 	v467();
 	return true;
 end;
-v63.PathfindBetweenNodes = function(v468, v469, v470)
+v64.PathfindBetweenNodes = function(v468, v469, v470)
 	if (v469 == v470) then
 		return {v469};
 	end
@@ -1317,7 +1316,7 @@ v63.PathfindBetweenNodes = function(v468, v469, v470)
 	print("ERROR: No path from " .. v469 .. " to " .. v470);
 	return nil;
 end;
-v63.WalkPath = function(v475, v476)
+v64.WalkPath = function(v475, v476)
 	print("DEBUG WALKPATH: Stopping any existing walks before starting new path");
 	StopWalking();
 	wait(0.3 + 0);
@@ -1586,7 +1585,7 @@ v63.WalkPath = function(v475, v476)
 	end
 	return true;
 end;
-v63.RenderFarmingTab = function(v480)
+v64.RenderFarmingTab = function(v480)
 	local v481 = v480['panel']['sidebarWidth'] + (1898 - (708 + 1160));
 	local v482 = 217 - 137;
 	v480:CreateText("Farming Settings", v481, v482, Color3.fromRGB(464 - 209, 282 - (10 + 17), 58 + 197), 1752 - (1400 + 332));
@@ -1740,10 +1739,10 @@ v63.RenderFarmingTab = function(v480)
 		v480['needsRedraw'] = true;
 		if v480['farmFaceBalloons'] then
 			if v480['autoFarmEnabled'] then
-				v29:Start();
+				v30:Start();
 			end
 		else
-			v29:Stop();
+			v30:Stop();
 		end
 	end);
 	local v496 = v492 + 4 + 24;
@@ -1791,7 +1790,7 @@ v63.RenderFarmingTab = function(v480)
 		end
 	end);
 	if v480['dropdownOpen'] then
-		local v1489 = v62();
+		local v1489 = v63();
 		local v1490 = v485 + (648 - (47 + 573));
 		v480:CreateRect(v484, v1490, 53 + 97, #v1489 * (101 - 77), Color3.fromRGB(40 - 15, 1692 - (1269 + 395), 527 - (76 + 416)), 444 - (319 + 124), 18 - 10, true);
 		for v1774, v1775 in ipairs(v1489) do
@@ -1825,7 +1824,7 @@ v63.RenderFarmingTab = function(v480)
 		end
 	end
 end;
-v63.RenderCombatTab = function(v504)
+v64.RenderCombatTab = function(v504)
 	local v505 = v504['panel']['sidebarWidth'] + (85 - 55);
 	local v506 = 11 + 69;
 	v504:CreateText("Combat & Mobs", v505, v506, Color3.fromRGB(851 - 596, 1112 - 857, 846 - (562 + 29)), 18 + 2);
@@ -2000,7 +1999,7 @@ v63.RenderCombatTab = function(v504)
 		end
 	end
 end;
-v63.RenderQuestTab = function(v511)
+v64.RenderQuestTab = function(v511)
 	local v512 = v511['panel']['sidebarWidth'] + 2 + 28;
 	local v513 = 301 - 221;
 	v511:CreateText("Quests & NPCs", v512, v513, Color3.fromRGB(100 + 155, 124 + 131, 28 + 227), 38 - 18);
@@ -2086,8 +2085,8 @@ v63.RenderQuestTab = function(v511)
 		end);
 	end
 end;
-v63['spawnerTimerTracking'] = {};
-v63.GetMobSpawnerCooldown = function(v522, v523)
+v64['spawnerTimerTracking'] = {};
+v64.GetMobSpawnerCooldown = function(v522, v523)
 	local v524 = game['Workspace']:FindFirstChild("MonsterSpawners");
 	if not v524 then
 		return nil;
@@ -2179,7 +2178,7 @@ v63.GetMobSpawnerCooldown = function(v522, v523)
 	print("DEBUG SPAWNER: ❌ No spawners found for mob:", v523);
 	return nil;
 end;
-v63.ParseQuestRequirement = function(v527, v528)
+v64.ParseQuestRequirement = function(v527, v528)
 	print("DEBUG PARSER: === PARSING TASK ===");
 	print("DEBUG PARSER: Raw text: '" .. v528 .. "'");
 	local v529, v530 = string.match(v528, "Collect ([%d,]+) Pollen from the (.-)%.");
@@ -2218,7 +2217,7 @@ v63.ParseQuestRequirement = function(v527, v528)
 	print("DEBUG PARSER: ❌ No pattern matched - unknown task type");
 	return nil;
 end;
-v63.RenderMiscTab = function(v533)
+v64.RenderMiscTab = function(v533)
 	local v534 = v533['panel']['sidebarWidth'] + (292 - (30 + 232));
 	local v535 = 228 - 148;
 	v533:CreateText("Miscellaneous", v534, v535, Color3.fromRGB(1032 - (55 + 722), 547 - 292, 1930 - (78 + 1597)), 5 + 15);
@@ -2301,7 +2300,7 @@ v63.RenderMiscTab = function(v533)
 		end);
 	end
 end;
-v63.RenderSettingsTab = function(v545)
+v64.RenderSettingsTab = function(v545)
 	local v546 = v545['panel']['sidebarWidth'] + (77 - 47);
 	local v547 = 42 + 38;
 	v545:CreateText("Settings", v546, v547, Color3.fromRGB(1425 - (943 + 227), 112 + 143, 1886 - (1539 + 92)), 1966 - (706 + 1240));
@@ -2324,10 +2323,10 @@ v63.RenderSettingsTab = function(v545)
 		v545:RegisterButton(v546, v1229, 13 + 183, 82 - 60, function()
 			if (v1228['key'] == "pathNodeESPEnabled") then
 				v545[v1228['key']] = not (v545[v1228['key']] or false);
-				v70 = v545[v1228['key']];
+				v71 = v545[v1228['key']];
 				v545['needsRedraw'] = true;
-				print("Path Node ESP toggled to: " .. tostring(v70));
-				if v70 then
+				print("Path Node ESP toggled to: " .. tostring(v71));
+				if v71 then
 					v545:StartPathNodeESP();
 				else
 					v545:StopPathNodeESP();
@@ -2338,10 +2337,10 @@ v63.RenderSettingsTab = function(v545)
 				print("Quest Debug toggled to: " .. tostring(v545[v1228['key']]));
 			elseif (v1228['key'] == "coconutESPEnabled") then
 				v545[v1228['key']] = not (v545[v1228['key']] or false);
-				v73 = v545[v1228['key']];
+				v74 = v545[v1228['key']];
 				v545['needsRedraw'] = true;
-				print("Coconut ESP toggled to: " .. tostring(v73));
-				if v73 then
+				print("Coconut ESP toggled to: " .. tostring(v74));
+				if v74 then
 					v545:StartCoconutESP();
 				else
 					v545:StopCoconutESP();
@@ -2493,7 +2492,7 @@ v63.RenderSettingsTab = function(v545)
 	if not v545['savedConfigDropdownOpen'] then
 		v545:RegisterButton(v549 + (1316 - (615 + 597)), v570, 42 + 4, 35 - 11, function()
 			if (v545['selectedSavedConfig'] and (v545['selectedSavedConfig'] ~= "None")) then
-				local v2257 = v27 .. "/" .. v545['selectedSavedConfig'] .. v28;
+				local v2257 = v28 .. "/" .. v545['selectedSavedConfig'] .. v29;
 				pcall(function()
 					delfile(v2257);
 				end);
@@ -2536,7 +2535,7 @@ v63.RenderSettingsTab = function(v545)
 	end
 	local v571 = v570 + 9 + 31;
 	if (not v545['savedConfigDropdownOpen'] and not ((v545['status'] == "Config saved!") or (v545['status'] == "Config loaded!") or v545['status']:match("^Config"))) then
-		v545:CreateText("Version 1.1.9 - Walk Slider", v549, v571, Color3.fromRGB(127 - (18 + 9), 23 + 87, 659 - (31 + 503)), 1643 - (595 + 1037));
+		v545:CreateText(v0, v549, v571, Color3.fromRGB(127 - (18 + 9), 23 + 87, 659 - (31 + 503)), 1643 - (595 + 1037));
 		v545:CreateText("Lito", v549, v571 + (1462 - (189 + 1255)), Color3.fromRGB(37 + 63, 170 - 60, 1404 - (1170 + 109)), 1828 - (348 + 1469));
 	end
 	if v545['tweenMethodDropdownOpen'] then
@@ -2550,7 +2549,7 @@ v63.RenderSettingsTab = function(v545)
 			v545:RegisterButton(v549, v1821, 82 + 68, 17 + 7, function()
 				if not v545['lastMousePressed'] then
 					v545['tweenMethod'] = v1820;
-					v40['currentMethod'] = v1820;
+					v41['currentMethod'] = v1820;
 					v545['tweenMethodDropdownOpen'] = false;
 					v545['needsRedraw'] = true;
 					print("Tween method changed to: " .. v1820);
@@ -2559,7 +2558,7 @@ v63.RenderSettingsTab = function(v545)
 		end
 	end
 end;
-v63.StartAutoQuest = function(v572)
+v64.StartAutoQuest = function(v572)
 	if v572['autoQuestRunning'] then
 		print("DEBUG QUEST: Auto Quest already running!");
 		return;
@@ -3049,7 +3048,7 @@ v63.StartAutoQuest = function(v572)
 		v572['autoQuestThread'] = nil;
 	end);
 end;
-v63.StopAutoQuest = function(v575)
+v64.StopAutoQuest = function(v575)
 	print("Stopping Auto Quest...");
 	v575['autoQuest'] = false;
 	v575['autoQuestRunning'] = false;
@@ -3079,7 +3078,7 @@ v63.StopAutoQuest = function(v575)
 		v575['autoQuestThread'] = nil;
 	end
 end;
-v63.StartAutoFarm = function(v579)
+v64.StartAutoFarm = function(v579)
 	if ((v579['selectedOption'] == "Select Field...") or (v579['selectedOption'] == "")) then
 		notify("Windy Auto Farm", "Select A field", "8");
 		v579['autoFarmEnabled'] = false;
@@ -4669,7 +4668,7 @@ v63.StartAutoFarm = function(v579)
 		v579['status'] = "Stopped";
 	end);
 end;
-v63.StopAutoFarm = function(v583)
+v64.StopAutoFarm = function(v583)
 	if v583['autoFarmThread'] then
 		task.cancel(v583.autoFarmThread);
 		v583['autoFarmThread'] = nil;
@@ -4679,8 +4678,8 @@ v63.StopAutoFarm = function(v583)
 	v583['autoFarmEnabled'] = false;
 	v583:ClearTweenQueue();
 	StopWalking();
-	if v29['running'] then
-		v29:Stop();
+	if v30['running'] then
+		v30:Stop();
 	end
 	if v583['catchCoconutsRunning'] then
 		v583:StopCatchCoconuts();
@@ -4688,7 +4687,7 @@ v63.StopAutoFarm = function(v583)
 	v583['status'] = "Ready";
 	v583['needsRedraw'] = true;
 end;
-v63.StartAutoDig = function(v588)
+v64.StartAutoDig = function(v588)
 	if v588['autoDigRunning'] then
 		print("Auto dig already running!");
 		return;
@@ -4710,12 +4709,12 @@ v63.StartAutoDig = function(v588)
 		mouse1release();
 	end);
 end;
-v63.StopAutoDig = function(v590)
+v64.StopAutoDig = function(v590)
 	v590['autoDigRunning'] = false;
 	v590['autoDigEnabled'] = false;
 	mouse1release();
 end;
-v63.QueueTween = function(v593, v594, v595, v596)
+v64.QueueTween = function(v593, v594, v595, v596)
 	local v597 = {["Pine Tree Forest"]=true,["Cactus Field"]=true,["Pumpkin Patch"]=true,["Pineapple Patch"]=true,["Stump Field"]=true};
 	local v598 = Vector3.new(7 + 10, 248 - 58, -(1745 - (394 + 1141)));
 	local v599 = v593['selectedOption'] and v597[v593['selectedOption']];
@@ -4752,7 +4751,7 @@ v63.QueueTween = function(v593, v594, v595, v596)
 		end);
 	end
 end;
-v63.ProcessTweenQueue = function(v602)
+v64.ProcessTweenQueue = function(v602)
 	if v602['processingTween'] then
 		warn("Multiple Tweens Not Allowed");
 		return;
@@ -4778,8 +4777,8 @@ v63.ProcessTweenQueue = function(v602)
 				continue;
 			end
 			local v1555 = v1554 / v602['tweenSpeed'];
-			local v1556 = v43.new(v1555, "Linear", "None");
-			v602['currentTween'] = v40:Create(v1548, v1556, {Position=v1549});
+			local v1556 = v44.new(v1555, "Linear", "None");
+			v602['currentTween'] = v41:Create(v1548, v1556, {Position=v1549});
 			if not v602['currentTween'] then
 				print("ERROR: Failed to create tween!");
 				v602['processingTween'] = false;
@@ -4870,7 +4869,7 @@ v63.ProcessTweenQueue = function(v602)
 		v602['tweenQueue'] = {};
 	end);
 end;
-v63.ClearTweenQueue = function(v603)
+v64.ClearTweenQueue = function(v603)
 	v603['tweenQueue'] = {};
 	if v603['currentTween'] then
 		v603['currentTween']:Stop();
@@ -4878,7 +4877,7 @@ v63.ClearTweenQueue = function(v603)
 	end
 	v603['processingTween'] = false;
 end;
-v63.UseSprinkler = function(v606)
+v64.UseSprinkler = function(v606)
 	if not isrbxactive() then
 		warn("isrbxactive = false - sprinkler");
 		return false;
@@ -4917,7 +4916,7 @@ v63.UseSprinkler = function(v606)
 	end
 	return true;
 end;
-v63.FindAllTargetsInField = function(v609)
+v64.FindAllTargetsInField = function(v609)
 	local v610 = game['Players']['LocalPlayer'];
 	local v611 = v610['Character'];
 	if not v611 then
@@ -5021,7 +5020,7 @@ v63.FindAllTargetsInField = function(v609)
 	end);
 	return v613;
 end;
-v63.GoToNearestTarget = function(v619, v620)
+v64.GoToNearestTarget = function(v619, v620)
 	if not v620 then
 		return false;
 	end
@@ -5056,7 +5055,7 @@ v63.GoToNearestTarget = function(v619, v620)
 	StopWalking();
 	return false;
 end;
-v63.HandleTarget = function(v625, v626)
+v64.HandleTarget = function(v625, v626)
 	if not v626 then
 		return false;
 	end
@@ -5076,7 +5075,7 @@ v63.HandleTarget = function(v625, v626)
 	end
 	return false;
 end;
-v63.TokenCollector = function(v628, v629)
+v64.TokenCollector = function(v628, v629)
 	if (v629 == nil) then
 		v629 = true;
 	end
@@ -5532,7 +5531,7 @@ v63.TokenCollector = function(v628, v629)
 	end
 	return v635 > (1799 - (1477 + 322));
 end;
-v63.CalculateTSPPath = function(v637, v638, v639)
+v64.CalculateTSPPath = function(v637, v638, v639)
 	if (#v639 <= (1 + 1)) then
 		table.sort(v639, function(v1865, v1866)
 			return v1865['distance'] < v1866['distance'];
@@ -5549,7 +5548,7 @@ v63.CalculateTSPPath = function(v637, v638, v639)
 	local v640 = v637:GreedyNearestNeighbor(v638, v639);
 	return v637:TwoOptImprovement(v640);
 end;
-v63.GreedyNearestNeighbor = function(v641, v642, v643)
+v64.GreedyNearestNeighbor = function(v641, v642, v643)
 	local v644 = {};
 	for v1264, v1265 in ipairs(v643) do
 		v644[v1264] = {position=v1265['position'],index=v1264};
@@ -5574,7 +5573,7 @@ v63.GreedyNearestNeighbor = function(v641, v642, v643)
 	end
 	return v645;
 end;
-v63.TwoOptImprovement = function(v647, v648)
+v64.TwoOptImprovement = function(v647, v648)
 	if (#v648 < (4 + 0)) then
 		return v648;
 	end
@@ -5615,7 +5614,7 @@ v63.TwoOptImprovement = function(v647, v648)
 	end
 	return v648;
 end;
-v63.CheckForThornsNearby = function(v652, v653)
+v64.CheckForThornsNearby = function(v652, v653)
 	v653 = v653 or (1 + 3);
 	local v654 = game['Players']['LocalPlayer'];
 	local v655 = v654['Character'];
@@ -5647,7 +5646,7 @@ v63.CheckForThornsNearby = function(v652, v653)
 	end
 	return v659;
 end;
-v63.CheckForBlooms = function(v661)
+v64.CheckForBlooms = function(v661)
 	if (not v661['autoGrindBlooms'] or not v661['autoFarmEnabled']) then
 		return nil;
 	end
@@ -5724,7 +5723,7 @@ v63.CheckForBlooms = function(v661)
 	end
 	return nil;
 end;
-v63.CheckForSprouts = function(v670)
+v64.CheckForSprouts = function(v670)
 	print("=== DEBUG SPROUT: CheckForSprouts() CALLED ===");
 	if not v670['farmSprouts'] then
 		print("DEBUG SPROUT: farmSprouts is disabled");
@@ -5817,7 +5816,7 @@ v63.CheckForSprouts = function(v670)
 	print("DEBUG SPROUT: ❌ No closest field found");
 	return nil;
 end;
-v63.GrindBloom = function(v682, v683)
+v64.GrindBloom = function(v682, v683)
 	if (not v683 or not v683['Parent']) then
 		return false;
 	end
@@ -5871,7 +5870,7 @@ v63.GrindBloom = function(v682, v683)
 	end
 	return true;
 end;
-v63.CheckForViciousBee = function(v688)
+v64.CheckForViciousBee = function(v688)
 	if (not v688['killViciousBee'] or not v688['autoFarmEnabled']) then
 		return nil;
 	end
@@ -5920,7 +5919,7 @@ v63.CheckForViciousBee = function(v688)
 	end
 	return nil;
 end;
-v63.CheckForWindyBee = function(v696)
+v64.CheckForWindyBee = function(v696)
 	if (not v696['killWindy'] or not v696['autoFarmEnabled']) then
 		return nil;
 	end
@@ -5969,7 +5968,7 @@ v63.CheckForWindyBee = function(v696)
 	end
 	return nil;
 end;
-v63.CheckForMobsInCurrentField = function(v704)
+v64.CheckForMobsInCurrentField = function(v704)
 	if (not v704['avoidMobs'] or not v704['autoFarmEnabled']) then
 		return nil;
 	end
@@ -6024,7 +6023,7 @@ v63.CheckForMobsInCurrentField = function(v704)
 	end
 	return nil;
 end;
-v63.CheckForTunnelBear = function(v714)
+v64.CheckForTunnelBear = function(v714)
 	local v715 = game['Workspace']:FindFirstChild("Monsters");
 	if not v715 then
 		return false;
@@ -6032,7 +6031,7 @@ v63.CheckForTunnelBear = function(v714)
 	local v716 = v715:FindFirstChild("Tunnel Bear (Lvl 9)");
 	return v716 ~= nil;
 end;
-v63.FightTunnelBear = function(v717)
+v64.FightTunnelBear = function(v717)
 	local v718 = game['Players']['LocalPlayer'];
 	local v719 = v718['Character'];
 	if not v719 then
@@ -6379,7 +6378,7 @@ v63.FightTunnelBear = function(v717)
 	v717:SaveCooldowns();
 	return true;
 end;
-v63.CheckForCommandoChick = function(v732)
+v64.CheckForCommandoChick = function(v732)
 	if (not v732['killCommandoChick'] or not v732['autoFarmEnabled']) then
 		return false;
 	end
@@ -6394,7 +6393,7 @@ v63.CheckForCommandoChick = function(v732)
 	end
 	return false;
 end;
-v63.CheckForMondoChick = function(v734)
+v64.CheckForMondoChick = function(v734)
 	if (not v734['killMondo'] or not v734['autoFarmEnabled']) then
 		return false;
 	end
@@ -6412,7 +6411,7 @@ v63.CheckForMondoChick = function(v734)
 		return false;
 	end
 end;
-v63.GetMondoChickPosition = function(v737)
+v64.GetMondoChickPosition = function(v737)
 	local v738 = game['Workspace']:FindFirstChild("Monsters");
 	if not v738 then
 		return nil;
@@ -6442,21 +6441,21 @@ v63.GetMondoChickPosition = function(v737)
 	end
 	return nil;
 end;
-v63.IsPositionInMondoBoundary = function(v743, v744)
+v64.IsPositionInMondoBoundary = function(v743, v744)
 	local v745 = v743['mondoChickConfig'];
 	local v746 = (v744['X'] >= v745['boundaryMin']['X']) and (v744['X'] <= v745['boundaryMax']['X']);
 	local v747 = (v744['Z'] >= v745['boundaryMin']['Z']) and (v744['Z'] <= v745['boundaryMax']['Z']);
 	local v748 = math.abs(v744['Y'] - v745['boundaryMin']['Y']) <= (215 - 155);
 	return v746 and v747 and v748;
 end;
-v63.ClampPositionToMondoBoundary = function(v749, v750)
+v64.ClampPositionToMondoBoundary = function(v749, v750)
 	local v751 = v749['mondoChickConfig'];
 	local v752 = math.max(v751['boundaryMin'].X, math.min(v750.X, v751['boundaryMax'].X));
 	local v753 = math.max(v751['boundaryMin'].Z, math.min(v750.Z, v751['boundaryMax'].Z));
 	local v754 = v751['boundaryMin']['Y'];
 	return Vector3.new(v752, v754, v753);
 end;
-v63.FightMondoChick = function(v755)
+v64.FightMondoChick = function(v755)
 	local v756 = game['Players']['LocalPlayer'];
 	local v757 = v756['Character'];
 	if not v757 then
@@ -6732,7 +6731,7 @@ v63.FightMondoChick = function(v755)
 	v755['needsRedraw'] = true;
 	return true;
 end;
-v63.GetCommandoChickPosition = function(v770)
+v64.GetCommandoChickPosition = function(v770)
 	local v771 = game['Workspace']:FindFirstChild("Monsters");
 	if not v771 then
 		return nil;
@@ -6763,21 +6762,21 @@ v63.GetCommandoChickPosition = function(v770)
 	end
 	return nil;
 end;
-v63.IsPositionInCommandoBoundary = function(v775, v776)
+v64.IsPositionInCommandoBoundary = function(v775, v776)
 	local v777 = v775['commandoChickConfig'];
 	local v778 = (v776['X'] >= v777['boundaryMin']['X']) and (v776['X'] <= v777['boundaryMax']['X']);
 	local v779 = (v776['Z'] >= v777['boundaryMin']['Z']) and (v776['Z'] <= v777['boundaryMax']['Z']);
 	local v780 = math.abs(v776['Y'] - v777['boundaryMin']['Y']) <= (20 - 10);
 	return v778 and v779 and v780;
 end;
-v63.ClampPositionToBoundary = function(v781, v782)
+v64.ClampPositionToBoundary = function(v781, v782)
 	local v783 = v781['commandoChickConfig'];
 	local v784 = math.max(v783['boundaryMin'].X, math.min(v782.X, v783['boundaryMax'].X));
 	local v785 = math.max(v783['boundaryMin'].Z, math.min(v782.Z, v783['boundaryMax'].Z));
 	local v786 = v783['boundaryMin']['Y'];
 	return Vector3.new(v784, v786, v785);
 end;
-v63.GetNearbyMonsters = function(v787, v788, v789)
+v64.GetNearbyMonsters = function(v787, v788, v789)
 	local v790 = game['Workspace']:FindFirstChild("Monsters");
 	if not v790 then
 		return {};
@@ -6798,7 +6797,7 @@ v63.GetNearbyMonsters = function(v787, v788, v789)
 	end
 	return v791;
 end;
-v63.SafeTokenCollector = function(v792, v793)
+v64.SafeTokenCollector = function(v792, v793)
 	if not v792['autoFarmEnabled'] then
 		return false;
 	end
@@ -6937,7 +6936,7 @@ v63.SafeTokenCollector = function(v792, v793)
 	end
 	return v798 > (0 + 0);
 end;
-v63.FindBalloonInField = function(v800)
+v64.FindBalloonInField = function(v800)
 	if (not v800['farmUnderBalloons'] or not v800['autoFarmEnabled']) then
 		return nil;
 	end
@@ -6986,7 +6985,7 @@ v63.FindBalloonInField = function(v800)
 	end
 	return nil;
 end;
-v63.FarmUnderBalloon = function(v810, v811)
+v64.FarmUnderBalloon = function(v810, v811)
 	if (not v811 or not v811['Parent']) then
 		print("ERROR: Invalid balloon body");
 		return false;
@@ -7049,7 +7048,7 @@ v63.FarmUnderBalloon = function(v810, v811)
 	print("✓ Under balloon, returning to token collector");
 	return true;
 end;
-v63.FindCloudInField = function(v821)
+v64.FindCloudInField = function(v821)
 	if (not v821['farmUnderClouds'] or not v821['autoFarmEnabled']) then
 		return nil;
 	end
@@ -7096,7 +7095,7 @@ v63.FindCloudInField = function(v821)
 	end
 	return nil;
 end;
-v63.FarmUnderCloud = function(v830, v831)
+v64.FarmUnderCloud = function(v830, v831)
 	if (not v831 or not v831['Parent']) then
 		print("ERROR: Invalid cloud plane");
 		return false;
@@ -7142,7 +7141,7 @@ v63.FarmUnderCloud = function(v830, v831)
 	print("✓ Cloud farming complete (3s), resuming normal farming");
 	return true;
 end;
-v63.CheckForFlamesInField = function(v841)
+v64.CheckForFlamesInField = function(v841)
 	if (not v841['farmFlames'] or not v841['autoFarmEnabled']) then
 		return nil;
 	end
@@ -7194,7 +7193,7 @@ v63.CheckForFlamesInField = function(v841)
 	end
 	return nil;
 end;
-v63.CheckForFlamesInField = function(v852)
+v64.CheckForFlamesInField = function(v852)
 	if (not v852['farmFlames'] or not v852['autoFarmEnabled']) then
 		return nil;
 	end
@@ -7242,7 +7241,7 @@ v63.CheckForFlamesInField = function(v852)
 	end
 	return nil;
 end;
-v63.CheckForBubblesInField = function(v862)
+v64.CheckForBubblesInField = function(v862)
 	if (not v862['farmBubbles'] or not v862['autoFarmEnabled']) then
 		return nil;
 	end
@@ -7285,7 +7284,7 @@ v63.CheckForBubblesInField = function(v862)
 	print("✓ Found " .. #v867 .. " bubble(s) nearby");
 	return v867;
 end;
-v63.FarmBubbles = function(v869, v870)
+v64.FarmBubbles = function(v869, v870)
 	if (not v870 or (#v870 == (0 + 0))) then
 		return false;
 	end
@@ -7350,13 +7349,13 @@ v63.FarmBubbles = function(v869, v870)
 		StopWalking();
 	end
 end;
-v63.StartStatusUpdater = function(v876)
+v64.StartStatusUpdater = function(v876)
 	if v876['statusUpdaterThread'] then
 		task.cancel(v876.statusUpdaterThread);
 		v876['statusUpdaterThread'] = nil;
 	end
 	v876['statusUpdaterThread'] = task.spawn(function()
-		v0:Start();
+		v1:Start();
 		task.spawn(function()
 			while v876['isRunning'] do
 				local v1964 = game['Players']['LocalPlayer']['Character'];
@@ -7365,8 +7364,8 @@ v63.StartStatusUpdater = function(v876)
 					if (v2345 and v2345['Address']) then
 						if not v876['starActive'] then
 							pcall(function()
-								memory_write("float", v2345['Address'] + (v23['WalkSpeed'] or (1024 - 556)), v876['walkSpeed'] or (119 - 69));
-								memory_write("float", v2345['Address'] + (v23['WalkSpeedCheck'] or (1878 - (223 + 695))), v876['walkSpeed'] or (155 - 105));
+								memory_write("float", v2345['Address'] + (v24['WalkSpeed'] or (1024 - 556)), v876['walkSpeed'] or (119 - 69));
+								memory_write("float", v2345['Address'] + (v24['WalkSpeedCheck'] or (1878 - (223 + 695))), v876['walkSpeed'] or (155 - 105));
 							end);
 						end
 					end
@@ -7399,7 +7398,7 @@ v63.StartStatusUpdater = function(v876)
 							end
 						end
 					end
-					v876['uptime'] = v0:GetUptime();
+					v876['uptime'] = v1:GetUptime();
 				end);
 				if not v2150 then
 					warn("Status updater error (non-fatal)");
@@ -7407,17 +7406,17 @@ v63.StartStatusUpdater = function(v876)
 			end
 			task.wait(1 - 0);
 		end
-		v0:Stop();
+		v1:Stop();
 		v876['statusUpdaterThread'] = nil;
 	end);
 end;
-v63.StartCoconutESP = function(v878)
+v64.StartCoconutESP = function(v878)
 	print("=== STARTING COCONUT ESP ===");
-	if v74 then
-		task.cancel(v74);
-		v74 = nil;
+	if v75 then
+		task.cancel(v75);
+		v75 = nil;
 	end
-	for v1350, v1351 in pairs(v72) do
+	for v1350, v1351 in pairs(v73) do
 		pcall(function()
 			if v1351['rect'] then
 				v1351['rect']:Remove();
@@ -7427,18 +7426,18 @@ v63.StartCoconutESP = function(v878)
 			end
 		end);
 	end
-	v72 = {};
-	if not v73 then
+	v73 = {};
+	if not v74 then
 		print("Coconut ESP disabled, returning");
 		return;
 	end
-	v74 = spawn(function()
+	v75 = spawn(function()
 		print("✓ Coconut ESP thread started");
-		while v73 do
+		while v74 do
 			local v1620 = game['Workspace']:FindFirstChild("Particles");
 			local v1621 = game['Players']['LocalPlayer']['Character'];
 			local v1622 = v1621 and v1621:FindFirstChild("HumanoidRootPart");
-			for v1965, v1966 in pairs(v72) do
+			for v1965, v1966 in pairs(v73) do
 				if (not v1966['disk'] or not v1966['disk']['Parent']) then
 					pcall(function()
 						if v1966['rect'] then
@@ -7448,14 +7447,14 @@ v63.StartCoconutESP = function(v878)
 							v1966['text']:Remove();
 						end
 					end);
-					v72[v1965] = nil;
+					v73[v1965] = nil;
 				end
 			end
 			if v1620 then
 				for v2350, v2351 in pairs(v1620:GetChildren()) do
 					if ((v2351['Name'] == "WarningDisk") and v2351['Parent'] and (v2351['Size']['X'] >= (3 + 17))) then
 						local v2671 = tostring(v2351);
-						if not v72[v2671] then
+						if not v73[v2671] then
 							local v2929 = Drawing.new("Square");
 							v2929['Filled'] = false;
 							v2929['Color'] = Color3.fromRGB(22 + 233, 83 + 67, 0 - 0);
@@ -7470,13 +7469,13 @@ v63.StartCoconutESP = function(v878)
 							v2936['Outline'] = true;
 							v2936['Visible'] = false;
 							v2936['Transparency'] = 3 - 2;
-							v72[v2671] = {disk=v2351,rect=v2929,text=v2936};
+							v73[v2671] = {disk=v2351,rect=v2929,text=v2936};
 							print("[ESP] Added ESP for new coconut");
 						end
 					end
 				end
 			end
-			for v1967, v1968 in pairs(v72) do
+			for v1967, v1968 in pairs(v73) do
 				if (v1968['disk'] and v1968['disk']['Parent']) then
 					local v2352, v2353 = WorldToScreen(v1968['disk'].Position);
 					if (v2352 and v2353) then
@@ -7503,14 +7502,14 @@ v63.StartCoconutESP = function(v878)
 		print("Coconut ESP loop ended");
 	end);
 end;
-v63.StopCoconutESP = function(v879)
+v64.StopCoconutESP = function(v879)
 	print("=== STOPPING COCONUT ESP ===");
-	v73 = false;
-	if v74 then
-		task.cancel(v74);
-		v74 = nil;
+	v74 = false;
+	if v75 then
+		task.cancel(v75);
+		v75 = nil;
 	end
-	for v1352, v1353 in pairs(v72) do
+	for v1352, v1353 in pairs(v73) do
 		pcall(function()
 			if v1353['rect'] then
 				v1353['rect']:Remove();
@@ -7520,10 +7519,10 @@ v63.StopCoconutESP = function(v879)
 			end
 		end);
 	end
-	v72 = {};
+	v73 = {};
 	print("✓ Coconut ESP cleared");
 end;
-v63.WalkToHive = function(v880)
+v64.WalkToHive = function(v880)
 	v880['status'] = "Finding Hive";
 	v880['needsRedraw'] = true;
 	spawn(function()
@@ -7637,7 +7636,7 @@ v63.WalkToHive = function(v880)
 		end
 	end);
 end;
-v63.StartCoconutCrab = function(v883)
+v64.StartCoconutCrab = function(v883)
 	if v883['coconutCrabRunning'] then
 		print("Coconut Crab already running!");
 		return;
@@ -7831,7 +7830,7 @@ v63.StartCoconutCrab = function(v883)
 		v883['needsRedraw'] = true;
 	end);
 end;
-v63.StopCoconutCrab = function(v887)
+v64.StopCoconutCrab = function(v887)
 	v887['coconutCrabRunning'] = false;
 	v887['killCoconutCrab'] = false;
 	v887:ClearTweenQueue();
@@ -7839,7 +7838,7 @@ v63.StopCoconutCrab = function(v887)
 	v887['status'] = "Stopped";
 	v887['needsRedraw'] = true;
 end;
-v63.StartTrainSnail = function(v892)
+v64.StartTrainSnail = function(v892)
 	if v892['trainSnailRunning'] then
 		print("Train Snail already running!");
 		return;
@@ -7912,7 +7911,7 @@ v63.StartTrainSnail = function(v892)
 									end
 									local v3159 = v3033['Position'];
 									if (v3159 and (type(v3159) == "userdata")) then
-										local v3262, v3263, v3264 = v59(v3033);
+										local v3262, v3263, v3264 = v60(v3033);
 										if (v3262 and v3263 and v3264) then
 											local v3353 = math.abs(v3262 - v1984['X']) <= v2360;
 											local v3354 = math.abs(v3264 - v1984['Z']) <= v2361;
@@ -7963,7 +7962,7 @@ v63.StartTrainSnail = function(v892)
 		v892['status'] = "Stopped";
 	end);
 end;
-v63.StopTrainSnail = function(v896)
+v64.StopTrainSnail = function(v896)
 	v896['trainSnailRunning'] = false;
 	v896['trainSnail'] = false;
 	v896:ClearTweenQueue();
@@ -7971,7 +7970,7 @@ v63.StopTrainSnail = function(v896)
 	v896['status'] = "Stopped";
 	v896['needsRedraw'] = true;
 end;
-v63.StartFarmPuppyBall = function(v901)
+v64.StartFarmPuppyBall = function(v901)
 	if v901['farmPuppyBallRunning'] then
 		print("Farm Puppy Ball already running!");
 		return;
@@ -8045,12 +8044,12 @@ v63.StartFarmPuppyBall = function(v901)
 		v901['farmPuppyBallRunning'] = false;
 	end);
 end;
-v63.StopFarmPuppyBall = function(v903)
+v64.StopFarmPuppyBall = function(v903)
 	v903['farmPuppyBallRunning'] = false;
 	v903['farmPuppyBall'] = false;
 	StopWalking();
 end;
-v63['dispenserConfig'] = {sproutSummoner={name="Sprout Summoner",interval=(21552 + 35848),position=Vector3.new(-(1494 - (361 + 863)), 73 - 46, 1592 - (443 + 884)),key=(164 - 95),waitAfterPress=(1 + 0),timedDispenser=true,pathfindingNode="dispenser_sprout",enabled=function(v906)
+v64['dispenserConfig'] = {sproutSummoner={name="Sprout Summoner",interval=(21552 + 35848),position=Vector3.new(-(1494 - (361 + 863)), 73 - 46, 1592 - (443 + 884)),key=(164 - 95),waitAfterPress=(1 + 0),timedDispenser=true,pathfindingNode="dispenser_sprout",enabled=function(v906)
 	return v906['summonSprout'];
 end},wealthClock={name="Wealth Clock",interval=(5067 - 1467),position=Vector3.new(262.4962 + 67, 35.4412 + 13, 450.21569999999997 - 258),key=(816 - (16 + 731)),waitAfterPress=(1 + 0),timedDispenser=true,pathfindingNode="wealth_clock_final",enabled=function(v907)
 	return v907['collectWealthClock'];
@@ -8095,7 +8094,7 @@ end},beesmasLidArt={name="Lid Art",interval=(30632 - (701 + 1131)),position=Vect
 end},mythicMeteors={name="Mythic Meteors",interval=(80529 - (774 + 555)),position=Vector3.new(-(215 + 235), 916 - (150 + 649), 32 + 18),key=(104 - 35),waitAfterPress=(1 - 0),timedDispenser=true,enabled=function(v927)
 	return v927['collectMythicMeteors'];
 end}};
-v63.CollectDispenser = function(v928, v929)
+v64.CollectDispenser = function(v928, v929)
 	local v930 = v928['dispenserConfig'][v929];
 	if not v930 then
 		print("ERROR: Invalid dispenser key: " .. v929);
@@ -8537,7 +8536,7 @@ v63.CollectDispenser = function(v928, v929)
 	v928:SaveCooldowns();
 	return true;
 end;
-v63.StartTimedActionsHandler = function(v938)
+v64.StartTimedActionsHandler = function(v938)
 	if v938['timedActionsThread'] then
 		task.cancel(v938.timedActionsThread);
 		v938['timedActionsThread'] = nil;
@@ -8650,20 +8649,20 @@ v63.StartTimedActionsHandler = function(v938)
 		v938['timedActionsThread'] = nil;
 	end);
 end;
-v63.StopTimedActionsHandler = function(v941)
+v64.StopTimedActionsHandler = function(v941)
 	if v941['timedActionsThread'] then
 		task.cancel(v941.timedActionsThread);
 		v941['timedActionsThread'] = nil;
 	end
 end;
-v63.StopTimedActionsHandler = function(v942)
+v64.StopTimedActionsHandler = function(v942)
 	if v942['timedActionsThread'] then
 		task.cancel(v942.timedActionsThread);
 		v942['timedActionsThread'] = nil;
 	end
 end;
-v63['configKeys'] = {"selectedOption","autoFarmEnabled","autoDigEnabled","useSprinkler","collectTokens","selectedSprinkler","testWalkEnabled","useInstantConverter","farmSprouts","farmPuppyBall","autoGrindBlooms","farmUnderBalloons","farmUnderClouds","farmFlames","farmBubbles","convertBalloon","resetWhenFull","farmFaceBalloons","catchCoconuts","catchStars","killCoconutCrab","trainSnail","killKingBeetle","killViciousBee","killCommandoChick","killWindy","killTunnelBear","killMondo","avoidMobs","lootMondo","timeToKillEnabled","mondoTimeToKill","selectedCombatTarget","claimQuest","autoQuest","autoBrowBear","autoPolarBear","autoDoAll","questCollectPollen","questKillMobs","summonSprout","collectCoconutDispenser","collectAntPass","collectGlue","collectHoneyDispenser","collectBlueberryDispenser","collectTreatDispenser","collectStrawberryDispenser","collectRoyalJellyDispenser","collectRoboPassDispenser","summonHoneyStorm","collectWealthClock","beesmasStockings","beesmasFeast","beesmasSnowMachine","beesmasSamovar","beesmasLidArt","collectMythicMeteors","tweenSpeed","gatherTime","tweenMethod","walkSpeed"};
-v63.StartConfigNameInput = function(v943)
+v64['configKeys'] = {"selectedOption","autoFarmEnabled","autoDigEnabled","useSprinkler","collectTokens","selectedSprinkler","testWalkEnabled","useInstantConverter","farmSprouts","farmPuppyBall","autoGrindBlooms","farmUnderBalloons","farmUnderClouds","farmFlames","farmBubbles","convertBalloon","resetWhenFull","farmFaceBalloons","catchCoconuts","catchStars","killCoconutCrab","trainSnail","killKingBeetle","killViciousBee","killCommandoChick","killWindy","killTunnelBear","killMondo","avoidMobs","lootMondo","timeToKillEnabled","mondoTimeToKill","selectedCombatTarget","claimQuest","autoQuest","autoBrowBear","autoPolarBear","autoDoAll","questCollectPollen","questKillMobs","summonSprout","collectCoconutDispenser","collectAntPass","collectGlue","collectHoneyDispenser","collectBlueberryDispenser","collectTreatDispenser","collectStrawberryDispenser","collectRoyalJellyDispenser","collectRoboPassDispenser","summonHoneyStorm","collectWealthClock","beesmasStockings","beesmasFeast","beesmasSnowMachine","beesmasSamovar","beesmasLidArt","collectMythicMeteors","tweenSpeed","gatherTime","tweenMethod","walkSpeed"};
+v64.StartConfigNameInput = function(v943)
 	if v943['configNameInputActive'] then
 		return;
 	end
@@ -8761,7 +8760,7 @@ v63.StartConfigNameInput = function(v943)
 		end
 	end);
 end;
-v63.ExportConfig = function(v946, v947)
+v64.ExportConfig = function(v946, v947)
 	local v948 = {};
 	for v1379, v1380 in ipairs(v946.configKeys) do
 		local v1381 = v946[v1380];
@@ -8785,19 +8784,19 @@ v63.ExportConfig = function(v946, v947)
 	end
 	table.sort(v949);
 	local v950 = "WINDYCFG:{" .. table.concat(v949, ",") .. "}";
-	if not isfolder(v27) then
-		makefolder(v27);
+	if not isfolder(v28) then
+		makefolder(v28);
 	end
 	local v951;
 	if (v947 and (#v947 > (0 - 0))) then
 		local v1670 = v947:gsub("[^%w%s%-_]", ""):gsub("%s+", "_");
-		v951 = v27 .. "/" .. v1670 .. v28;
+		v951 = v28 .. "/" .. v1670 .. v29;
 	else
 		local v1671 = 2 - 1;
-		while isfile(v27 .. "/Main_" .. v1671 .. v28) do
+		while isfile(v28 .. "/Main_" .. v1671 .. v29) do
 			v1671 = v1671 + (131 - (123 + 7));
 		end
-		v951 = v27 .. "/Main_" .. v1671 .. v28;
+		v951 = v28 .. "/Main_" .. v1671 .. v29;
 		v947 = "Main_" .. v1671;
 	end
 	writefile(v951, v950);
@@ -8814,34 +8813,34 @@ v63.ExportConfig = function(v946, v947)
 		end
 	end);
 end;
-v63.RefreshSavedConfigs = function(v955)
+v64.RefreshSavedConfigs = function(v955)
 	v955['savedConfigs'] = {};
-	if not isfolder(v27) then
-		makefolder(v27);
+	if not isfolder(v28) then
+		makefolder(v28);
 		return;
 	end
-	local v957 = listfiles(v27);
+	local v957 = listfiles(v28);
 	for v1385, v1386 in ipairs(v957) do
-		if v1386:match(v28 .. "$") then
+		if v1386:match(v29 .. "$") then
 			local v2018 = v1386:match("([^/\\]+)$");
-			table.insert(v955.savedConfigs, {name=v2018:gsub(v28, ""),path=v1386});
+			table.insert(v955.savedConfigs, {name=v2018:gsub(v29, ""),path=v1386});
 		end
 	end
 	table.sort(v955.savedConfigs, function(v1387, v1388)
 		return v1387['name'] > v1388['name'];
 	end);
 end;
-v63.ImportConfig = function(v958, v959)
-	if not isfolder(v27) then
-		makefolder(v27);
+v64.ImportConfig = function(v958, v959)
+	if not isfolder(v28) then
+		makefolder(v28);
 	end
 	local v960;
 	if (v959 and (v959 ~= "None")) then
-		v960 = v27 .. "/" .. v959 .. v28;
-	elseif isfile(v27 .. "/Main_1" .. v28) then
-		v960 = v27 .. "/Main_1" .. v28;
+		v960 = v28 .. "/" .. v959 .. v29;
+	elseif isfile(v28 .. "/Main_1" .. v29) then
+		v960 = v28 .. "/Main_1" .. v29;
 	else
-		v960 = v27 .. "/Main" .. v28;
+		v960 = v28 .. "/Main" .. v29;
 	end
 	if not isfile(v960) then
 		warn("Config file not found: " .. v960);
@@ -8928,7 +8927,7 @@ v63.ImportConfig = function(v958, v959)
 		v966 = v1396 or (v967 + 1 + 0);
 	end
 	if v958['tweenMethod'] then
-		v40['currentMethod'] = v958['tweenMethod'];
+		v41['currentMethod'] = v958['tweenMethod'];
 	end
 	print("Config loaded " .. v964 .. " values, " .. v965 .. " unknown keys");
 	v958['status'] = "Config loaded!";
@@ -8949,7 +8948,7 @@ v63.ImportConfig = function(v958, v959)
 	end);
 	return true;
 end;
-v63.StartCatchCoconuts = function(v971)
+v64.StartCatchCoconuts = function(v971)
 	if v971['catchCoconutsRunning'] then
 		return;
 	end
@@ -9032,13 +9031,13 @@ v63.StartCatchCoconuts = function(v971)
 		v971['catchCoconutsRunning'] = false;
 	end);
 end;
-v63.StopCatchCoconuts = function(v974)
+v64.StopCatchCoconuts = function(v974)
 	v974['catchCoconutsRunning'] = false;
 	v974['catchCoconuts'] = false;
 	v974['coconutActive'] = false;
 	StopWalking();
 end;
-v63.StartCatchStars = function(v978)
+v64.StartCatchStars = function(v978)
 	if v978['catchStarsRunning'] then
 		return;
 	end
@@ -9103,8 +9102,8 @@ v63.StartCatchStars = function(v978)
 					if v2389 then
 						local v2701 = v2389:FindFirstChild("Humanoid");
 						if (v2701 and v2701['Address']) then
-							local v2954 = v23['WalkSpeed'] or (1158 - (558 + 132));
-							local v2955 = v23['WalkSpeedCheck'] or (2595 - 1635);
+							local v2954 = v24['WalkSpeed'] or (1158 - (558 + 132));
+							local v2955 = v24['WalkSpeedCheck'] or (2595 - 1635);
 							local v2956, v2957 = pcall(function()
 								return memory_read("float", v2701['Address'] + v2954);
 							end);
@@ -9130,8 +9129,8 @@ v63.StartCatchStars = function(v978)
 						if v2702 then
 							local v2958 = v2702:FindFirstChild("Humanoid");
 							if (v2958 and v2958['Address']) then
-								local v3133 = v23['WalkSpeed'] or (399 + 69);
-								local v3134 = v23['WalkSpeedCheck'] or (1590 - 630);
+								local v3133 = v24['WalkSpeed'] or (399 + 69);
+								local v3134 = v24['WalkSpeedCheck'] or (1590 - 630);
 								pcall(function()
 									memory_write("float", v2958['Address'] + v3133, v2388);
 									memory_write("float", v2958['Address'] + v3134, v2388);
@@ -9149,7 +9148,7 @@ v63.StartCatchStars = function(v978)
 		v978['catchStarsRunning'] = false;
 	end);
 end;
-v63.StopCatchStars = function(v981)
+v64.StopCatchStars = function(v981)
 	v981['catchStarsRunning'] = false;
 	v981['catchStars'] = false;
 	v981['starActive'] = false;
@@ -9158,8 +9157,8 @@ v63.StopCatchStars = function(v981)
 	if v985 then
 		local v1684 = v985:FindFirstChild("Humanoid");
 		if (v1684 and v1684['Address']) then
-			local v2191 = v23['WalkSpeed'] or (241 + 227);
-			local v2192 = v23['WalkSpeedCheck'] or (1731 - (294 + 477));
+			local v2191 = v24['WalkSpeed'] or (241 + 227);
+			local v2192 = v24['WalkSpeedCheck'] or (1731 - (294 + 477));
 			pcall(function()
 				memory_write("float", v1684['Address'] + v2191, 6 + 10);
 				memory_write("float", v1684['Address'] + v2192, 35 - 19);
@@ -9167,7 +9166,7 @@ v63.StopCatchStars = function(v981)
 		end
 	end
 end;
-v63.Render = function(v986)
+v64.Render = function(v986)
 	if not v986['uiVisible'] then
 		return;
 	end
@@ -9190,7 +9189,7 @@ v63.Render = function(v986)
 	end
 	v986['needsRedraw'] = false;
 end;
-v63.HandleInput = function(v988)
+v64.HandleInput = function(v988)
 	if not v988['uiVisible'] then
 		return;
 	end
@@ -9221,7 +9220,7 @@ v63.HandleInput = function(v988)
 			local v2197 = v988['panel']['sidebarWidth'] + (637 - (82 + 525)) + 200 + 20;
 			local v2198 = (182 - 102) + (1663 - (948 + 675));
 			local v2199 = v2198 + 10 + 18;
-			local v2200 = v62();
+			local v2200 = v63();
 			if ((v1685 >= v2197) and (v1685 <= (v2197 + 136 + 14)) and (v1686 >= v2199) and (v1686 <= (v2199 + (#v2200 * (66 - 42))))) then
 				v1687 = true;
 			end
@@ -9325,7 +9324,7 @@ v63.HandleInput = function(v988)
 	end
 	v988['lastMousePressed'] = v992;
 end;
-v63.HandleSliderDrag = function(v994, v995, v996)
+v64.HandleSliderDrag = function(v994, v995, v996)
 	local v997 = v994['panel']['x'] + v994['panel']['sidebarWidth'] + (109 - 79) + (2019 - (923 + 876));
 	local v998 = v994['panel']['y'] + (213 - 133) + (852 - (284 + 528)) + (1027 - (867 + 152));
 	local v999 = 1256 - (709 + 397);
@@ -9336,7 +9335,7 @@ v63.HandleSliderDrag = function(v994, v995, v996)
 	v994['tweenSpeed'] = math.floor(v994.tweenSpeed);
 	v994['needsRedraw'] = true;
 end;
-v63.HandleGatherSliderDrag = function(v1004, v1005, v1006)
+v64.HandleGatherSliderDrag = function(v1004, v1005, v1006)
 	local v1007 = v1004['panel']['x'] + v1004['panel']['sidebarWidth'] + (55 - 25) + 47 + 173;
 	local v1008 = v1004['panel']['y'] + (237 - 157) + (99 - 59) + 4 + 4 + (195 - (97 + 38));
 	local v1009 = 230 - (52 + 28);
@@ -9347,7 +9346,7 @@ v63.HandleGatherSliderDrag = function(v1004, v1005, v1006)
 	v1004['gatherTime'] = math.floor(v1004.gatherTime);
 	v1004['needsRedraw'] = true;
 end;
-v63.HandleMondoSliderDrag = function(v1014, v1015, v1016)
+v64.HandleMondoSliderDrag = function(v1014, v1015, v1016)
 	local v1017 = v1014['panel']['x'] + v1014['panel']['sidebarWidth'] + 5 + 25 + (1000 - (467 + 473));
 	local v1018 = v1014['panel']['y'] + (396 - 316) + (109 - 69) + ((19 - 11) * (71 - 43)) + 2 + 3 + (61 - 33) + (111 - 83) + (47 - 19);
 	local v1019 = v1018 + 2 + 6;
@@ -9359,7 +9358,7 @@ v63.HandleMondoSliderDrag = function(v1014, v1015, v1016)
 	v1014['mondoTimeToKill'] = math.floor(v1014.mondoTimeToKill);
 	v1014['needsRedraw'] = true;
 end;
-v63.HandleWalkSliderDrag = function(v1025, v1026, v1027)
+v64.HandleWalkSliderDrag = function(v1025, v1026, v1027)
 	local v1028 = v1025['panel']['x'] + v1025['panel']['sidebarWidth'] + (1283 - (677 + 576)) + 95 + 125 + (406 - 226);
 	local v1029 = 370 - (88 + 132);
 	local v1030 = v1026 - v1028;
@@ -9372,14 +9371,14 @@ v63.HandleWalkSliderDrag = function(v1025, v1026, v1027)
 		local v1693 = v1034:FindFirstChild("Humanoid");
 		if (v1693 and v1693['Address']) then
 			pcall(function()
-				memory_write("float", v1693['Address'] + (v23['WalkSpeed'] or (1641 - 1173)), v1025.walkSpeed);
-				memory_write("float", v1693['Address'] + (v23['WalkSpeedCheck'] or (1251 - (12 + 279))), v1025.walkSpeed);
+				memory_write("float", v1693['Address'] + (v24['WalkSpeed'] or (1641 - 1173)), v1025.walkSpeed);
+				memory_write("float", v1693['Address'] + (v24['WalkSpeedCheck'] or (1251 - (12 + 279))), v1025.walkSpeed);
 			end);
 		end
 	end
 	v1025['needsRedraw'] = true;
 end;
-v63.FindBubbleLocation = function(v1036)
+v64.FindBubbleLocation = function(v1036)
 	local v1037 = game['Workspace']:FindFirstChild("Particles");
 	if v1037 then
 		for v2028, v2029 in pairs(v1037:GetChildren()) do
@@ -9390,7 +9389,7 @@ v63.FindBubbleLocation = function(v1036)
 		end
 	end
 end;
-v63.CheckKingBeetle = function(v1038)
+v64.CheckKingBeetle = function(v1038)
 	local v1039 = game['Workspace']:FindFirstChild("Monsters");
 	if not v1039 then
 		return false;
@@ -9398,7 +9397,7 @@ v63.CheckKingBeetle = function(v1038)
 	local v1040 = v1039:FindFirstChild("King Beetle (Lvl 7)");
 	return v1040 ~= nil;
 end;
-v63.KillKingBeetle = function(v1041)
+v64.KillKingBeetle = function(v1041)
 	print("=== KING BEETLE AUTO-FARM ===");
 	local v1042 = game['Players']['LocalPlayer'];
 	local v1043 = v1042['Character'];
@@ -9642,7 +9641,7 @@ v63.KillKingBeetle = function(v1041)
 	v1041:SaveCooldowns();
 	return true;
 end;
-v63.FightCommandoChick = function(v1055)
+v64.FightCommandoChick = function(v1055)
 	local v1056 = game['Players']['LocalPlayer'];
 	local v1057 = v1056['Character'];
 	if not v1057 then
@@ -9835,13 +9834,13 @@ v63.FightCommandoChick = function(v1055)
 	v1055:SaveCooldowns();
 	return true;
 end;
-v63.StartPathNodeESP = function(v1067)
+v64.StartPathNodeESP = function(v1067)
 	print("=== STARTING PATH NODE ESP ===");
-	if v71 then
-		task.cancel(v71);
-		v71 = nil;
+	if v72 then
+		task.cancel(v72);
+		v72 = nil;
 	end
-	for v1421, v1422 in pairs(v69) do
+	for v1421, v1422 in pairs(v70) do
 		pcall(function()
 			if v1422['rect'] then
 				v1422['rect']:Remove();
@@ -9856,8 +9855,8 @@ v63.StartPathNodeESP = function(v1067)
 			end
 		end);
 	end
-	v69 = {};
-	if not v70 then
+	v70 = {};
+	if not v71 then
 		print("ESP disabled, returning");
 		return;
 	end
@@ -9878,13 +9877,13 @@ v63.StartPathNodeESP = function(v1067)
 		v1432['Outline'] = true;
 		v1432['Visible'] = true;
 		v1432['Transparency'] = 1570 - (598 + 971);
-		v69[v1423] = {position=v1424,rect=v1425,text=v1432,connections=(v1067['pathConnections'][v1423] or {}),line={}};
+		v70[v1423] = {position=v1424,rect=v1425,text=v1432,connections=(v1067['pathConnections'][v1423] or {}),line={}};
 	end
 	print("✓ Created ESP for " .. v1068 .. " nodes");
-	v71 = spawn(function()
+	v72 = spawn(function()
 		print("✓ ESP update thread started");
 		local v1440 = 0 + 0;
-		while v70 do
+		while v71 do
 			v1440 = v1440 + (3 - 2);
 			if ((v1440 % (281 - 221)) == (0 - 0)) then
 				print("ESP loop running... (" .. v1440 .. " frames)");
@@ -9893,7 +9892,7 @@ v63.StartPathNodeESP = function(v1067)
 			local v1713 = v1712['Character'];
 			if v1713 then
 				local v2225 = v1713:FindFirstChild("HumanoidRootPart");
-				for v2398, v2399 in pairs(v69) do
+				for v2398, v2399 in pairs(v70) do
 					local v2400 = v2399['position'];
 					local v2401, v2402 = WorldToScreen(v2400);
 					if (v2401 and v2402) then
@@ -9915,10 +9914,10 @@ v63.StartPathNodeESP = function(v1067)
 						v2399['text']['Visible'] = false;
 					end
 				end
-				for v2403, v2404 in pairs(v69) do
+				for v2403, v2404 in pairs(v70) do
 					if v2404['connections'] then
 						for v2817, v2818 in ipairs(v2404.connections) do
-							local v2819 = v69[v2818];
+							local v2819 = v70[v2818];
 							if v2819 then
 								local v3047, v3048 = WorldToScreen(v2404.position);
 								local v3049, v3050 = WorldToScreen(v2819.position);
@@ -9948,14 +9947,14 @@ v63.StartPathNodeESP = function(v1067)
 		print("ESP loop ended");
 	end);
 end;
-v63.StopPathNodeESP = function(v1069)
+v64.StopPathNodeESP = function(v1069)
 	print("=== STOPPING PATH NODE ESP ===");
-	v70 = false;
-	if v71 then
-		task.cancel(v71);
-		v71 = nil;
+	v71 = false;
+	if v72 then
+		task.cancel(v72);
+		v72 = nil;
 	end
-	for v1441, v1442 in pairs(v69) do
+	for v1441, v1442 in pairs(v70) do
 		pcall(function()
 			if v1442['rect'] then
 				v1442['rect']:Remove();
@@ -9970,10 +9969,10 @@ v63.StopPathNodeESP = function(v1069)
 			end
 		end);
 	end
-	v69 = {};
+	v70 = {};
 	print("✓ ESP cleared");
 end;
-v63.SaveCooldowns = function(v1070)
+v64.SaveCooldowns = function(v1070)
 	local v1071 = {};
 	local v1072 = os.clock();
 	local v1073 = os.time();
@@ -9997,11 +9996,11 @@ v63.SaveCooldowns = function(v1070)
 		v1071['lastCommandoChickTime'] = v1073 - v1718;
 	end
 	local v1074 = game:GetService("HttpService");
-	if not isfolder(v27) then
-		makefolder(v27);
+	if not isfolder(v28) then
+		makefolder(v28);
 	end
 	local v1075, v1076 = pcall(function()
-		writefile(v27 .. "/cooldowns.json", v1074:JSONEncode(v1071));
+		writefile(v28 .. "/cooldowns.json", v1074:JSONEncode(v1071));
 	end);
 	if v1075 then
 		print("Cooldowns saved");
@@ -10009,8 +10008,8 @@ v63.SaveCooldowns = function(v1070)
 		warn("Save failed: " .. tostring(v1076));
 	end
 end;
-v63.LoadCooldowns = function(v1077)
-	local v1078 = v27 .. "/cooldowns.json";
+v64.LoadCooldowns = function(v1077)
+	local v1078 = v28 .. "/cooldowns.json";
 	if not isfile(v1078) then
 		return false;
 	end
@@ -10033,7 +10032,7 @@ v63.LoadCooldowns = function(v1077)
 	end
 	return true;
 end;
-v63.Shutdown = function(v1085)
+v64.Shutdown = function(v1085)
 	v1085['isRunning'] = false;
 	if v1085['autoQuestThread'] then
 		task.cancel(v1085.autoQuestThread);
@@ -10061,7 +10060,7 @@ v63.Shutdown = function(v1085)
 	end
 	v1085:Clear();
 end;
-local function v188()
+local function v189()
 	local v1087, v1088 = pcall(function()
 		return game:HttpGet("https://pastebin.com/raw/ih2Sx4nb");
 	end);
@@ -10072,27 +10071,27 @@ local function v188()
 	v1088 = v1088:gsub("%s+", "");
 	if (v1088 == "0") then
 		print("[CONTROL] value received");
-		if v63 then
-			v63['isRunning'] = false;
-			if v63['statusUpdaterThread'] then
-				task.cancel(v63.statusUpdaterThread);
+		if v64 then
+			v64['isRunning'] = false;
+			if v64['statusUpdaterThread'] then
+				task.cancel(v64.statusUpdaterThread);
 			end
-			if v63['autoFarmThread'] then
-				task.cancel(v63.autoFarmThread);
+			if v64['autoFarmThread'] then
+				task.cancel(v64.autoFarmThread);
 			end
-			if v63['autoDigThread'] then
-				task.cancel(v63.autoDigThread);
+			if v64['autoDigThread'] then
+				task.cancel(v64.autoDigThread);
 			end
-			if v63['coconutCrabThread'] then
-				task.cancel(v63.coconutCrabThread);
+			if v64['coconutCrabThread'] then
+				task.cancel(v64.coconutCrabThread);
 			end
-			if v63['tweenQueueThread'] then
-				task.cancel(v63.tweenQueueThread);
+			if v64['tweenQueueThread'] then
+				task.cancel(v64.tweenQueueThread);
 			end
-			if v63['timedActionsThread'] then
-				task.cancel(v63.timedActionsThread);
+			if v64['timedActionsThread'] then
+				task.cancel(v64.timedActionsThread);
 			end
-			v63:Clear();
+			v64:Clear();
 		end
 		if controlCheckThread then
 			task.cancel(controlCheckThread);
@@ -10110,13 +10109,13 @@ local function v188()
 		return true;
 	end
 end
-local function v189()
+local function v190()
 	if controlCheckThread then
 		task.cancel(controlCheckThread);
 	end
 	controlCheckThread = spawn(function()
 		while true do
-			local v1726 = v188();
+			local v1726 = v189();
 			if not v1726 then
 				print("[CONTROL] stopped");
 				break;
@@ -10125,13 +10124,13 @@ local function v189()
 		end
 	end);
 end
-v189();
-v63:RefreshSavedConfigs();
-v63:Render();
-v63:StartStatusUpdater();
-v63:WalkToHive();
+v190();
+v64:RefreshSavedConfigs();
+v64:Render();
+v64:StartStatusUpdater();
+v64:WalkToHive();
 task.spawn(function()
-	while v63['isRunning'] do
+	while v64['isRunning'] do
 		task.wait(119 - 89);
 		pcall(function()
 			memory_write("double", memory_read("uintptr_t", getbase() + (966 - 662)) + 490 + 14, 8999999488 - 0);
@@ -10141,20 +10140,20 @@ task.spawn(function()
 end);
 spawn(function()
 	local v1089 = false;
-	while v63['isRunning'] do
+	while v64['isRunning'] do
 		local v1448 = iskeypressed(1067 - (613 + 364));
 		if (v1448 and not v1089) then
-			v63['uiVisible'] = not v63['uiVisible'];
-			if v63['uiVisible'] then
-				v63['needsRedraw'] = true;
-				for v2558, v2559 in pairs(v63.drawings) do
+			v64['uiVisible'] = not v64['uiVisible'];
+			if v64['uiVisible'] then
+				v64['needsRedraw'] = true;
+				for v2558, v2559 in pairs(v64.drawings) do
 					pcall(function()
 						v2559['instance']['Visible'] = true;
 					end);
 				end
-				v63:Render();
+				v64:Render();
 			else
-				for v2560, v2561 in pairs(v63.drawings) do
+				for v2560, v2561 in pairs(v64.drawings) do
 					pcall(function()
 						v2561['instance']['Visible'] = false;
 					end);
@@ -10166,24 +10165,24 @@ spawn(function()
 	end
 end);
 spawn(function()
-	while v63['isRunning'] do
-		if v63['uiVisible'] then
-			v63:HandleInput();
+	while v64['isRunning'] do
+		if v64['uiVisible'] then
+			v64:HandleInput();
 			local v2039 = false;
-			for v2227 = 1 + 0, #v63['tabs'] do
-				local v2228 = ((v2227 == v63['activeTab']) and (1 + 0)) or (0 - 0);
-				local v2229 = v63['tabLerpProgress'][v2227] or v2228;
+			for v2227 = 1 + 0, #v64['tabs'] do
+				local v2228 = ((v2227 == v64['activeTab']) and (1 + 0)) or (0 - 0);
+				local v2229 = v64['tabLerpProgress'][v2227] or v2228;
 				if (math.abs(v2229 - v2228) > (0.5 - 0)) then
 					v2039 = true;
 					break;
 				end
 			end
-			if (v63['needsRedraw'] or v2039) then
-				v63:Render();
+			if (v64['needsRedraw'] or v2039) then
+				v64:Render();
 			end
 		end
 		wait(0.03 - 0);
 	end
-	v63:Clear();
+	v64:Clear();
 	print("Complete");
 end);
