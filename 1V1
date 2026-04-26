@@ -493,7 +493,7 @@ function TweenInfo.new(time, easingStyle, easingDirection, repeatCount, reverses
     return self
 end
 
-TweenService.currentMethod = "Velocity"
+TweenService.currentMethod = "Custom"
 
 
 local Tween = {}
@@ -531,7 +531,7 @@ function Tween:Play()
         if TweenService and TweenService.currentMethod then
             self.Method = TweenService.currentMethod
         else
-            self.Method = "Position"
+            self.Method = "Custom"
         end
     end
 
@@ -1479,7 +1479,7 @@ local UI = {
     walkedToViciousOnce = false,
     collectingSproutTokens = false,
     spawnerTimerTracking = {},
-	tweenMethod = "Velocity",
+	tweenMethod = "Safe Tween",
     tweenMethodDropdownOpen = false,
     uiVisible = true,
     killMondo = false,
@@ -4064,7 +4064,7 @@ function UI:RenderSettingsTab()
     
     -- RENDER TWEEN METHOD DROPDOWN
     if self.tweenMethodDropdownOpen then
-        local options = {"Position", "Velocity", "Custom"}
+        local options = {"Position", "Velocity", "Safe Tween"}
         local menuY = tweenMethodY + 28
         
         self:CreateRect(sliderX, menuY, 150, #options * 24, Color3.fromRGB(25, 28, 35), 1, 8, true)
@@ -4078,7 +4078,7 @@ function UI:RenderSettingsTab()
             self:RegisterButton(sliderX, optionY, 150, 24, function()
                 if not self.lastMousePressed then
                     self.tweenMethod = option
-                    TweenService.currentMethod = option
+                    TweenService.currentMethod = (option == "Safe Tween") and "Custom" or option
                     self.tweenMethodDropdownOpen = false
                     self.needsRedraw = true
                     print("Tween method changed to: " .. option)
@@ -12054,7 +12054,10 @@ function UI:ImportConfig(configName)
     end
     
     if self.tweenMethod then
-        TweenService.currentMethod = self.tweenMethod
+        if self.tweenMethod == "Custom" then
+            self.tweenMethod = "Safe Tween"
+        end
+        TweenService.currentMethod = (self.tweenMethod == "Safe Tween") and "Custom" or self.tweenMethod
     end
     
     print("Config loaded " .. loaded .. " values, " .. errors .. " unknown keys")
