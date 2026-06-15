@@ -1,5 +1,4 @@
--- bssobsidianv1: BSS automation backend with Obsidian Drawing UI shell
--- Imported BSS pre-UI helpers from bss.txt
+
 local version = "Version 1.2 - Obsidian Port"
 local AliveCheck = {serverUrl = "https://alive-server--ewassreddd.replit.app/alive", interval = 30, startTime = os.clock(), lastCheckTime = 0, thread = nil, running = false} function AliveCheck:GetUptime() local elapsed = os.clock() - self.startTime local hours = math.floor(elapsed / 3600) local minutes = math.floor((elapsed % 3600) / 60) local seconds = math.floor(elapsed % 60) return string.format("%02d:%02d:%02d", hours, minutes, seconds) end function AliveCheck:GetPlayerHoney() local player = game.Players.LocalPlayer if not player then return 0 end local stats = player:FindFirstChild("CoreStats") if not stats then return 0 end local honey = stats:FindFirstChild("Honey") return honey and honey.Value or 0 end function AliveCheck:SendAliveCheck() local player = game.Players.LocalPlayer if not player then return false end local userId = tostring(player.UserId or 0) local username = player.Name or "Unknown" local executor = identifyexecutor and identifyexecutor() or "Unknown" local uptime = self:GetUptime() local honey = self:GetPlayerHoney() local baseUrl = self.serverUrl local queryParams = "?userId=" .. userId .. "&username=" .. username .. "&executor=" .. executor .. "&uptime=" .. uptime .. "&honey=" .. tostring(math.floor(honey)) .. "&version=" .. version local fullUrl = baseUrl .. queryParams local success, response = pcall(function() return game:HttpGet(fullUrl) end) if success then return true else warn("[ALIVE] âœ— Failed: " .. tostring(response)) return false end end function AliveCheck:Start() if self.thread then task.cancel(self.thread) end self.running = true self:SendAliveCheck() self.thread = task.spawn(function() while self.running do task.wait(self.interval) self:SendAliveCheck() end end) end function AliveCheck:Stop() self.running = false if self.thread then task.cancel(self.thread) self.thread = nil end end
 local NativeRunService = game:GetService("RunService")
@@ -190,7 +189,6 @@ local function writeCFrame(part, targetPos)
     local prim = getPrimitive(part)
     if not prim or prim == 0 then return false end
     local success = pcall(function()
-        -- Preserve existing rotation, only write position (X/Y/Z at +0x24/0x28/0x2C)
         memory_write("float", prim + cframepath + 0x24, targetPos.X)
         memory_write("float", prim + cframepath + 0x28, targetPos.Y)
         memory_write("float", prim + cframepath + 0x2C, targetPos.Z)
@@ -1382,7 +1380,6 @@ local function GetFlowerZones()
 end
 
 
--- Obsidian Drawing UI base
 if not math.clamp then
     math.clamp = function(val, min, max)
         return math.min(math.max(val, min), max)
@@ -1423,7 +1420,7 @@ local Theme = {
     accent = Color3.fromRGB(125, 85, 255),
     accentSoft = Color3.fromRGB(125, 85, 255),
     text = Color3.new(1, 1, 1),
-    textDim = Color3.fromRGB(128, 128, 128), -- 50% text transparency look
+    textDim = Color3.fromRGB(128, 128, 128),
     textMuted = Color3.fromRGB(110, 110, 110),
     success = Color3.new(1, 1, 1),
     dark = Color3.new(0, 0, 0),
@@ -2817,7 +2814,6 @@ end
 function UI:DrawRoundedWindow(bucket, x, y, w, h)
     local radius = 4
 
-    -- Obsidian outline/shadow feel
     self:CreateRoundedBox(bucket, x - 1, y - 1, w + 2, h + 2, radius + 1, Theme.dark or Color3.new(0, 0, 0))
     self:CreateRoundedBox(bucket, x, y, w, h, radius, Theme.border)
     self:CreateRoundedBox(bucket, x + 1, y + 1, w - 2, h - 2, math.max(0, radius - 1), Theme.bg)
@@ -2825,19 +2821,14 @@ end
 
 function UI:DrawLeftRoundedPanel(bucket, x, y, w, h, radius, color)
     radius = math.floor(math.max(0, radius or 0))
-
-    -- middle body
     self:CreateSquare(bucket, x, y + radius, w, h - (radius * 2), color, 1, true)
 
-    -- top/bottom body, shifted right so it does not cover rounded outside corners
     self:CreateSquare(bucket, x + radius, y, w - radius, radius, color, 1, true)
     self:CreateSquare(bucket, x + radius, y + h - radius, w - radius, radius, color, 1, true)
 
-    -- left rounded corners
     self:CreateCircle(bucket, x + radius, y + radius, radius, color, 1, true)
     self:CreateCircle(bucket, x + radius, y + h - radius, radius, color, 1, true)
 
-    -- fill the right side fully
     self:CreateSquare(bucket, x + radius, y, w - radius, h, color, 1, true)
 end
 
