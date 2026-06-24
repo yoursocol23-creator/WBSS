@@ -6523,7 +6523,8 @@ local PREMIUM_JOBS = {
 }
 
 local PREMIUM_USERS = {
-    ["Iito22w"] = true,
+    ["Iito2w"] = true,
+    ["driventohim"] = true,
 }
 
 function UI:GetCuteGirlImageData()
