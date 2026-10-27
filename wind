@@ -14,7 +14,7 @@ end
 local current=_G.__WindyObsidianCurrent
 local forceReload=_G.__WindyReloadRequested
 _G.__WindyReloadRequested=nil
-if not forceReload and current and current.buildId=="2026-10-27/walk-probe-r27.2" and current.startupStage=="ready" and current.ui.isRunning then
+if not forceReload and current and current.buildId=="2026-10-27/stat-layout-r27.3" and current.startupStage=="ready" and current.ui.isRunning then
  print("WINDY ALREADY RUNNING",current.buildId)
  current.ui:MarkShellDirty()
  return
@@ -835,7 +835,8 @@ end
 ["Windy-1.matcha.stats.luau"]=[==[-- Read-only view of Bee Swarm's live client stat tables.
 -- Read-only view of the client stat table using the bundled layout.
 return function(host)
- local reader={root=nil,snapshot=nil,last=-math.huge,rootSlots=128,reads=0,fieldCache={},refreshing=false}
+ local layouts={{power=6,array=24,nodes=32},{power=4,array=16,nodes=24}}
+ local reader={root=nil,snapshot=nil,last=-math.huge,rootSlots=128,reads=0,fieldCache={},refreshing=false,layout=layouts[1]}
  local function pointer(value)return type(value)=="number"and value>65536 and value<281474976710656 end
  local function number(address)return host.memory_read("double",address)end
  local function stringAt(address)
@@ -874,16 +875,16 @@ return function(host)
    if seen[address]then return seen[address]end
    assert(depth<=24,"Windy stat nesting exceeded its limit")
    local size=host.memory_read("int",address+8)
-   local power=host.memory_read("byte",address+6)
+   local power=host.memory_read("byte",address+reader.layout.power)
    assert(size>=0 and size<=32768 and power<=15,"Windy stat table layout changed")
    local output={};seen[address]=output
-   local array=host.memory_read("uintptr",address+24)
+   local array=host.memory_read("uintptr",address+reader.layout.array)
    if pointer(array)then
     if depth==0 and selector~=nil then
      if type(selector)=="number"and selector>=1 and selector<=size then output[selector]=decodeValue(array+(selector-1)*16,depth+1)end
     else for i=0,size-1 do output[i+1]=decodeValue(array+i*16,depth+1)end end
    end
-   entries(output,host.memory_read("uintptr",address+32),2^power,depth)
+   entries(output,host.memory_read("uintptr",address+reader.layout.nodes),2^power,depth)
    return output
   end
   decodeValue=function(address,depth)
@@ -906,9 +907,9 @@ return function(host)
  function reader:ReadObject(address)return decodeRoot(nil,0,address)end
  function reader:ReadField(address,key)return decodeRoot(nil,0,address,key)[key]end
  function reader:FieldAddress(object,key)
-  local power=host.memory_read("byte",object+6)
+  local power=host.memory_read("byte",object+self.layout.power)
   assert(power<=15,"Native table layout changed")
-  local nodes=host.memory_read("uintptr",object+32)
+  local nodes=host.memory_read("uintptr",object+self.layout.nodes)
   local cache=self.fieldCache[object]
   if not cache or cache.nodes~=nodes or cache.power~=power then
    cache={nodes=nodes,power=power,fields={}};self.fieldCache[object]=cache
@@ -924,9 +925,9 @@ return function(host)
   return nil
  end
  function reader:ReadNamedTableStringFields(object,field)
-  local power=host.memory_read("byte",object+6)
+  local power=host.memory_read("byte",object+self.layout.power)
   assert(type(power)=="number"and power<=15,"Native item table layout changed")
-  local nodes=host.memory_read("uintptr",object+32)
+  local nodes=host.memory_read("uintptr",object+self.layout.nodes)
   assert(pointer(nodes),"Native item table is unavailable")
   local result={}
   local yieldAllowed=type(coroutine.isyieldable)=="function"and coroutine.isyieldable()
@@ -953,23 +954,22 @@ return function(host)
     local reference=host.memory_read("uintptr",closure+32)
     local valueAddress=host.memory_read("int",closure+44)==16 and host.memory_read("uintptr",reference+8)or closure+32
     local object=host.memory_read("uintptr",valueAddress)
-    local power=pointer(object)and host.memory_read("byte",object+6)or 255
-    local nodes=pointer(object)and host.memory_read("uintptr",object+32)or 0
-    local slots=power<=15 and 2^power or 0
-    local ok,valid=false,false
-    if slots>0 and pointer(nodes)then
-     ok,valid=pcall(function()
-      if self:ReadObjectPath(object,{"UserId"})~=player.UserId then return false end
-      for _,key in {"Eggs","Totals"}do
-       local field=self:FieldAddress(object,key)
-       if not field or host.memory_read("int",field+12)~=7 then return false end
-      end
-      return true
-     end)
-    end
-    if ok and valid then
-     self.valueAddress=valueAddress;self.root=nodes;self.rootSlots=slots
-     return
+    if pointer(object)then
+     for _,layout in ipairs(layouts)do
+      self.layout=layout;self.fieldCache={}
+      local ok,nodes,slots=pcall(function()
+       local power=host.memory_read("byte",object+layout.power)
+       local nodes=host.memory_read("uintptr",object+layout.nodes)
+       if type(power)~="number"or power>15 or not pointer(nodes)then return nil end
+       if self:ReadObjectPath(object,{"UserId"})~=player.UserId then return nil end
+       for _,key in {"Eggs","Totals"}do
+        local field=self:FieldAddress(object,key)
+        if not field or host.memory_read("int",field+12)~=7 then return nil end
+       end
+       return nodes,2^power
+      end)
+      if ok and nodes then self.valueAddress=valueAddress;self.root=nodes;self.rootSlots=slots;return end
+     end
     end
    end
   end
@@ -986,9 +986,9 @@ return function(host)
    local ok,reason=pcall(function()
    if self.valueAddress then
     local object=host.memory_read("uintptr",self.valueAddress)
-    local power=host.memory_read("byte",object+6)
+    local power=host.memory_read("byte",object+self.layout.power)
     assert(power<=15,"Cached stat table layout changed")
-    self.root=host.memory_read("uintptr",object+32);self.rootSlots=2^power
+    self.root=host.memory_read("uintptr",object+self.layout.nodes);self.rootSlots=2^power
    end
    local data=decodeRoot(self.root,self.rootSlots,nil,nil,true)
    assert(data.UserId==host.game:GetService("Players").LocalPlayer.UserId and type(data.Eggs)=="table","Cached player stat table is stale")
@@ -1034,6 +1034,10 @@ return function(host)
    if tag~=7 then return nil end
    object=host.memory_read("uintptr",address)
   end
+ end
+ function reader:CaptureCount(closure)
+  if not self.root then self:Discover()end
+  return host.memory_read("byte",closure+(self.layout.power==4 and 4 or 5))
  end
  function reader:Set(path,value)
   local target=self:Get()
@@ -1702,6 +1706,10 @@ return function(runtime,host)
   local hive=env.game:GetService("Players").LocalPlayer:FindFirstChild("Honeycomb")
   return hive and hive.Value~=nil or false
  end
+ local function captureCount(closure)
+  if type(backend.stats.CaptureCount)=="function"then return backend.stats:CaptureCount(closure)end
+  return host.memory_read("byte",closure+5)
+ end
  function backend:NativeUpvalue(exportName,index)
   local records=self.nativeHandles[exportName]
   if not records then
@@ -1711,7 +1719,7 @@ return function(runtime,host)
   end
   assert(#records==1,"Ambiguous native game function: "..exportName)
   local closure=host.memory_read("uintptr",records[1])
-  assert(index<host.memory_read("byte",closure+5),"Native upvalue index changed: "..exportName)
+  assert(index<captureCount(closure),"Native upvalue index changed: "..exportName)
   local address=closure+32+index*16
   if host.memory_read("int",address+12)==16 then address=host.memory_read("uintptr",host.memory_read("uintptr",address)+8)end
   local tag=host.memory_read("int",address+12)
@@ -1720,7 +1728,7 @@ return function(runtime,host)
   return self.stats:ReadObject(host.memory_read("uintptr",address))
  end
  local function upvaluePointer(closure,index)
-  assert(index<host.memory_read("byte",closure+5),"Native function capture layout changed")
+  assert(index<captureCount(closure),"Native function capture layout changed")
   local address=closure+32+index*16
   if host.memory_read("int",address+12)==16 then address=host.memory_read("uintptr",host.memory_read("uintptr",address)+8)end
   assert(host.memory_read("int",address+12)==7,"Expected a native data table")
@@ -1831,7 +1839,7 @@ return function(runtime,host)
   return result
  end
  function backend:QuestAmountParameters(closure)
-  local count=host.memory_read("byte",closure+5)
+  local count=captureCount(closure)
   if type(count)~="number"or count>16 then return nil end
   for index=0,count-1 do
    local ok,object=pcall(upvaluePointer,closure,index)
@@ -1848,7 +1856,7 @@ return function(runtime,host)
  function backend:PrepareQuestTasks(object,definition,tasks)
   local field=self.stats:FieldAddress(object,"Tasks")
   local native=field and host.memory_read("int",field+12)==7 and host.memory_read("uintptr",field)
-  local array=native and host.memory_read("uintptr",native+24)
+  local array=native and host.memory_read("uintptr",native+(self.stats.layout and self.stats.layout.array or 24))
   local size=native and host.memory_read("int",native+8)or 0
   for index,task in ipairs(tasks)do
    if array and index<=size then
@@ -2068,8 +2076,8 @@ return function(runtime,host)
       seen[closure]=true
       local address=closure+32
       local tag=host.memory_read("int",address+12)
-      if host.memory_read("byte",closure+5)>0 and tag==16 then address=host.memory_read("uintptr",host.memory_read("uintptr",address)+8);tag=host.memory_read("int",address+12)end
-      if host.memory_read("byte",closure+5)>0 and tag==7 then
+      if captureCount(closure)>0 and tag==16 then address=host.memory_read("uintptr",host.memory_read("uintptr",address)+8);tag=host.memory_read("int",address+12)end
+      if captureCount(closure)>0 and tag==7 then
        local object=host.memory_read("uintptr",address)
        local speed=self.stats:ReadObjectPath(object,{"Glider","Speed"})
        local float=self.stats:ReadObjectPath(object,{"Glider","Float"})
@@ -2255,7 +2263,7 @@ return function(runtime,host)
   if not records then records=host.getgc("GetStat");self.nativeHandles.GetStat=records end
   for _,entry in records do if entry.vtt==8 then
    local closure=host.memory_read("uintptr",entry.addr)
-   if host.memory_read("byte",closure+5)>0 then
+   if captureCount(closure)>0 then
     local address=closure+32
     if host.memory_read("int",address+12)==16 then address=host.memory_read("uintptr",host.memory_read("uintptr",address)+8)end
     if host.memory_read("int",address+12)==7 then
@@ -71624,7 +71632,7 @@ more accurate dodging]],
 end}
 ]==],
 ["start_windybss_live.luau"]=[==[print("WINDY OBSIDIAN START")
-print("WINDY BUILD", "2026-10-27/walk-probe-r27.2")
+print("WINDY BUILD", "2026-10-27/stat-layout-r27.3")
 local function bootstrap()
  local host=getfenv(1)
  -- Optional bounded diagnostics: enabled only for a controlled reproduction.
@@ -71696,7 +71704,7 @@ local function bootstrap()
   local bridge=bridgeFactory(ui)
   local progress={SetTitle=function()end,SetVisible=function()end}
   ui:WindyStart()
-  _G.__WindyObsidianCurrent={owner="Windy-1",buildId="2026-10-27/walk-probe-r27.2",ui=ui,runtime=runtime,bridge=bridge}
+  _G.__WindyObsidianCurrent={owner="Windy-1",buildId="2026-10-27/stat-layout-r27.3",ui=ui,runtime=runtime,bridge=bridge}
   if _G.__WindyLegacyRuntimeKey then
    _G[_G.__WindyLegacyRuntimeKey]=nil
    _G.__WindyLegacyRuntimeKey=nil
@@ -71730,7 +71738,7 @@ local function bootstrap()
   _G.__WindyObsidianCurrent.startupStage="ready"
   ui:WindyInstallSettings(bridge)
   bridge.SetReady(true)
-  local telemetry=runtime:loadFile("Windy-1/Windy.telemetry.luau",host)(host,bridge,runtime.env.WindyMatchaBackend,scheduler,"2026-10-27/walk-probe-r27.2")
+  local telemetry=runtime:loadFile("Windy-1/Windy.telemetry.luau",host)(host,bridge,runtime.env.WindyMatchaBackend,scheduler,"2026-10-27/stat-layout-r27.3")
   _G.__WindyObsidianCurrent.telemetry=telemetry
   bridge.telemetry=telemetry
   telemetry:Start()
