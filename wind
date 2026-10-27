@@ -14,7 +14,7 @@ end
 local current=_G.__WindyObsidianCurrent
 local forceReload=_G.__WindyReloadRequested
 _G.__WindyReloadRequested=nil
-if not forceReload and current and current.buildId=="2026-10-27/startup-r26.1" and current.startupStage=="ready" and current.ui.isRunning then
+if not forceReload and current and current.buildId=="2026-10-27/walk-probe-r27.2" and current.startupStage=="ready" and current.ui.isRunning then
  print("WINDY ALREADY RUNNING",current.buildId)
  current.ui:MarkShellDirty()
  return
@@ -284,8 +284,8 @@ return function(host)
    end
   end
  end
- -- Native Humanoid:MoveTo capture: timer counts down from 8, clears on stop.
- -- Theo's header reports WalkTimer=0 for this build; never use that zero offset.
+ -- Theo currently reports zero. The native MoveTo probe measured this value
+ -- and the five-stud walking check passed on the active 2026-10-27 client.
  if matchedVersion and (not offsets.WalkTimer or offsets.WalkTimer==0)then offsets.WalkTimer=0x3e8 end
  local fields={WalkSpeed={"float","Walkspeed"},JumpPower={"float","JumpPower"},JumpHeight={"float","JumpHeight"},HipHeight={"float","HipHeight"},AutoRotate={"byte","AutoRotate"},Jump={"byte","Jump"}}
  local walkingFactory
@@ -1382,6 +1382,19 @@ return function(runtime,host)
  local combat=runtime:loadFile("Windy-1/Windy-1.matcha.combat.luau",host)
  function backend:CombatRequested(config)return combat.Requested(config)end
  function backend:MobCooldown(spawner,asText,interval)
+  if type(interval)~="number"or interval<=0 then
+   local ok,text=pcall(function()return spawner.timer and spawner.timer.Text end)
+   if ok and type(text)=="string"then
+    text=text:match("^%s*(.-)%s*$")or""
+    text=text:match("^[^%d:][^:]*:%s*(.+)$")or text
+    if text=="1:00"then return nil end
+    if text~=""then
+     if asText then return text end
+     return true
+    end
+   end
+   return asText and "Unknown"or true
+  end
   return combat.Cooldown(self.stats:ReadPath({"MonsterTimes",spawner.Name}),interval,spawner.MonsterType,host.os.time(),asText)
  end
  function backend:IsReturn(reason)
@@ -2274,11 +2287,11 @@ return function(runtime,host)
   end
   if not self.monsterDefinitions[name]then
    -- Matcha's batched getgc query can omit a matching table. Retry only
-   -- the requested type, once per five seconds, rather than caching a miss.
+   -- the requested type infrequently rather than caching a miss forever.
    self.monsterRetryAt=self.monsterRetryAt or {}
    local now=host.os.clock()
    if now>=(self.monsterRetryAt[name]or -math.huge)then
-    self.monsterRetryAt[name]=now+5
+    self.monsterRetryAt[name]=now+30
     for _,entry in host.getgc(name)do
      if entry.key==name and entry.vtt==7 then
       local pointer=host.memory_read("uintptr",entry.addr)
@@ -2288,7 +2301,7 @@ return function(runtime,host)
     end
    end
   end
-  return assert(self.monsterDefinitions[name],"Missing live monster stats: "..tostring(name))
+  return self.monsterDefinitions[name]
  end
  local function module(path)
   local instance=storage
@@ -2337,6 +2350,7 @@ return function(runtime,host)
    if not spawner then return nil end
    local definition=self:MonsterStats(spawner.MonsterType.Value)
    self:Trace("cooldown definition done "..tostring(name))
+   if not definition then return nil end
    local cooldown=definition.RespawnCooldown
    if not cooldown then return 0 end
    self:Trace("cooldown modifiers "..tostring(name))
@@ -47115,7 +47129,7 @@ end
 			"1489734171",
 		}
 
-		connections:Add("boosts", state.boostsgrid.ChildAdded:Connect(function(child)
+		local function handleBuffAdded(child)
  local buffBG,buffText,buffBar,buffIcon=WindyMatchaBackend:BuffParts(child)
  if not buffBG then return end
 			if child:FindFirstChild("BG") then
@@ -47188,14 +47202,16 @@ end
 							local windField = fieldByImage[image]
 							local tonumber_ = tonumber
 							local amountText = string.gsub(buffText.Text, "x", "")
-							winds[windField] = tonumber_(amountText) or 1
+							if windField then winds[windField] = tonumber_(amountText) or 1 end
 						end
 					else
-						buffs.Fields[fieldByImage[image]] = { Text = buffText, Percent = buffBar }
+						local field=fieldByImage[image]
+                            if field then buffs.Fields[field] = { Text = buffText, Percent = buffBar } end
 					end
 				end
 			end
-		end))
+		end
+		connections:Add("boosts", state.boostsgrid.ChildAdded:Connect(handleBuffAdded))
 
 		connections:Add("boosts2", state.boostsgrid.ChildRemoved:Connect(function(child)
 			if child:FindFirstChild("BG") then
@@ -47274,90 +47290,9 @@ end
 		end))
 
 		for _, child in ipairs(state.boostsgrid:GetChildren()) do
-			if child:FindFirstChild("BG") then
-				if child.BG:FindFirstChild("Icon") then
-					local image = WindyMatchaBackend:BuffIconImage(child.BG.Icon)
-					local iconId = string.match(image, "%d+")
-					local buffKey = buffKeys[iconId]
-					local materialKey = materialKeys[iconId]
-					local nectarKey = nectarKeys[iconId]
-
-					if not (iconId ~= "7052520309" or not string.find(child.BG.Text.Text, "%", 1, true)) then
-						buffs["Tidal Surge"] = true
-					elseif iconId == "5144723635" then
-						buffs.BubbleBloat = child.BG.Bar
-						buffs.Graph.bloat = child.BG.Text
-					elseif table.find(ignoredBuffIds, iconId) then
-						buffs.Bear = true
-						buffs.Graph.bear = child.BG.Text
-					elseif iconId == "5101328809" then
-						buffs["Pop Star Aura"] = true
-						buffs.Graph.popstar = child.BG.Text
-					elseif iconId == "5101329167" then
-						buffs["Scorching Star Aura"] = child.BG.Text
-						buffs.Graph.scorchingstar = child.BG.Text
-					elseif iconId == "5101329457" then
-						buffs["Gummy Star Aura"] = true
-						buffs.Graph.gummystar = child.BG.Text
-					elseif iconId == "1472256444" then
-						buffs.BabyLove = true
-						buffs.Graph.babylove = child.BG.Text
-					elseif iconId == "8172818074" then
-						buffs.Precision = { Text = child.BG.Text, Percent = child.BG.Bar }
-						buffs.Graph.precision = child.BG.Text
-					elseif iconId == "15460474729" then
-						buffs.PuffBlessing = { Text = child.BG.Text, Percent = child.BG.Bar }
-					elseif iconId == "6299503651" then
-						buffs.NymphBlessing = { Text = child.BG.Text, Percent = child.BG.Bar }
-					elseif iconId == "8083443467" then
-						buffs.Balloon = { Text = child.BG.Text, Percent = child.BG.Bar }
-						buffs.Graph.blessing = child.BG.Text
-					elseif iconId == "6077286858" then
-						buffs.ReindeerFetch = { Text = child.BG.Text, Percent = child.BG.Bar }
-						buffs.Graph.reindeerfetch = child.BG.Text
-					elseif iconId == "247422112" then
-						buffs.PolarBear = child.BG.Text
-					elseif iconId == "3809516302" or iconId == "3582501342" then
-						buffs.Cloud = child.BG.Bar
-					elseif not (iconId ~= "4097473201" or not string.find(child.BG.Text.Text, ".", 1, true)) then
-						buffs.Flame = child.BG.Bar
-						buffs.Graph.flameheat = child.BG.Text
-					elseif iconId == "15943639398" then
-						buffs["Sticker Stacker"] = true
-					elseif iconId == "1838129169" then
-						buffs.UnlimitedGumdrops = true
-					elseif iconId == "2652424740" then
-						buffs.FestiveBlessing = true
-					elseif iconId == "2060626811" then
-						buffs.AntChallenge = true
-					elseif iconId == "6087969886" then
-						buffs.CoolBreeze = true
-					elseif buffKey then
-						buffs.Graph[buffKey] = child.BG.Text
-					elseif materialKey then
-						buffs.Materials[materialKey] = true
-					elseif nectarKey then
-						buffs.Nectar[nectarKey] = child.BG.Bar
-					elseif child.BG.Bar.BackgroundColor3 ~= Color3.fromRGB(255, 228, 81) then
-						if child.BG.Bar.BackgroundColor3 == Color3.fromRGB(231, 248, 255) then
-							local imageField = fieldByImage[image]
-
-							if imageField then
-								local winds = buffs.Winds
-								local amountText = string.gsub(child.BG.Text.Text, "x", "")
-								winds[imageField] = tonumber(amountText) or 1
-							end
-						end
-					else
-						local imageField = fieldByImage[image]
-
-						if imageField then
-							buffs.Fields[imageField] = { Text = child.BG.Text, Percent = child.BG.Bar }
-						end
-					end
-				end
-			end
+			task.spawn(handleBuffAdded,child)
 		end
+
 	end
 
 	local function getBoostedFields()
@@ -71689,7 +71624,7 @@ more accurate dodging]],
 end}
 ]==],
 ["start_windybss_live.luau"]=[==[print("WINDY OBSIDIAN START")
-print("WINDY BUILD", "2026-10-27/startup-r26.1")
+print("WINDY BUILD", "2026-10-27/walk-probe-r27.2")
 local function bootstrap()
  local host=getfenv(1)
  -- Optional bounded diagnostics: enabled only for a controlled reproduction.
@@ -71761,7 +71696,7 @@ local function bootstrap()
   local bridge=bridgeFactory(ui)
   local progress={SetTitle=function()end,SetVisible=function()end}
   ui:WindyStart()
-  _G.__WindyObsidianCurrent={owner="Windy-1",buildId="2026-10-27/startup-r26.1",ui=ui,runtime=runtime,bridge=bridge}
+  _G.__WindyObsidianCurrent={owner="Windy-1",buildId="2026-10-27/walk-probe-r27.2",ui=ui,runtime=runtime,bridge=bridge}
   if _G.__WindyLegacyRuntimeKey then
    _G[_G.__WindyLegacyRuntimeKey]=nil
    _G.__WindyLegacyRuntimeKey=nil
@@ -71795,7 +71730,7 @@ local function bootstrap()
   _G.__WindyObsidianCurrent.startupStage="ready"
   ui:WindyInstallSettings(bridge)
   bridge.SetReady(true)
-  local telemetry=runtime:loadFile("Windy-1/Windy.telemetry.luau",host)(host,bridge,runtime.env.WindyMatchaBackend,scheduler,"2026-10-27/startup-r26.1")
+  local telemetry=runtime:loadFile("Windy-1/Windy.telemetry.luau",host)(host,bridge,runtime.env.WindyMatchaBackend,scheduler,"2026-10-27/walk-probe-r27.2")
   _G.__WindyObsidianCurrent.telemetry=telemetry
   bridge.telemetry=telemetry
   telemetry:Start()
@@ -72540,6 +72475,35 @@ task.spawn(function()
    writefile("Windy-1/settings-migrated.json","true")
   end
   -- WINDY SETTINGS MIGRATION END
+  -- WINDY AUTO OFFSETS BEGIN
+  -- Keep the last structurally valid header if the service is unavailable.
+  local function validOffsets(source)
+   if type(source)~="string"or #source<500 or not source:match("Roblox Version%s*:%s*version%-%w+")then return false end
+   for _,group in ipairs({"Humanoid","GuiObject","Attachment","BasePart","Primitive"})do
+    if not source:match("namespace%s+"..group.."%s*{(.-)}")then return false end
+   end
+   local humanoid=source:match("namespace%s+Humanoid%s*{(.-)}")
+   for _,name in ipairs({"EvaluateStateMachine","IsWalking","MoveToPoint"})do
+    local value=humanoid:match("uintptr_t%s+"..name.."%s*=%s*(0x%x+)")
+    if not value or not tonumber(value)or tonumber(value)<=0 then return false end
+   end
+   return true
+  end
+  local fetched,header=pcall(function()
+   if type(httpget)=="function"then return httpget("https://offsets.imtheo.lol/offsets.hpp")end
+   return game:HttpGet("https://offsets.imtheo.lol/offsets.hpp")
+  end)
+  if fetched and validOffsets(header)then
+   assets["offsets.txt"]=header
+   writefile("Windy-1/offsets-cache.txt",header)
+   print("WINDY OFFSETS UPDATED",header:match("Roblox Version%s*:%s*(version%-%w+)")or"unknown")
+  elseif isfile("Windy-1/offsets-cache.txt")and validOffsets(readfile("Windy-1/offsets-cache.txt"))then
+   assets["offsets.txt"]=readfile("Windy-1/offsets-cache.txt")
+   warn("[Windy offsets] Could not fetch Theo's offsets; using cached offsets")
+  else
+   warn("[Windy offsets] Could not fetch Theo's offsets; using bundled fallback")
+  end
+  -- WINDY AUTO OFFSETS END
   local count=0
   for name,source in pairs(assets)do
    writefile("Windy-1/"..name,source)
