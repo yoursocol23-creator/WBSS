@@ -14,7 +14,7 @@ end
 local current=_G.__WindyObsidianCurrent
 local forceReload=_G.__WindyReloadRequested
 _G.__WindyReloadRequested=nil
-if not forceReload and current and current.buildId=="2026-10-26/telemetry-r24" and current.startupStage=="ready" and current.ui.isRunning then
+if not forceReload and current and current.buildId=="2026-10-27/startup-r26.1" and current.startupStage=="ready" and current.ui.isRunning then
  print("WINDY ALREADY RUNNING",current.buildId)
  current.ui:MarkShellDirty()
  return
@@ -269,13 +269,12 @@ return function(host)
    for _,child in state.children or{}do api.retire(child)end
   end
  end
- local version=host.getrbxversion()
  local offsets={}
  local guiOffsets,textureOffsets,partOffsets,primitiveOffsets,lightingOffsets={},{},{},{},{}
  local matchedVersion=false
  if host.isfile("Windy-1/offsets.txt")then
   local source=host.readfile("Windy-1/offsets.txt")
-  if source:match("Roblox Version%s*:%s*(version%-%w+)")==version then
+  do
    matchedVersion=true
    local humanoid=source:match("namespace%s+Humanoid%s*{(.-)}")
    if humanoid then for name,hex in humanoid:gmatch("uintptr_t%s+([%w_]+)%s*=%s*(0x%x+)")do offsets[name]=tonumber(hex)end end
@@ -287,7 +286,7 @@ return function(host)
  end
  -- Native Humanoid:MoveTo capture: timer counts down from 8, clears on stop.
  -- Theo's header reports WalkTimer=0 for this build; never use that zero offset.
- if matchedVersion and version=="version-9ac8595712b447a7"then offsets.WalkTimer=0x3e8 end
+ if matchedVersion and (not offsets.WalkTimer or offsets.WalkTimer==0)then offsets.WalkTimer=0x3e8 end
  local fields={WalkSpeed={"float","Walkspeed"},JumpPower={"float","JumpPower"},JumpHeight={"float","JumpHeight"},HipHeight={"float","HipHeight"},AutoRotate={"byte","AutoRotate"},Jump={"byte","Jump"}}
  local walkingFactory
  local walkingSource=host.readfile("Windy-1/Windy-1.matcha.walk.luau")
@@ -834,10 +833,9 @@ return function(host)
 end
 ]==],
 ["Windy-1.matcha.stats.luau"]=[==[-- Read-only view of Bee Swarm's live client stat tables.
--- Layout checked against the active Roblox build before selecting the root.
+-- Read-only view of the client stat table using the bundled layout.
 return function(host)
- local reader={root=nil,snapshot=nil,last=-math.huge,rootSlots=128,layoutVersion=host.getrbxversion(),reads=0,fieldCache={},refreshing=false}
- assert(reader.layoutVersion=="version-9ac8595712b447a7","Windy Luau memory layout requires validation for this Roblox build")
+ local reader={root=nil,snapshot=nil,last=-math.huge,rootSlots=128,reads=0,fieldCache={},refreshing=false}
  local function pointer(value)return type(value)=="number"and value>65536 and value<281474976710656 end
  local function number(address)return host.memory_read("double",address)end
  local function stringAt(address)
@@ -978,7 +976,6 @@ return function(host)
   assert(false,"Windy could not identify a validated live player stat table")
  end
  function reader:Get(path,force)
-  assert(self.layoutVersion==host.getrbxversion(),"Roblox version changed; stat layout must be revalidated")
   if not self.root then self:Discover()end
   if path~=nil then
    local object=host.memory_read("uintptr",self.valueAddress)
@@ -1120,7 +1117,6 @@ return function(runtime,host)
  function backend:AttachmentWorld(attachment,part)
   if not self.attachmentPositionOffset then
    local source=host.readfile("Windy-1/offsets.txt")
-   assert(source:match("Roblox Version%s*:%s*(version%-%w+)")==host.getrbxversion(),"Attachment offsets do not match this Roblox build")
    local body=assert(source:match("namespace%s+Attachment%s*{(.-)}"),"Attachment offsets unavailable")
    self.attachmentPositionOffset=assert(tonumber(body:match("Position%s*=%s*(0x%x+)")),"Attachment Position offset unavailable")
   end
@@ -3156,12 +3152,10 @@ return function(host,walking)
  local player=host.game:GetService("Players").LocalPlayer
  local parts={Part=true,MeshPart=true,UnionOperation=true,WedgePart=true,CornerWedgePart=true}
  local evaluationOffset
- if host.getrbxversion and host.isfile and host.isfile("Windy-1/offsets.txt")then
+ if host.isfile and host.isfile("Windy-1/offsets.txt")then
   local source=host.readfile("Windy-1/offsets.txt")
-  if source:match("Roblox Version%s*:%s*([%w%-]+)")==host.getrbxversion()then
-   local body=source:match("namespace%s+Humanoid%s*{(.-)}")
-   evaluationOffset=body and tonumber(body:match("uintptr_t%s+EvaluateStateMachine%s*=%s*(0x%x+)"))
-  end
+  local body=source:match("namespace%s+Humanoid%s*{(.-)}")
+  evaluationOffset=body and tonumber(body:match("uintptr_t%s+EvaluateStateMachine%s*=%s*(0x%x+)"))
  end
  local function suspendEvaluation(job,humanoid)
   -- Only the explicitly selected legacy mode owns the old animation-state hack.
@@ -3278,7 +3272,12 @@ local headerTextOffset=_G.WindyHeaderTextOffset or {X=0,Y=5}
 local CONFIG_FOLDER="Windy-1/Obsidian"
 local CONFIG_EXTENSION=".cfg"
 local TelemetryBackend={events={}}
-function TelemetryBackend:TrackError(context,message)warn("[Windy UI]",context,message)end
+function TelemetryBackend:TrackError(context,message)
+ warn("[Windy UI]",context,message)
+ local text=tostring(context)..": "..tostring(message)
+ if self.ui and self.ui.WindyConsoleWrite then self.ui:WindyConsoleWrite('error',text)end
+ if self.bridge and self.bridge.telemetry then self.bridge.telemetry:Log('error',text)end
+end
 function TelemetryBackend:TrackEvent(name,value)self.events[#self.events+1]={name,value}end
 function TelemetryBackend:TrackToggle(name,value)self:TrackEvent(name,value)end
 function TelemetryBackend:GetServerIdentity()return game.PlaceId,game.JobId,"property"end
@@ -4291,6 +4290,7 @@ function UI:Destroy()
 
     self:DestroyBucket(self.shellBucket)
     self:DestroyBucket(self.loadingBucket)
+    self:DestroyBucket(self.windyConsoleBucket)
 
     for _, bucket in ipairs(self.tabBuckets or {}) do
         self:DestroyBucket(bucket)
@@ -5211,7 +5211,7 @@ function UI:SetRobloxInputEnabled(enabled)
 end
 
 function UI:UpdateRobloxInputCapture()
-    self:SetRobloxInputEnabled(self.uiVisible ~= true)
+    self:SetRobloxInputEnabled(self.uiVisible ~= true or self.windyMinimized == true)
 end
 
 function UI:FocusSearch()
@@ -10269,8 +10269,74 @@ function UI:WindyApplyAccent(hex)
  for i in ipairs(self.tabs)do self:MarkTabDirty(i)end
  return true,Theme.accent
 end
+-- Independent overlay: it remains visible when the main window is hidden.
+function UI:WindySetConsoleVisible(value,save)
+ self.windyConsoleVisible=value==true
+ if self.windyConsoleConfig then self.windyConsoleConfig.console=self.windyConsoleVisible end
+ if self.windyConsoleControl then self.windyConsoleControl.value=self.windyConsoleVisible end
+ if not self.windyConsoleVisible and self.windyConsoleBucket then self:ClearBucket(self.windyConsoleBucket)end
+ self.windyConsoleDirty=true;self:MarkCurrentTabDirty()
+ if save and self.windyConsoleBridge and self.windyConsoleBridge.save then self.windyConsoleBridge.save()end
+end
+function UI:WindyConsoleWrite(level,message)
+ self.windyConsoleLines=self.windyConsoleLines or{}
+ local stamp='--:--:--';local ok,result=pcall(function()return os.date('%X')end);if ok and result then stamp=result end
+ for line in (tostring(message)..'\n'):gmatch('(.-)\n')do
+  table.insert(self.windyConsoleLines,{time=stamp,level=tostring(level),text=line})
+  if #self.windyConsoleLines>30 then table.remove(self.windyConsoleLines,1)end
+ end
+ self.windyConsoleDirty=true
+end
+function UI:WindyConsoleFrame()
+ if not self.windyConsoleVisible then self.windyConsoleMouseDown=false;return end
+ self.windyConsoleBucket=self.windyConsoleBucket or NewBucket()
+ local viewport=self:GetViewportSize();local w=math.min(400,math.max(230,viewport.X-24));local h=math.min(320,math.max(160,viewport.Y-24))
+ if not self.windyConsoleX then self.windyConsoleX=math.max(12,viewport.X-w-18);self.windyConsoleY=28 end
+ local x=math.clamp(self.windyConsoleX,0,math.max(0,viewport.X-w));local y=math.clamp(self.windyConsoleY,0,math.max(0,viewport.Y-h))
+ self.windyConsoleX=x;self.windyConsoleY=y
+ local mouse=self:GetMouseLocation();local down=self:IsMousePressed()
+ if down and not self.windyConsoleMouseDown and self:IsPointInRect(mouse,x+w-38,y+9,28,28)then
+  self:WindySetConsoleVisible(false,true);self.windyConsoleMouseDown=down;return
+ elseif down and not self.windyConsoleMouseDown and self:IsPointInRect(mouse,x,y,w-42,40)then
+  self.windyConsoleDrag={x=mouse.X-x,y=mouse.Y-y}
+ end
+ if self.windyConsoleDrag then
+  if down then
+   x=math.clamp(mouse.X-self.windyConsoleDrag.x,0,math.max(0,viewport.X-w));y=math.clamp(mouse.Y-self.windyConsoleDrag.y,0,math.max(0,viewport.Y-h))
+   self.windyConsoleX=x;self.windyConsoleY=y;self.windyConsoleDirty=true
+  else self.windyConsoleDrag=nil end
+ end
+ self.windyConsoleMouseDown=down
+ if not self.windyConsoleDirty and self.windyConsoleBucket.built then return end
+ self.windyConsoleDirty=false;local bucket=self.windyConsoleBucket
+ local previousScale,previousAlpha,previousClip=self.renderScale,self.renderAlpha,self.drawingClip
+ self:BeginBucket(bucket);self.renderScale=1;self.renderAlpha=1;self.drawingClip=nil
+ self:CreateRoundedBox(bucket,x,y,w,h,15,Theme.border,1);self:CreateRoundedBox(bucket,x+1,y+1,w-2,h-2,14,Theme.bg,1)
+ self:CreateText(bucket,'Windy Console',x+14,y+12,Theme.text,14,false)
+ self:CreateRoundedBox(bucket,x+w-38,y+9,28,28,7,Theme.panel,1)
+ local tx=x+w-29;local ty=y+17;local red=Color3.fromRGB(239,99,108)
+ self:CreateLine(bucket,tx-1,ty,tx+11,ty,red,1,2);self:CreateLine(bucket,tx+3,ty-4,tx+7,ty-4,red,1,2)
+ self:CreateLine(bucket,tx+1,ty+2,tx+2,ty+11,red,1,2);self:CreateLine(bucket,tx+9,ty+2,tx+8,ty+11,red,1,2);self:CreateLine(bucket,tx+2,ty+11,tx+8,ty+11,red,1,2)
+ self:CreateLine(bucket,tx+4,ty+3,tx+4,ty+8,red,1,1);self:CreateLine(bucket,tx+6,ty+3,tx+6,ty+8,red,1,1)
+ self:CreateRoundedBox(bucket,x+9,y+43,w-18,h-52,9,Theme.cardInner,1)
+ local lines=self.windyConsoleLines or{};local rows={};local maxChars=math.max(1,math.floor((w-36)/7))
+ for _,item in ipairs(lines)do
+  local kind=item.level:lower();local color=kind=='warn'and Color3.fromRGB(255,220,60)or kind=='error'and Color3.fromRGB(255,100,100)or Theme.textDim
+  local label=kind=='log'and'Info'or kind=='warn'and'Warn'or kind=='error'and'Error'or kind=='debug'and'Debug'or'Table'
+  local message='['..item.time..'] ['..label..'] '..item.text
+  for pos=1,#message,maxChars do rows[#rows+1]={text=message:sub(pos,pos+maxChars-1),color=color}end
+ end
+ local count=math.max(1,math.floor((h-67)/18));local first=math.max(1,#rows-count+1)
+ for i=first,#rows do
+  local row=rows[i]
+  self:CreateText(bucket,row.text,x+16,y+51+(i-first)*18,row.color,12,false)
+ end
+ self:EndBucket(bucket)
+ self.renderScale=previousScale;self.renderAlpha=previousAlpha;self.drawingClip=previousClip
+end
 function UI:WindyInstallSettings(bridge)
  local cfg=bridge.state
+ TelemetryBackend.ui=self;TelemetryBackend.bridge=bridge
  cfg.windyui=cfg.windyui or {accent="#7BD9C3",preset="Mint"}
  local presets={Mint="#7BD9C3",Violet="#AE98FF",Blue="#89B5FF",Rose="#F491AD",Amber="#F1BE69"}
  local selected=presets[cfg.windyui.preset]and cfg.windyui.preset or"Mint"
@@ -10291,6 +10357,12 @@ function UI:WindyInstallSettings(bridge)
  preset.callback=function(_,name)if presets[name]then apply(presets[name],name)end end
  local controls=self.controls[index]
  table.insert(controls,1,preset)
+ self.windyConsoleBridge=bridge;self.windyConsoleConfig=cfg.windyui
+ local console={id='windy_console',type='toggle',label='Windy Console',group='Settings',side=1,value=cfg.windyui.console==true}
+ self.windyConsoleControl=console
+ console.callback=function(_,value)self:WindySetConsoleVisible(value,true)end
+ table.insert(controls,2,console)
+ self:WindySetConsoleVisible(cfg.windyui.console==true,false)
  self.windyAppearanceInstalled=true
  self:MarkTabDirty(index);self:MarkShellDirty()
 end
@@ -10316,6 +10388,7 @@ function UI:WindyStart()
    self:HandleHotkeys()
    if self.uiVisible and(changed or self:HasActiveInteraction())then self:HandleInput();self:HandleTransientEffects()end
    if self.needsRedraw then self:Render()end
+   self:WindyConsoleFrame()
   end)
   if not ok and tostring(message)~=self.windyLastError then self.windyLastError=tostring(message);warn("[Windy Obsidian UI]",message)end
  end)
@@ -10506,11 +10579,13 @@ return function(ui)
  local consoleLines,consoleLabels={},{}
  api.ConsoleWrite=function(level,...)
   local parts={};for i=1,select("#",...)do parts[i]=tostring(select(i,...))end
+  if ui.WindyConsoleWrite then ui:WindyConsoleWrite(level,table.concat(parts," "))end
   consoleLines[#consoleLines+1]="["..level.."] "..table.concat(parts," ")
   if #consoleLines>20 then table.remove(consoleLines,1)end
   for i,label in ipairs(consoleLabels)do label.SetTitle(consoleLines[i]or"")end
  end
  api.SetConsoleVisible=function(value)
+  if ui.WindySetConsoleVisible then ui:WindySetConsoleVisible(value,true);return end
   if not api.consoleFolder then return end
   if value and #consoleLabels==0 then for i=1,20 do consoleLabels[i]=api.consoleFolder.AddLabel(consoleLines[i]or"")end end
   api.consoleFolder.SetVisible(value)
@@ -10627,9 +10702,10 @@ return function(host,bridge,backend,scheduler,version)
   local payload=self:Build(reason);local json=http:JSONEncode(payload)
   json=json:gsub('("completionNames"%s*:%s*)null','%1{}'):gsub('("toggleUsage"%s*:%s*)null','%1{}'):gsub('("recentErrors"%s*:%s*)null','%1[]'):gsub('("recentEvents"%s*:%s*)null','%1[]')
   local worked,response=pcall(function()return host.game:HttpPost('https://telemetry-hub--johmyhamg.replit.app/api/v1/telemetry',json,'application/json')end)
-  if not worked then return false,tostring(response)end
+  if not worked then self.lastSendError=tostring(response);return false,self.lastSendError end
   local decodedOk,decoded=pcall(function()return http:JSONDecode(response)end)
-  if not decodedOk or type(decoded)~='table'or decoded.ok~=true then return false,'unconfirmed response: '..tostring(response):sub(1,160)end
+  if not decodedOk or type(decoded)~='table'or decoded.ok~=true then self.lastSendError='unconfirmed response: '..tostring(response):sub(1,160);return false,self.lastSendError end
+  self.lastAcceptedSequence=tonumber(decoded.acceptedSequence)or payload.sequence;self.lastSendError=nil
   return true
  end
  function t:Destroy()self.running=false end
@@ -10641,7 +10717,7 @@ return function(host,bridge,backend,scheduler,version)
     if not worked or not result then
      failures+=1;if failures==1 or failures%6==0 then host.warn('[Windy telemetry] Send failed:',tostring(worked and detail or result))end
     elseif failures>0 then failures=0;print('[Windy telemetry] Connected')end
-    reason='heartbeat';host.task.wait(10)
+    reason='heartbeat';host.task.wait(12)
    end
   end)
  end
@@ -11389,7 +11465,7 @@ local logger = {}
 for _,level in ipairs({"log","debug","warn","error"})do
  logger[level]=function(...) if WindyObsidian.ConsoleWrite then WindyObsidian.ConsoleWrite(level,...)end;if WindyObsidian.telemetry then local args={...};for i,v in ipairs(args)do args[i]=tostring(v)end;WindyObsidian.telemetry:Log(level,table.concat(args," "))end;if level=="warn"or level=="error"then warn(...)else print(...)end end
 end
-logger.table=function(value)print(value)end
+logger.table=function(value) local text=tostring(value);if WindyObsidian.ConsoleWrite then WindyObsidian.ConsoleWrite("table",text)end;if WindyObsidian.telemetry then WindyObsidian.telemetry:Log("table",text)end;print(value)end
 logger.toggle=function(value)WindyObsidian.SetConsoleVisible(value)end
 local monsterSpawners = {}
 local gameApi = {}
@@ -12347,7 +12423,8 @@ do
 					return fieldA.bees > fieldB.bees
 				end)
 
-				autoquest["best" .. colorName .. "field"] = fieldList[1].name
+				local fallback = ({blue="Blue Flower Field",red="Mushroom Field",white="Dandelion Field"})[colorName]
+				autoquest["best" .. colorName .. "field"] = fieldList[1] and fieldList[1].name or fallback
 			end
 
 			if not (not forceUpdate and not (not rbc["best" .. colorName .. "field"] or not availableFields[rbc["best" .. colorName .. "field"]])) then
@@ -12361,7 +12438,8 @@ do
 					return fieldA.bees > fieldB.bees
 				end)
 
-				rbc["best" .. colorName .. "field"] = fieldList[1].name
+				local fallback = ({blue="Blue Flower Field",red="Mushroom Field",white="Dandelion Field"})[colorName]
+				rbc["best" .. colorName .. "field"] = fieldList[1] and fieldList[1].name or fallback
 			end
 		end
 	end
@@ -49315,19 +49393,13 @@ end
 		end
 
 		if beeStats.Visible then
-			secureCall(require(ReplicatedStorage.Gui.BeeInspector).Close)
-
-			while not (not beeStats.Visible or not (beeStats.AbsoluteSize.X > 10)) do
-				RunService.Heartbeat:Wait()
-			end
+			-- Matcha cannot compile the game's BeeInspector dependency tree.
+			-- The compatibility wrapper writes this verified GuiObject property.
+			beeStats.Visible = false
 		end
 
 		if beePopUp.Visible then
-			secureCall(require(ReplicatedStorage.Gui.BeePopUp).Close)
-
-			while not (not beePopUp.Visible or not (beePopUp.AbsoluteSize.X > 10)) do
-				RunService.Heartbeat:Wait()
-			end
+			beePopUp.Visible = false
 		end
 
 		if localPlayer.PlayerGui.ScreenGui.RewardsPopUp.Visible then
@@ -50741,6 +50813,8 @@ end
 
 						if autofarm.farmfuzzbombs then
 							for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 								if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 									fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -51139,6 +51213,8 @@ end
 
 							if autofarm.farmfuzzbombs then
 								for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 									if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 										fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -51560,6 +51636,8 @@ end
 
 						if autofarm.farmfuzzbombs then
 							for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 								if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 									fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -52244,6 +52322,8 @@ end
 
 						if autofarm.farmfuzzbombs then
 							for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 								if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 									fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -52650,6 +52730,8 @@ end
 
 						if autofarm.farmfuzzbombs then
 							for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 								if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 									fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -53044,6 +53126,8 @@ end
 
 					if autofarm.farmfuzzbombs then
 						for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 							if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 								fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -53717,6 +53801,8 @@ end
 
 								if autofarm.farmfuzzbombs then
 									for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 										if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 											fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -54123,6 +54209,8 @@ end
 
 								if autofarm.farmfuzzbombs then
 									for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 										if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 											fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -54517,6 +54605,8 @@ end
 
 							if autofarm.farmfuzzbombs then
 								for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 									if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 										fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -55198,6 +55288,8 @@ end
 
 					if autofarm.farmfuzzbombs then
 						for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 							if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 								fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -55604,6 +55696,8 @@ end
 
 					if autofarm.farmfuzzbombs then
 						for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 							if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 								fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -55996,6 +56090,8 @@ end
 
 				if autofarm.farmfuzzbombs then
 					for k in pairs(tracked.fuzzbombs) do
+                                local plane=k:FindFirstChild("Plane")
+                                if not plane or not WindyMatchaBackend:TargetPosition(plane) then tracked.fuzzbombs[k]=nil;continue end
 						if not (not k:FindFirstChild("Plane") or not ((not opts.range or (opts.origin - k.Plane.Position).Magnitude < opts.range) and not ((not opts.ignorefield or getFieldAt(k.Plane.Position)) and not (not opts.ignorefield and getFieldAt(k.Plane.Position) == currentField) or not (not opts.avoid or not isPathClear(k.Plane.Position, opts.avoid))))) then
 							fuzzDistance = distanceTo(k.Plane.Position, true)
 
@@ -56873,6 +56969,29 @@ end
 			return true
 		end
 
+		-- Fuzz planes move continuously. Retargeting on every heartbeat restarts
+		-- Matcha's memory-backed walk task for tiny position changes.
+		local function collectFuzzBomb(object)
+			local metrics=WindyMatchaBackend.fuzzMetrics or{attempts=0,retargets=0,reached=0}
+			WindyMatchaBackend.fuzzMetrics=metrics;metrics.attempts+=1
+			local owner=object and object.Parent
+			local began=os.clock()
+			local lastMove,lastPoint=-math.huge,nil
+			while os.clock()-began<3 do
+				local point=WindyMatchaBackend:TargetPosition(object)
+				if not point or not owner or not tracked.fuzzbombs[owner]then break end
+				if distanceTo(point,true)<2 then metrics.reached+=1;break end
+				local now=os.clock()
+				local moved=not lastPoint or (point-lastPoint).Magnitude>=2
+				if now-lastMove>=0.3 and(moved or now-lastMove>=1.5)then
+					getHumanoid():MoveTo(point);metrics.retargets+=1;lastMove=now;lastPoint=point
+				end
+				if not RunService.Heartbeat:Wait()then break end
+			end
+			if owner then tracked.fuzzbombs[owner]=nil end
+			return true
+		end
+
 		collectTarget = function(options)
 			WindyMatchaBackend:Trace("pick target")
  local targetKind, targetObject = pickTarget(options)
@@ -56942,7 +57061,7 @@ end
 			end
 
 			if targetKind == "Fuzz" then
-				return collectObject(targetObject, "fuzzbombs", 2, nil, true)
+				return collectFuzzBomb(targetObject)
 			end
 
 			if targetKind == "Bubble" then
@@ -71570,7 +71689,7 @@ more accurate dodging]],
 end}
 ]==],
 ["start_windybss_live.luau"]=[==[print("WINDY OBSIDIAN START")
-print("WINDY BUILD", "2026-10-26/telemetry-r24")
+print("WINDY BUILD", "2026-10-27/startup-r26.1")
 local function bootstrap()
  local host=getfenv(1)
  -- Optional bounded diagnostics: enabled only for a controlled reproduction.
@@ -71642,7 +71761,7 @@ local function bootstrap()
   local bridge=bridgeFactory(ui)
   local progress={SetTitle=function()end,SetVisible=function()end}
   ui:WindyStart()
-  _G.__WindyObsidianCurrent={owner="Windy-1",buildId="2026-10-26/telemetry-r24",ui=ui,runtime=runtime,bridge=bridge}
+  _G.__WindyObsidianCurrent={owner="Windy-1",buildId="2026-10-27/startup-r26.1",ui=ui,runtime=runtime,bridge=bridge}
   if _G.__WindyLegacyRuntimeKey then
    _G[_G.__WindyLegacyRuntimeKey]=nil
    _G.__WindyLegacyRuntimeKey=nil
@@ -71676,7 +71795,7 @@ local function bootstrap()
   _G.__WindyObsidianCurrent.startupStage="ready"
   ui:WindyInstallSettings(bridge)
   bridge.SetReady(true)
-  local telemetry=runtime:loadFile("Windy-1/Windy.telemetry.luau",host)(host,bridge,runtime.env.WindyMatchaBackend,scheduler,"2026-10-26/telemetry-r24")
+  local telemetry=runtime:loadFile("Windy-1/Windy.telemetry.luau",host)(host,bridge,runtime.env.WindyMatchaBackend,scheduler,"2026-10-27/startup-r26.1")
   _G.__WindyObsidianCurrent.telemetry=telemetry
   bridge.telemetry=telemetry
   telemetry:Start()
@@ -71693,7 +71812,7 @@ local function bootstrap()
   -- Matcha may otherwise retire the context that owns compiled closures.
   while _G.__WindyObsidianCurrent==current and current.scheduler.running and current.ui.isRunning do
    task.wait(1)
-   if _G.__WindyDiagnose and os.clock()-(current.lastDiagnostic or 0)>=2 then
+   if current.startupStage=="ready" and _G.__WindyDiagnose and os.clock()-(current.lastDiagnostic or 0)>=2 then
     current.lastDiagnostic=os.clock()
     local b=current.runtime.env.WindyMatchaBackend
     local polling=current.runtime.instances.pollMetrics
@@ -71709,7 +71828,7 @@ local function bootstrap()
      print("WINDY DIAGNOSTIC",data)
     end
    end
-   if _G.__WindyWatchFarm and os.clock()-(current.lastFarmReport or 0)>=15 then
+   if current.startupStage=="ready" and _G.__WindyWatchFarm and os.clock()-(current.lastFarmReport or 0)>=15 then
     current.lastFarmReport=os.clock()
     local b=current.runtime.env.WindyMatchaBackend
     local m=b.collectionMetrics
@@ -71717,7 +71836,7 @@ local function bootstrap()
    end
    -- Run diagnostics from this persistent context. Temporary MCP contexts must
    -- not own callbacks that remain installed after their request completes.
-   if _G.__WindyCheckShell then
+   if current.startupStage=="ready" and _G.__WindyCheckShell then
     _G.__WindyCheckShell=nil
     current.scheduler:SpawnNamed("shell movement check",function()
      local b=current.runtime.env.WindyMatchaBackend
